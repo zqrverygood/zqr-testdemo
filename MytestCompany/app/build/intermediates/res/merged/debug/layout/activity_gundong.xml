@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+   >
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <TextView
+        android:gravity="center"
+        android:textSize="17sp"
+        android:text="自定义的linearlayout实现的滚动效果"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" />
+    <LinearLayout
+        android:gravity="center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/bg"
+        android:layout_centerInParent="true"
+        android:padding="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp">
+
+        <TextView
+            android:paddingLeft="5dp"
+            android:textStyle="bold"
+            android:text="京东"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"/>
+        <TextView
+            android:paddingLeft="5dp"
+            android:textStyle="bold"
+            android:text="快报"
+            android:textColor="#ffffff"
+            android:padding="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#ff0000"
+            android:textSize="18sp"/>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="50dp"
+            android:background="#e0e0e0"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            />
+        <com.zqr.snake.mytest.gundongItem.JDAdverView
+            android:id="@+id/jdadver"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            app:animDuration="900"
+            app:gap="2000"/>
+
+    </LinearLayout>
+
+        <TextView
+            android:gravity="center"
+            android:text="用TextSwitcher完成滚动效果"
+            android:textSize="18sp"
+            android:layout_width="match_parent"
+            android:layout_height="60dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/bg"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:text="京东"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#ff0000"
+                android:padding="5dp"
+                android:paddingLeft="5dp"
+                android:text="快报"
+                android:textColor="#ffffff"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="50dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:background="#e0e0e0" />
+            <!-- flipInterval可能是一次切换的时间 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:gravity="center_vertical"
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextSwitcher
+                    android:id="@+id/textSwitcher_tag"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_weight="3"
+                    android:padding="0dp"
+                    android:gravity="center_vertical"
+                    android:layout_gravity="center_vertical"
+                    android:inAnimation="@anim/push_up_in"
+                    android:outAnimation="@anim/push_up_out"></TextSwitcher>
+
+                <TextSwitcher
+                    android:id="@+id/textSwitcher_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:padding="0dp"
+                    android:gravity="center_vertical"
+                    android:layout_gravity="center_vertical"
+                    android:inAnimation="@anim/push_up_in"
+                    android:outAnimation="@anim/push_up_out"></TextSwitcher>
+            </LinearLayout>
+        </LinearLayout>
+
+
+    </LinearLayout>
+</RelativeLayout>

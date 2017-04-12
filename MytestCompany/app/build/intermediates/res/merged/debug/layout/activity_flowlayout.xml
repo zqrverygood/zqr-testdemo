@@ -1,0 +1,123 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+  >
+    <TextView
+        android:textSize="15sp"
+        android:text="不能通过代码添加的flowlayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <com.zqr.snake.mytest.TagFlowLayout.FlowLayoutNoSetAdaper
+        android:layout_width="match_parent"
+        android:id="@+id/fy_manager"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF">
+    <TextView
+        style="@style/text_flag_01"
+        android:background="@drawable/flag_04"
+        android:text="Welcome"
+        android:textColor="#323232" />
+
+    <TextView
+        style="@style/text_flag_01"
+        android:background="@drawable/flag_04"
+        android:text="IT工程师"
+        android:textColor="#323232" />
+
+    <TextView
+        style="@style/text_flag_01"
+        android:background="@drawable/flag_04"
+        android:text="学习ing"
+        android:textColor="#323232" />
+
+    <TextView
+        style="@style/text_flag_01"
+        android:background="@drawable/flag_04"
+        android:text="恋爱ing"
+        android:textColor="#323232" />
+
+    <TextView
+        style="@style/text_flag_01"
+        android:background="@drawable/flag_04"
+        android:text="挣钱ing"
+        android:textColor="#323232" />
+
+    <TextView
+        style="@style/text_flag_01"
+        android:background="@drawable/flag_04"
+        android:text="努力ing"
+        android:textColor="#323232" />
+
+    <TextView
+        style="@style/text_flag_01"
+        android:background="@drawable/flag_04"
+        android:text="I thick i can"
+        android:textColor="#323232" />
+    </com.zqr.snake.mytest.TagFlowLayout.FlowLayoutNoSetAdaper>
+
+    <TextView
+        android:textSize="20sp"
+        android:text="可以通过代码添加的标签的flow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.zqr.snake.mytest.TagFlowLayout.TagFlowLayout
+        android:id="@+id/tagFlowLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </com.zqr.snake.mytest.TagFlowLayout.TagFlowLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="40dp">
+        <EditText
+            android:id="@+id/ed_tag"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:gravity="center"
+            android:id="@+id/tv_ok"
+            android:text="提交"
+            android:textSize="18sp"
+            android:layout_width="50dp"
+            android:layout_height="40dp" />
+    </LinearLayout>
+    <RelativeLayout
+        android:layout_marginTop="40dp"
+        android:clipChildren="false"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_alignParentBottom="true"
+            android:background="@color/common_primary"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="48dp">
+          <RelativeLayout
+              android:layout_gravity="bottom"
+            android:layout_marginLeft="10dp"
+              android:layout_width="50dp"
+              android:layout_height="60dp">
+              <ImageView
+                  android:background="@drawable/background"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent" />
+              
+              <TextView
+                  android:gravity="center"
+                  android:text="1"
+                  android:layout_alignParentRight="true"
+                  android:layout_marginTop="6dp"
+                  android:background="@color/colorAccent"
+                  android:layout_width="15dp"
+                  android:layout_height="15dp" />
+          </RelativeLayout>
+
+        </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>

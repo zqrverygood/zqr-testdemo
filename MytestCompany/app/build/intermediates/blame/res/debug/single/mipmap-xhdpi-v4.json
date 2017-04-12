@@ -1,0 +1,22 @@
+[
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xhdpi-v4\\third.jpeg",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\mipmap-xhdpi\\third.jpeg"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xhdpi-v4\\first.jpeg",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\mipmap-xhdpi\\first.jpeg"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xhdpi-v4\\second.jpeg",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\mipmap-xhdpi\\second.jpeg"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xhdpi-v4\\fifth.jpg",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\mipmap-xhdpi\\fifth.jpg"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-xhdpi-v4\\fourth.jpg",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\mipmap-xhdpi\\fourth.jpg"
+    }
+]

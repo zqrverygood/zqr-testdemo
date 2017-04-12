@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="70dp"
+    android:orientation="vertical"
+    android:paddingLeft="15dp">
+    <com.mcxtzhang.swipemenulib.SwipeMenuLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:clickable="true"
+        android:paddingBottom="1dp">
+    <TextView
+        android:id="@+id/tvCity"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        tools:text="安徽" />
+        <!-- 以下都是侧滑菜单的内容依序排列 -->
+        <Button
+            android:id="@+id/btnTop"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:background="#d9dee4"
+            android:text="置顶"
+            android:textColor="@android:color/white"/>
+
+        <Button
+            android:id="@+id/btnUnRead"
+            android:layout_width="70dp"
+            android:layout_height="match_parent"
+            android:background="#ecd50a"
+            android:clickable="true"
+            android:text="标记未读"
+            android:textColor="@android:color/white"/>
+
+        <Button
+            android:id="@+id/btnDelete"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:background="@color/banTranslucebt"
+            android:text="删除"
+            android:textColor="@android:color/white"/>
+
+    </com.mcxtzhang.swipemenulib.SwipeMenuLayout>
+</LinearLayout>

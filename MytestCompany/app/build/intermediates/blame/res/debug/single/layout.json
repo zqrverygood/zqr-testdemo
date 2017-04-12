@@ -1,0 +1,426 @@
+[
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\design_layout_snackbar_include.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\design\\24.0.0\\res\\layout\\design_layout_snackbar_include.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\tv.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\tv.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\item_directory.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\me.iwf.photopicker\\PhotoPicker\\0.1.8\\res\\layout\\item_directory.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\content_android6.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\content_android6.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\notification_template_part_time.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\notification_template_part_time.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_flowlayout.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\activity_flowlayout.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\content_retrofit.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\content_retrofit.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_screen_simple_overlay_action_mode.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_screen_simple_overlay_action_mode.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\item_city.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\item_city.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\notification_action_tombstone.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\notification_action_tombstone.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_drag_photo.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\activity_drag_photo.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\drawer_header.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\drawer_header.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_swipe_captcha.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\activity_swipe_captcha.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_camear_test.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\activity_camear_test.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\item_sus_menu.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\item_sus_menu.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\notification_template_part_chronometer.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\notification_template_part_chronometer.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_search_view.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_search_view.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_swipe_refresh_layout.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\activity_swipe_refresh_layout.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\share_fragment.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\share_fragment.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_rxandroid_demo.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\activity_rxandroid_demo.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\notification_action.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\notification_action.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\notification_template_icon_group.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\notification_template_icon_group.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\design_navigation_item_header.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\design\\24.0.0\\res\\layout\\design_navigation_item_header.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_action_menu_layout.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_action_menu_layout.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\select_dialog_singlechoice_material.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\select_dialog_singlechoice_material.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_action_mode_bar.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_action_mode_bar.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_photo_picker.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\me.iwf.photopicker\\PhotoPicker\\0.1.8\\res\\layout\\activity_photo_picker.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_hook_test.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\activity_hook_test.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_screen_toolbar.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_screen_toolbar.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_activity_chooser_view.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_activity_chooser_view.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\support_simple_spinner_dropdown_item.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\support_simple_spinner_dropdown_item.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\cehua_item.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\cehua_item.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_popup_menu_item_layout.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_popup_menu_item_layout.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_expanded_menu_layout.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_expanded_menu_layout.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\notification_media_action.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\notification_media_action.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_select_dialog_material.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_select_dialog_material.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\info_details_fragment.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\info_details_fragment.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\item_viewpager.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\item_viewpager.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_action_bar_title_item.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_action_bar_title_item.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_photo_pager.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\me.iwf.photopicker\\PhotoPicker\\0.1.8\\res\\layout\\activity_photo_pager.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_alert_dialog_button_bar_material.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_alert_dialog_button_bar_material.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_search_dropdown_item_icons_2line.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_search_dropdown_item_icons_2line.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\notification_template_big_media_custom.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\notification_template_big_media_custom.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_list_menu_item_checkbox.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_list_menu_item_checkbox.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_screen_simple.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_screen_simple.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_banner.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\activity_banner.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\design_layout_snackbar.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\design\\24.0.0\\res\\layout\\design_layout_snackbar.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\design_menu_item_action_area.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\design\\24.0.0\\res\\layout\\design_menu_item_action_area.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\notification_template_lines_media.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\notification_template_lines_media.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_activity_chooser_view_list_item.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_activity_chooser_view_list_item.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_screen_content_include.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_screen_content_include.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_list_menu_item_layout.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_list_menu_item_layout.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\content_animator.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\content_animator.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_action_bar_up_container.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_action_bar_up_container.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\design_layout_tab_text.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\design\\24.0.0\\res\\layout\\design_layout_tab_text.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\item_photo.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\me.iwf.photopicker\\PhotoPicker\\0.1.8\\res\\layout\\item_photo.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\notification_template_big_media.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\notification_template_big_media.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_material_design.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\activity_material_design.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\design_navigation_menu.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\design\\24.0.0\\res\\layout\\design_navigation_menu.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_path_anim_view.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\activity_path_anim_view.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\notification_template_media_custom.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\notification_template_media_custom.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_view_pager.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\activity_view_pager.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_action_mode_close_item_material.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_action_mode_close_item_material.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\agenda_fragment.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\agenda_fragment.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_anim_shop.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\activity_anim_shop.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_alert_dialog_material.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_alert_dialog_material.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_sub.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\activity_sub.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_gundong.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\activity_gundong.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\design_bottom_sheet_dialog.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\design\\24.0.0\\res\\layout\\design_bottom_sheet_dialog.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\design_layout_tab_icon.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\design\\24.0.0\\res\\layout\\design_layout_tab_icon.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_photo_view.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\activity_photo_view.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_action_menu_item_layout.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_action_menu_item_layout.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_action_bar_view_list_nav_layout.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_action_bar_view_list_nav_layout.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_popup_menu_header_item_layout.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_popup_menu_header_item_layout.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_main.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\activity_main.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\select_dialog_multichoice_material.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\select_dialog_multichoice_material.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\design_navigation_item_subheader.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\design\\24.0.0\\res\\layout\\design_navigation_item_subheader.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\item_pager.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\me.iwf.photopicker\\PhotoPicker\\0.1.8\\res\\layout\\item_pager.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\fragment_photo_picker.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\me.iwf.photopicker\\PhotoPicker\\0.1.8\\res\\layout\\fragment_photo_picker.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\notification_template_custom_big.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\notification_template_custom_big.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\design_navigation_menu_item.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\design\\24.0.0\\res\\layout\\design_navigation_menu_item.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_pull_to_refresh_layout.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\activity_pull_to_refresh_layout.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_dialog_title_material.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_dialog_title_material.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\notification_media_cancel_action.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\notification_media_cancel_action.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\select_dialog_item_material.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\select_dialog_item_material.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\fragment_image_pager.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\me.iwf.photopicker\\PhotoPicker\\0.1.8\\res\\layout\\fragment_image_pager.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\content_main.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\content_main.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\list_item2.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\list_item2.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\content_danmu.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\content_danmu.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\temp_item.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\temp_item.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_recycler_view.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\activity_recycler_view.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_broken.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\activity_broken.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\design_navigation_item.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\design\\24.0.0\\res\\layout\\design_navigation_item.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_list_menu_item_radio.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_list_menu_item_radio.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_dialog.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\activity_dialog.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\notification_template_media.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\notification_template_media.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\item.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\item.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\list_item.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\list_item.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\toolbar.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\me.iwf.photopicker\\PhotoPicker\\0.1.8\\res\\layout\\toolbar.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_clock.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\activity_clock.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_list_menu_item_icon.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\abc_list_menu_item_icon.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\header_complex.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\header_complex.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\notification_template_big_media_narrow_custom.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\notification_template_big_media_narrow_custom.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\text_input_layout.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\layout\\text_input_layout.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\design_navigation_item_separator.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\design\\24.0.0\\res\\layout\\design_navigation_item_separator.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\layout\\notification_template_big_media_narrow.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\25.0.0\\res\\layout\\notification_template_big_media_narrow.xml"
+    }
+]

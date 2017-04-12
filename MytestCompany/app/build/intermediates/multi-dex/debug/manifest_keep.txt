@@ -1,0 +1,30 @@
+-keep class com.zqr.snake.mytest.MyApplication {
+    <init>();
+    void attachBaseContext(android.content.Context);
+}
+-keep class com.zqr.snake.mytest.MainActivity { <init>(); }
+-keep class com.zqr.snake.mytest.demo.RxAndroidDemoActivity { <init>(); }
+-keep class com.zqr.snake.mytest.Animator.AnimatorActivity { <init>(); }
+-keep class com.zqr.snake.mytest.Retrofit.RetrofitActivity { <init>(); }
+-keep class com.zqr.snake.mytest.demo.DanmuActivity { <init>(); }
+-keep class com.zqr.snake.mytest.viewpager3d.ViewPagerActivity { <init>(); }
+-keep class com.zqr.snake.mytest.cameratest.Android6Activity { <init>(); }
+-keep class com.zqr.snake.mytest.gundongItem.GunDongItemActivity { <init>(); }
+-keep class com.zqr.snake.mytest.cameratest.CamearTestActivity { <init>(); }
+-keep class com.zqr.snake.mytest.TagFlowLayout.FlowLayoutActivity { <init>(); }
+-keep class me.iwf.photopicker.PhotoPickerActivity { <init>(); }
+-keep class me.iwf.photopicker.PhotoPagerActivity { <init>(); }
+-keep class com.zqr.snake.mytest.demo.ClockActivity { <init>(); }
+-keep class com.zqr.snake.mytest.RecyclerView.RecyclerViewActivity { <init>(); }
+-keep class com.zqr.snake.mytest.demo.dialogActivity { <init>(); }
+-keep class com.zqr.snake.mytest.broken_lib.BrokenActivity { <init>(); }
+-keep class com.zqr.snake.mytest.photoview.PhotoViewActivity { <init>(); }
+-keep class com.zqr.snake.mytest.photoview.DragPhotoActivity { <init>(); }
+-keep class com.zqr.snake.mytest.demo.BannerActivity { <init>(); }
+-keep class com.zqr.snake.mytest.swipecaptcha.SwipeCaptchaActivity { <init>(); }
+-keep class com.zqr.snake.mytest.PathAnimView.PathAnimViewActivity { <init>(); }
+-keep class com.zqr.snake.mytest.demo.AnimShopActivity { <init>(); }
+-keep class com.zqr.snake.mytest.material_design.MaterialDesignActivity { <init>(); }
+-keep class com.zqr.snake.mytest.material_design.SubActivity { <init>(); }
+-keep class com.zqr.snake.mytest.SwipeRefreshLayout.SwipeRefreshLayoutActivity { <init>(); }
+-keep class com.zqr.snake.mytest.demo.PullToRefreshLayoutActivity { <init>(); }

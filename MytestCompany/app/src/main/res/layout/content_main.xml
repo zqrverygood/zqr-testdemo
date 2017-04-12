@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.zqr.snake.mytest.MainActivity"
+    tools:showIn="@layout/activity_main">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+    <com.zqr.snake.mytest.demo.LinnerlayutDemo
+        android:id="@+id/lineardemo"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+        <Button
+
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="自定义的lineryout 有回调的"
+          android:id="@+id/btn"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:text="safd"
+            android:layout_height="50dp"
+            android:id="@+id/txt"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:text="kkkk"
+            android:layout_height="50dp"
+            android:id="@+id/txt2"/>
+
+    </com.zqr.snake.mytest.demo.LinnerlayutDemo>
+
+    <TextView
+        android:id="@+id/rxandroid"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:text="rxandroid测试"
+        android:layout_width="match_parent"
+        android:layout_height="30dp" />
+    <TextView
+        android:id="@+id/tv_Animator"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:text="属性动画测试"
+        android:layout_width="match_parent"
+        android:layout_height="30dp" />
+    <TextView
+        android:id="@+id/tv_Retrofit"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:text="Retrofit网络请求测试"
+        android:layout_width="match_parent"
+        android:layout_height="30dp" />
+    <TextView
+        android:id="@+id/tv_Danmu"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:text="Danmu弹幕测试"
+        android:layout_width="match_parent"
+        android:layout_height="30dp" />
+    <TextView
+        android:id="@+id/tv_viewpager"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:text="3DViewPager测试"
+        android:layout_width="match_parent"
+        android:layout_height="30dp" />
+
+    <TextView
+        android:id="@+id/tv_android6"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:text="Android6.0拍照与自定义相机权限测试"
+        android:layout_width="match_parent"
+        android:layout_height="30dp" />
+    <TextView
+        android:id="@+id/tv_gundongxinwentiao"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:text="滚动新闻条测试"
+        android:layout_width="match_parent"
+        android:layout_height="30dp" />
+    <TextView
+        android:id="@+id/tv_clock"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:text="自定义view实现时钟测试"
+        android:layout_width="match_parent"
+        android:layout_height="30dp" />
+    <TextView
+        android:id="@+id/tv_IndexBar"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:text="RecyclerView右侧索引导航栏与侧滑删除"
+        android:layout_width="match_parent"
+        android:layout_height="30dp" />
+    <TextView
+        android:id="@+id/tv_dialog_activity"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:text="dialog activity背景透明模糊 测试"
+        android:layout_width="match_parent"
+        android:layout_height="30dp" />
+    <TextView
+        android:id="@+id/tv_broken_activity"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:text="破碎玻璃效果 测试"
+        android:layout_width="match_parent"
+        android:layout_height="30dp" />
+    <TextView
+        android:id="@+id/tv_PhotoPicker"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:text="图片采集器 测试"
+        android:layout_width="match_parent"
+        android:layout_height="30dp" />
+    <TextView
+        android:id="@+id/tv_layoutmanager"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:text="FlowLayout流式布局 测试"
+        android:layout_width="match_parent"
+        android:layout_height="30dp" />
+            <com.mcxtzhang.swipemenulib.SwipeMenuLayout
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:clickable="true"
+                android:paddingBottom="1dp">
+                <TextView
+                    android:id="@+id/tv_chehua"
+                    android:textSize="18sp"
+                    android:gravity="center"
+                    android:text="侧滑删除菜单测试"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp" />
+
+                <!-- 以下都是侧滑菜单的内容依序排列 -->
+                <Button
+                    android:id="@+id/btnTop"
+                    android:layout_width="60dp"
+                    android:layout_height="match_parent"
+                    android:background="#d9dee4"
+                    android:text="置顶"
+                    android:textColor="@android:color/white"/>
+
+                <Button
+                    android:id="@+id/btnUnRead"
+                    android:layout_width="120dp"
+                    android:layout_height="match_parent"
+                    android:background="#ecd50a"
+                    android:clickable="true"
+                    android:text="标记未读"
+                    android:textColor="@android:color/white"/>
+
+                <Button
+                    android:id="@+id/btnDelete"
+                    android:layout_width="60dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/banTranslucebt"
+                    android:text="删除"
+                    android:textColor="@android:color/white"/>
+
+            </com.mcxtzhang.swipemenulib.SwipeMenuLayout>
+
+            <TextView
+                android:id="@+id/tv_photoview"
+                android:textSize="18sp"
+                android:gravity="center"
+                android:text="仿微信的图片拖动photoview测试"
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
+            <TextView
+                android:id="@+id/tv_banner"
+                android:textSize="18sp"
+                android:gravity="center"
+                android:text="广告自动轮播测试"
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
+            <TextView
+                android:id="@+id/tv_SwipeCaptcha"
+                android:textSize="18sp"
+                android:gravity="center"
+                android:text="仿斗鱼滑动验证码测试"
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
+            <TextView
+                android:id="@+id/tv_PathAnimView"
+                android:textSize="18sp"
+                android:gravity="center"
+                android:text="根据Path完成酷炫动画"
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
+            <TextView
+                android:id="@+id/tv_animshopbuttonView"
+                android:textSize="18sp"
+                android:gravity="center"
+                android:text="仿饿了吗加入购物车旋转的控件测试"
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
+            <TextView
+                android:id="@+id/tv_material_design"
+                android:textSize="18sp"
+                android:gravity="center"
+                android:text="安卓material design 使用实例"
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
+            <TextView
+                android:id="@+id/tv_hookTest"
+                android:textSize="18sp"
+                android:gravity="center"
+                android:text="安卓HOOK技术实现用反射与动态代理实现跳转"
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
+            <TextView
+                android:id="@+id/tv_SwipeRefreshLayout"
+                android:textSize="18sp"
+                android:gravity="center"
+                android:text="SwipeRefreshLayout上下拉刷新测试"
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
+            <TextView
+                android:id="@+id/tv_PullToRefreshLayout"
+                android:textSize="18sp"
+                android:gravity="center"
+                android:text="PullToRefreshLayout封装上下拉刷新"
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
+            <TextView
+                android:id="@+id/tv_SoundPool"
+                android:textSize="18sp"
+                android:gravity="center"
+                android:text="SoundPool播放音效测试"
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

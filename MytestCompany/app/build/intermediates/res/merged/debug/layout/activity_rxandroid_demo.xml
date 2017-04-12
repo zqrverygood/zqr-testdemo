@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/tv_show"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" />
+    <TextView
+        android:layout_marginTop="20dp"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:text="方法1 默认"
+        android:id="@+id/tv_ok"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" />
+
+    <TextView
+        android:id="@+id/tv_show2"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" />
+    <TextView
+        android:layout_marginTop="20dp"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:text=" 方法2 用action"
+        android:id="@+id/tv_ok2"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" />
+
+    <TextView
+        android:layout_marginTop="20dp"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:text="方法3 用map"
+        android:id="@+id/tv_ok3"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" />
+
+</LinearLayout>

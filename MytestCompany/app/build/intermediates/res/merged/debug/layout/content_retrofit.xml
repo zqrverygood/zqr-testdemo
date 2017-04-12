@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+    <TextView
+        android:textSize="20sp"
+        android:text="显示内容"
+        android:id="@+id/tv_Retrofit"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" />
+    <TextView
+        android:id="@+id/tv_qingqiu"
+        android:text="请求数据"
+        android:gravity="center"
+        android:background="#88888888"
+        android:layout_width="match_parent"
+        android:layout_height="40dp" />
+
+    <TextView
+        android:layout_marginTop="5dp"
+        android:id="@+id/tv_tongbu"
+        android:text="同步请求"
+        android:gravity="center"
+        android:background="#88888888"
+        android:layout_width="match_parent"
+        android:layout_height="40dp" />
+    <TextView
+        android:layout_marginTop="5dp"
+        android:id="@+id/tv_get"
+        android:text="get请求(query)"
+        android:gravity="center"
+        android:background="#88888888"
+        android:layout_width="match_parent"
+        android:layout_height="40dp" />
+    <TextView
+        android:layout_marginTop="5dp"
+        android:id="@+id/tv_get2"
+        android:text="get请求(queryMap)"
+        android:gravity="center"
+        android:background="#88888888"
+        android:layout_width="match_parent"
+        android:layout_height="40dp" />
+    <TextView
+        android:layout_marginTop="5dp"
+        android:id="@+id/tv_rxjava"
+        android:text="Rxjava+retorfit（1）"
+        android:gravity="center"
+        android:background="#88888888"
+        android:layout_width="match_parent"
+        android:layout_height="40dp" />
+    <TextView
+        android:layout_marginTop="5dp"
+        android:id="@+id/tv_rxjava2"
+        android:text="Rxjava+retorfit（2）"
+        android:gravity="center"
+        android:background="#88888888"
+        android:layout_width="match_parent"
+        android:layout_height="40dp" />
+    <TextView
+        android:layout_marginTop="5dp"
+        android:id="@+id/tv_text11"
+        android:text="自己从网上找的接口"
+        android:gravity="center"
+        android:background="#88888888"
+        android:layout_width="match_parent"
+        android:layout_height="40dp" />
+    <TextView
+        android:layout_marginTop="5dp"
+        android:id="@+id/tv_text12"
+        android:text="自己的接口测试"
+        android:gravity="center"
+        android:background="#88888888"
+        android:layout_width="match_parent"
+        android:layout_height="40dp" />
+
+</LinearLayout>

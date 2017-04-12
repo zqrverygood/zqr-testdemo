@@ -1,0 +1,307 @@
+-- Merging decision tree log ---
+manifest
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:2:1-146:12
+	package
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:3:5-35
+		INJECTED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml
+		INJECTED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml
+	android:versionName
+		INJECTED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml
+		INJECTED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml
+	xmlns:android
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:2:11-69
+	android:versionCode
+		INJECTED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml
+		INJECTED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml
+uses-feature#android.hardware.camera.autofocus
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:5:5-70
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:5:19-67
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:7:5-79
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:7:22-76
+uses-permission#android.permission.INTERNET
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:8:5-67
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:8:22-64
+uses-permission#android.permission..INTERACT_ACROSS_USERS_FULL
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:9:5-86
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:9:22-83
+uses-permission#android.permission.MOUNT_UNMOUNT_FILESYSTEMS
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:11:5-84
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:11:22-81
+uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:13:5-81
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:13:22-78
+uses-permission#android.permission.CAMERA
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:14:5-65
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:14:22-62
+application
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:16:5-144:19
+MERGED from [com.android.support:appcompat-v7:25.0.0] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\25.0.0\AndroidManifest.xml:25:5-20
+MERGED from [com.android.support:support-v4:25.0.0] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.android.support\support-v4\25.0.0\AndroidManifest.xml:25:5-20
+MERGED from [com.android.support:support-compat:25.0.0] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.android.support\support-compat\25.0.0\AndroidManifest.xml:25:5-20
+MERGED from [com.android.support:support-media-compat:25.0.0] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.android.support\support-media-compat\25.0.0\AndroidManifest.xml:25:5-20
+MERGED from [com.android.support:support-core-utils:25.0.0] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.android.support\support-core-utils\25.0.0\AndroidManifest.xml:25:5-20
+MERGED from [com.android.support:support-core-ui:25.0.0] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.android.support\support-core-ui\25.0.0\AndroidManifest.xml:25:5-20
+MERGED from [com.android.support:support-fragment:25.0.0] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.android.support\support-fragment\25.0.0\AndroidManifest.xml:25:5-20
+MERGED from [com.android.support:support-vector-drawable:25.0.0] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.android.support\support-vector-drawable\25.0.0\AndroidManifest.xml:23:5-20
+MERGED from [com.android.support:animated-vector-drawable:25.0.0] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.android.support\animated-vector-drawable\25.0.0\AndroidManifest.xml:22:5-20
+MERGED from [com.android.support:design:24.0.0] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.android.support\design\24.0.0\AndroidManifest.xml:22:5-20
+MERGED from [com.github.mcxtzhang:SwipeDelMenuLayout:V1.2.1] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.github.mcxtzhang\SwipeDelMenuLayout\V1.2.1\AndroidManifest.xml:11:5-15:19
+MERGED from [com.github.githubwing:DragPhotoView:1.0.1] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.github.githubwing\DragPhotoView\1.0.1\AndroidManifest.xml:11:5-14:19
+	android:label
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:20:9-41
+	android:supportsRtl
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:21:9-35
+	android:allowBackup
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:18:9-35
+	android:icon
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:19:9-43
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:22:9-40
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:17:9-38
+activity#com.zqr.snake.mytest.MainActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:23:9-32:20
+	android:label
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:25:13-56
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:26:13-56
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:24:13-41
+intent-filter#android.intent.action.MAIN+android.intent.category.LAUNCHER
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:27:13-31:29
+action#android.intent.action.MAIN
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:28:17-69
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:28:25-66
+category#android.intent.category.LAUNCHER
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:30:17-77
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:30:27-74
+activity#com.zqr.snake.mytest.demo.RxAndroidDemoActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:33:9-64
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:33:19-61
+activity#com.zqr.snake.mytest.Animator.AnimatorActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:34:9-37:59
+	android:label
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:36:13-60
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:37:13-56
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:35:13-54
+activity#com.zqr.snake.mytest.Retrofit.RetrofitActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:38:9-41:59
+	android:label
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:40:13-60
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:41:13-56
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:39:13-54
+activity#com.zqr.snake.mytest.demo.DanmuActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:42:9-46:59
+	android:label
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:45:13-57
+	android:configChanges
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:44:13-87
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:46:13-56
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:43:13-47
+activity#com.zqr.snake.mytest.viewpager3d.ViewPagerActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:47:9-50:59
+	android:label
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:49:13-62
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:50:13-56
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:48:13-58
+activity#com.zqr.snake.mytest.cameratest.Android6Activity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:51:9-54:59
+	android:label
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:53:13-60
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:54:13-56
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:52:13-56
+activity#com.zqr.snake.mytest.gundongItem.GunDongItemActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:55:9-58:59
+	android:label
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:57:13-65
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:58:13-56
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:56:13-60
+activity#com.zqr.snake.mytest.cameratest.CamearTestActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:59:9-62:59
+	android:label
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:61:13-63
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:62:13-56
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:60:13-58
+activity#com.zqr.snake.mytest.TagFlowLayout.FlowLayoutActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:63:9-66:59
+	android:label
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:65:13-63
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:66:13-56
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:64:13-61
+activity#me.iwf.photopicker.PhotoPickerActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:69:9-71:66
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:71:13-63
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:70:13-66
+activity#me.iwf.photopicker.PhotoPagerActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:72:9-74:66
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:74:13-63
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:73:13-65
+activity#com.zqr.snake.mytest.demo.ClockActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:89:9-92:59
+	android:label
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:91:13-57
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:92:13-56
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:90:13-47
+activity#com.zqr.snake.mytest.RecyclerView.RecyclerViewActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:93:9-96:59
+	android:label
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:95:13-65
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:96:13-56
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:94:13-62
+activity#com.zqr.snake.mytest.demo.dialogActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:97:9-100:55
+	android:label
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:99:13-58
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:100:13-52
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:98:13-48
+activity#com.zqr.snake.mytest.broken_lib.BrokenActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:101:9-104:59
+	android:label
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:103:13-58
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:104:13-56
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:102:13-54
+activity#com.zqr.snake.mytest.photoview.PhotoViewActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:105:9-108:59
+	android:label
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:107:13-62
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:108:13-56
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:106:13-56
+activity#com.zqr.snake.mytest.photoview.DragPhotoActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:109:9-112:64
+	android:label
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:111:13-62
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:112:13-61
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:110:13-56
+activity#com.zqr.snake.mytest.demo.BannerActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:113:9-116:59
+	android:label
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:115:13-58
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:116:13-56
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:114:13-48
+activity#com.zqr.snake.mytest.swipecaptcha.SwipeCaptchaActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:117:9-120:59
+	android:label
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:119:13-65
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:120:13-56
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:118:13-62
+activity#com.zqr.snake.mytest.PathAnimView.PathAnimViewActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:121:9-124:59
+	android:label
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:123:13-66
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:124:13-56
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:122:13-62
+activity#com.zqr.snake.mytest.demo.AnimShopActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:125:9-128:59
+	android:label
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:127:13-61
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:128:13-56
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:126:13-50
+activity#com.zqr.snake.mytest.material_design.MaterialDesignActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:129:9-132:59
+	android:label
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:131:13-67
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:132:13-56
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:130:13-67
+activity#com.zqr.snake.mytest.material_design.SubActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:133:9-135:59
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:135:13-56
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:134:13-56
+activity#com.zqr.snake.mytest.SwipeRefreshLayout.SwipeRefreshLayoutActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:136:9-139:59
+	android:label
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:138:13-72
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:139:13-56
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:137:13-74
+activity#com.zqr.snake.mytest.demo.PullToRefreshLayoutActivity
+ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:140:9-143:68
+	android:label
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:142:13-74
+	android:theme
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:143:13-56
+	android:name
+		ADDED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml:141:13-61
+uses-sdk
+INJECTED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
+MERGED from [com.android.support:multidex:1.0.1] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.android.support\multidex\1.0.1\AndroidManifest.xml:18:5-42
+MERGED from [io.reactivex:rxandroid:1.1.0] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\io.reactivex\rxandroid\1.1.0\AndroidManifest.xml:19:5-43
+MERGED from [com.github.ctiao:DanmakuFlameMaster:0.5.3] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.github.ctiao\DanmakuFlameMaster\0.5.3\AndroidManifest.xml:22:5-24:41
+MERGED from [me.iwf.photopicker:PhotoPicker:0.1.8] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\me.iwf.photopicker\PhotoPicker\0.1.8\AndroidManifest.xml:7:5-9:41
+MERGED from [com.android.support:appcompat-v7:25.0.0] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\25.0.0\AndroidManifest.xml:21:5-23:78
+MERGED from [com.android.support:support-v4:25.0.0] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.android.support\support-v4\25.0.0\AndroidManifest.xml:21:5-23:54
+MERGED from [com.android.support:support-compat:25.0.0] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.android.support\support-compat\25.0.0\AndroidManifest.xml:21:5-23:58
+MERGED from [com.android.support:support-media-compat:25.0.0] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.android.support\support-media-compat\25.0.0\AndroidManifest.xml:21:5-23:63
+MERGED from [com.android.support:support-core-utils:25.0.0] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.android.support\support-core-utils\25.0.0\AndroidManifest.xml:21:5-23:61
+MERGED from [com.android.support:support-core-ui:25.0.0] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.android.support\support-core-ui\25.0.0\AndroidManifest.xml:21:5-23:58
+MERGED from [com.android.support:support-fragment:25.0.0] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.android.support\support-fragment\25.0.0\AndroidManifest.xml:21:5-23:60
+MERGED from [com.android.support:support-vector-drawable:25.0.0] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.android.support\support-vector-drawable\25.0.0\AndroidManifest.xml:21:5-43
+MERGED from [com.android.support:animated-vector-drawable:25.0.0] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.android.support\animated-vector-drawable\25.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:recyclerview-v7:24.0.0] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.android.support\recyclerview-v7\24.0.0\AndroidManifest.xml:20:5-43
+MERGED from [com.android.support:design:24.0.0] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.android.support\design\24.0.0\AndroidManifest.xml:20:5-43
+MERGED from [com.github.mcxtzhang:SwipeDelMenuLayout:V1.2.1] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.github.mcxtzhang\SwipeDelMenuLayout\V1.2.1\AndroidManifest.xml:7:5-9:41
+MERGED from [com.github.githubwing:DragPhotoView:1.0.1] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.github.githubwing\DragPhotoView\1.0.1\AndroidManifest.xml:7:5-9:41
+MERGED from [com.github.chrisbanes:PhotoView:1.3.1] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.github.chrisbanes\PhotoView\1.3.1\AndroidManifest.xml:8:5-10:41
+	tools:overrideLibrary
+		ADDED from [com.android.support:appcompat-v7:25.0.0] E:\AS_project\MytestCompany\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\25.0.0\AndroidManifest.xml:23:9-75
+	android:targetSdkVersion
+		INJECTED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml
+		INJECTED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml
+		INJECTED from E:\AS_project\MytestCompany\app\src\main\AndroidManifest.xml

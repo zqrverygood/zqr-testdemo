@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:clipToPadding="true"
+    android:fitsSystemWindows="true"
+  >
+    <TextView
+        android:textSize="18sp"
+        android:text="x轴平移"
+        android:gravity="center"
+        android:id="@+id/translationX"
+        android:layout_width="match_parent"
+        android:layout_height="35dp" />
+    <TextView
+        android:textSize="18sp"
+        android:text="旋转"
+        android:gravity="center"
+        android:id="@+id/rotation"
+        android:layout_width="match_parent"
+        android:layout_height="35dp" />
+    <TextView
+        android:textSize="18sp"
+        android:text="透明"
+        android:gravity="center"
+        android:id="@+id/alpha"
+        android:layout_width="match_parent"
+        android:layout_height="35dp" />
+    <TextView
+        android:textSize="18sp"
+        android:text="三种组合"
+        android:gravity="center"
+        android:id="@+id/zuhe"
+        android:layout_width="match_parent"
+        android:layout_height="35dp" />
+    <TextView
+        android:textSize="18sp"
+        android:text="圆点自定义动画"
+        android:gravity="center"
+        android:id="@+id/tv_rest"
+        android:layout_width="match_parent"
+        android:layout_height="35dp" />
+    <TextView
+        android:layout_marginTop="25dp"
+        android:layout_gravity="center"
+        android:textSize="18sp"
+        android:text="apple pen"
+        android:gravity="center"
+        android:id="@+id/tv_demo"
+        android:layout_width="wrap_content"
+        android:layout_height="35dp" />
+
+
+    <RadioGroup
+        android:id="@+id/rg_tab"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_1"
+        android:paddingTop="12dp"
+        android:paddingBottom="4dp">
+
+        <RadioButton
+            style="@style/tab_main_style"
+            android:drawableTop="@drawable/tbi_scence"
+            android:text="场景"
+            android:id="@+id/tbi_scence"/>
+
+        <RadioButton
+            style="@style/tab_main_style"
+            android:drawableTop="@drawable/tbi_device"
+            android:text="设备"
+            android:id="@+id/tbi_devices" />
+
+        <RadioButton
+            style="@style/tab_main_style"
+            android:drawableTop="@drawable/tbi_inteligent"
+            android:text="统计"
+            android:id="@+id/tbi_inteligent" />
+
+        <RadioButton
+            style="@style/tab_main_style"
+            android:drawableTop="@drawable/tbi_market"
+            android:text="市场"
+            android:id="@+id/tbi_market"
+            />
+
+        <RadioButton
+            style="@style/tab_main_style"
+            android:drawableTop="@drawable/tbi_me"
+            android:text="我的"
+            android:id="@+id/tbi_me" />
+    </RadioGroup>
+
+    <com.zqr.snake.mytest.Animator.MyAnimView
+        android:id="@+id/myanimview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\raw\\coindrop.wav",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\raw\\coindrop.wav"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\raw\\haha.wav",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\raw\\haha.wav"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\raw\\c2.wav",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\raw\\c2.wav"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\raw\\coin.wav",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\raw\\coin.wav"
+    }
+]

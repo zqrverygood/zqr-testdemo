@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <attr name="textSize" format="dimension" />
+
+    <!--索引右侧边栏-->
+    <declare-styleable name="IndexBar">
+        <attr name="textSize" />
+        <attr name="pressBackground" format="color" />
+    </declare-styleable>
+
+    <!--仿斗鱼滑动验证码的View-->
+    <declare-styleable name="SwipeCaptchaView">
+        <attr name="captchaWidth" format="dimension"/>
+        <attr name="captchaHeight" format="dimension"/>
+        <attr name="matchDeviation" format="dimension"/>
+    </declare-styleable>
+
+    <!--仿额了吗选择订单动画-->
+    <declare-styleable name="AnimShopButton">
+        <!--加按钮是否开启fill模式 默认是stroke(false)-->
+        <attr name="isAddFillMode" format="boolean"/>
+        <!--加按钮的背景色前景色-->
+        <attr name="addEnableBgColor" format="color"/>
+        <attr name="addEnableFgColor" format="color"/>
+        <!--加按钮不可用时的背景色前景色-->
+        <attr name="addDisableBgColor" format="color"/>
+        <attr name="addDisableFgColor" format="color"/>
+
+        <!--减按钮是否开启fill模式 默认是stroke(false)-->
+        <attr name="isDelFillMode" format="boolean"/>
+        <!--减按钮的背景色前景色-->
+        <attr name="delEnableBgColor" format="color"/>
+        <attr name="delEnableFgColor" format="color"/>
+        <!--减按钮不可用时的背景色前景色-->
+        <attr name="delDisableBgColor" format="color"/>
+        <attr name="delDisableFgColor" format="color"/>
+
+        <!--圆的半径-->
+        <attr name="radius" format="dimension"/>
+        <!--圆圈的宽度-->
+        <attr name="circleStrokeWidth" format="dimension"/>
+        <!--线(+ - 符号)的宽度-->
+        <attr name="lineWidth" format="dimension"/>
+
+        <!--两个圆之间的间距-->
+        <attr name="gapBetweenCircle" format="dimension"/>
+        <!--绘制数量的textSize-->
+        <attr name="numTextSize" format="dimension"/>
+        <!--最大数量和当前数量-->
+        <attr name="maxCount" format="integer"/>
+        <attr name="count" format="integer"/>
+
+        <!-- 增加一个开关 ignoreHintArea：UI显示、动画是否忽略hint收缩区域-->
+        <attr name="ignoreHintArea" format="boolean"/>
+
+        <!--数量为0时，hint文字 背景色前景色 大小,圆角值-->
+        <attr name="hintText" format="string"/>
+        <attr name="hintBgColor" format="color"/>
+        <attr name="hintFgColor" format="color"/>
+        <attr name="hingTextSize" format="dimension"/>
+        <attr name="hintBgRoundValue" format="dimension"/>
+
+        <attr name="perAnimDuration" format="integer"/>
+
+        <!--in replenish -->
+        <attr name="replenishTextColor" format="color"/>
+        <attr name="replenishTextSize" format="dimension"/>
+        <attr name="replenishText" format="string"/>
+
+    </declare-styleable>
+
+    <!--FlowLayout容器-->
+    <declare-styleable name="TagFlowLayout">
+        <attr name="auto_select_effect" format="boolean"></attr>
+        <attr name="max_select" format="integer"></attr>
+        <attr name="gravity">
+            <enum name="left" value="-1" />
+            <enum name="center" value="0" />
+            <enum name="right" value="1" />
+        </attr>
+    </declare-styleable>
+
+    <!--仿京东滚动新闻条-->
+    <declare-styleable name="JDAdverView">
+        <attr name="gap" format="integer" />
+        <attr name="animDuration" format="integer"/>
+    </declare-styleable>
+
+    <!--自定义时钟的view-->
+    <declare-styleable name="WatchBoard">
+        <!--表盘的边距-->
+        <attr name="wb_padding" format="dimension"/>
+        <!--表盘文字大小-->
+        <attr name="wb_text_size" format="dimension"/>
+        <!--时针的宽度-->
+        <attr name="wb_hour_pointer_width" format="dimension"/>
+        <!--分针的宽度-->
+        <attr name="wb_minute_pointer_width" format="dimension"/>
+        <!--秒针的宽度-->
+        <attr name="wb_second_pointer_width" format="dimension"/>
+        <!--指针圆角值-->
+        <attr name="wb_pointer_corner_radius" format="dimension"/>
+        <!--指针超过中心点的长度-->
+        <attr name="wb_pointer_end_length" format="dimension"/>
+        <!--时刻刻度颜色-->
+        <attr name="wb_scale_long_color" format="color"/>
+        <!--非时刻刻度颜色-->
+        <attr name="wb_scale_short_color" format="color"/>
+        <!--时针颜色-->
+        <attr name="wb_hour_pointer_color" format="color"/>
+        <!--分针颜色-->
+        <attr name="wb_minute_pointer_color" format="color"/>
+        <!--秒针颜色-->
+        <attr name="wb_second_pointer_color" format="color"/>
+    </declare-styleable>
+
+</resources>

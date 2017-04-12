@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">小demo集合</string>
+    <string name="title_activity_main">小demo集合</string>
+    <string name="title_activity_animator">AnimatorActivity</string>
+    <string name="title_activity_retrofit">RetrofitActivity</string>
+    <string name="github_token">9d43774b1ce07bc1abb84310252bc87b2f036a50</string>
+    <string name="clear">清空</string>
+    <string name="user_name">square</string>
+    <string name="repo">retrofit</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_danmu">DanmuActivity</string>
+    <string name="title_activity_view_pager">ViewPagerActivity</string>
+    <string name="title_activity_android6">Android6Activity</string>
+    <string name="title_activity_gun_dong_item">GunDongItemActivity</string>
+    <string name="title_activity_camear_test">CamearTestActivity</string>
+    <string name="title_activity_clock">ClockActivity</string>
+    <string name="title_activity_recycler_view">RecyclerViewActivity</string>
+    <string name="title_activity_dialog">dialogActivity</string>
+    <string name="title_activity_broken">BrokenActivity</string>
+    <string name="title_activity_layoutmanager">LayoutmanagerActivity</string>
+    <string name="title_activity_photo_view">PhotoViewActivity</string>
+    <string name="title_activity_drag_photo">DragPhotoActivity</string>
+    <string name="title_activity_banner">BannerActivity</string>
+    <string name="title_activity_swipe_captcha">SwipeCaptchaActivity</string>
+    <string name="title_activity_path_anim_view">PathAnimViewActivity</string>
+    <string name="title_activity_anim_shop">AnimShopActivity</string>
+    <string name="title_activity_material_design">MaterialDesignActivity</string>
+    <string name="title_activity_swipe_refresh_layout">SwipeRefreshLayoutActivity</string>
+    <string name="title_activity_pull_to_refresh_layout">PullToRefreshLayoutActivity</string>
+</resources>

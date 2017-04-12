@@ -1,0 +1,22 @@
+[
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\menu\\main_menu.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\menu\\main_menu.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\menu\\menu_main.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\menu\\menu_main.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\menu\\menu_preview.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\me.iwf.photopicker\\PhotoPicker\\0.1.8\\res\\menu\\menu_preview.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\menu\\menu_picker.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\exploded-aar\\me.iwf.photopicker\\PhotoPicker\\0.1.8\\res\\menu\\menu_picker.xml"
+    },
+    {
+        "merged": "E:\\AS_project\\MytestCompany\\app\\build\\intermediates\\res\\merged\\debug\\menu\\menu_drawer.xml",
+        "source": "E:\\AS_project\\MytestCompany\\app\\src\\main\\res\\menu\\menu_drawer.xml"
+    }
+]
