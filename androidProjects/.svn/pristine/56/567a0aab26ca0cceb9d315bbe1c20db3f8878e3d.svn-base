@@ -1,0 +1,206 @@
+package app.smarthome.zzd.smarthome;
+
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.text.Editable;
+import android.text.Selection;
+import android.text.TextWatcher;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
+
+import com.loopj.android.http.RequestHandle;
+import com.util.Common;
+import com.util.db.AppDb;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.Vector;
+
+import app.smarthome.zzd.smarthome.model.FamilyInfo;
+
+/**
+ * Created by zzdios on 15/11/30.
+ */
+public class ActivityCreateFamilyWithRoom extends ActivityHeaderBase {
+
+    private EditText    mEditName;
+    private Vector<RelativeLayout>  mRoomItems = new Vector<>();
+    private LinearLayout mLyRooms;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        super.setContentView(R.layout.activity_create_family_with_room);
+        setTitle(R.string.add_1st_family);
+
+        mBtnHeaderLeft.setVisibility(View.INVISIBLE);
+
+        mTxtHeaderRight.setText(R.string.action_save);
+        mTxtHeaderRight.setVisibility(View.VISIBLE);
+
+        mLyRooms = (LinearLayout) findViewById(R.id.ly_rooms);
+        mEditName = (EditText) findViewById(R.id.edit_name);
+
+        showRooms();
+
+//        findViewById(R.id.btn_add_room).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                onNewRoom(v);
+//            }
+//        });
+    }
+
+    public void onDestroy() {
+        if (sReqSaveName != null){
+            sReqSaveName.cancel(true);
+            sReqSaveName = null;
+        }
+        super.onDestroy();
+    }
+
+    public void OnHeaderLeftClick(){
+        Toast.makeText(this, R.string.tip_need_a_family, Toast.LENGTH_SHORT).show();
+        return;
+    }
+    private RequestHandle sReqSaveName = null;
+    public void OnHeaderRightClick(){
+        final String strName = mEditName.getText().toString();
+
+        if (Common.isNullString(strName)){
+            Toast.makeText(ActivityCreateFamilyWithRoom.this, getString(R.string.tip_need_name), Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        final Vector<String> rooms = new Vector<>();
+        for (RelativeLayout lyr : mRoomItems){
+            EditText rn = (EditText) lyr.findViewById(R.id.edit);
+            String strRN = rn.getText().toString().trim();
+            if (!Common.isNullString(strRN)){
+                rooms.add(strRN);
+            }
+        }
+
+        mBtnHeaderRight.setEnabled(false);
+
+        AppResponseHandler onSaveOK = new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqSaveName = null;
+                try {
+                    AppDb.getInstance(null).setConfig(AppCache.KDbKeyFamilies, arg0.toString());
+                    AppCache.OnRecvFamilies(arg0);
+
+                    JSONArray jrs = arg0.getJSONObject("attributes").getJSONArray("rooms");
+                    JSONObject recv = new JSONObject();
+                    recv.put("dataList", jrs);
+                    recv.put("success", true);
+                    AppDb.getInstance(null).setConfig(AppCache.KDbKeyRooms, recv.toString());
+                    AppCache.OnRecvRooms(recv);
+                    if(AppCache.mFamilyIds.size() > 0){
+                        AppCache.LoginToFamily(AppCache.mFamilyIds.get(0));
+                    }
+                    Toast.makeText(ActivityCreateFamilyWithRoom.this, R.string.save_finished, Toast.LENGTH_LONG).show();
+                    finish();
+                }
+                catch (org.json.JSONException e) {
+                    e.printStackTrace();
+                    return;
+                }
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdFamiliesUpdate);
+                sendBroadcast(intent);
+
+                AppCache.EnableDeviceStatusTimer(true);
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqSaveName = null;
+                mBtnHeaderRight.setEnabled(true);
+                Toast.makeText(ActivityCreateFamilyWithRoom.this, msg, Toast.LENGTH_LONG).show();
+            }
+            ;
+        };
+
+        sReqSaveName = ServerClient.CreateFamily(strName, rooms, onSaveOK);
+    }
+
+    private RelativeLayout createRoomItem(String strName){
+        LayoutInflater inflater = LayoutInflater.from(this);
+        RelativeLayout rl = (RelativeLayout)inflater.inflate(R.layout.li_family_share, null);
+        EditText et = (EditText) rl.findViewById(R.id.edit);
+        et.setText(strName);
+
+        ImageButton btnSave = (ImageButton) rl.findViewById(R.id.btn_right_save);
+        btnSave.setVisibility(View.INVISIBLE);
+
+        ImageButton btnDel = (ImageButton) rl.findViewById(R.id.btn_right_del);
+        btnDel.setVisibility(View.INVISIBLE);
+        btnDel.setTag(rl);
+        btnDel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                RelativeLayout rlShare = (RelativeLayout) view.getTag();
+                mLyRooms.removeView(rlShare);
+                mRoomItems.remove(rlShare);
+            }
+        });
+        return rl;
+    };
+
+    private RelativeLayout mLastRoomLine = null;
+    TextWatcher mLastRoomNameWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (!Common.isNullString(s.toString())) {
+                mLastRoomLine.findViewById(R.id.btn_right_del).setVisibility(View.VISIBLE);
+                EditText et = (EditText) mLastRoomLine.findViewById(R.id.edit);
+                et.removeTextChangedListener(mLastRoomNameWatcher);
+                onNewRoom(null);
+            }
+        }
+    };
+
+    public void onNewRoom(View v){
+        mLastRoomLine = createRoomItem("");
+        mRoomItems.add(mLastRoomLine);
+        mLyRooms.addView(mLastRoomLine, mRoomItems.size() - 1);
+        EditText et = (EditText) mLastRoomLine.findViewById(R.id.edit);
+        et.addTextChangedListener(mLastRoomNameWatcher);
+
+//        et.requestFocus();
+    }
+
+    private void showRooms(){
+        for (RelativeLayout rl : mRoomItems){
+            mLyRooms.removeView(rl);
+        }
+        mRoomItems.clear();
+
+        onNewRoom(null);
+
+
+//        for (String strLoginName : mFamily.mMemberAccounts){
+//            RelativeLayout rl = createShareItem(strLoginName);
+//            mShareItems.add(rl);
+//            mLyRooms.addView(rl, 1);
+//        }
+    }
+}

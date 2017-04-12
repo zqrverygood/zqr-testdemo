@@ -1,0 +1,76 @@
+package app.smarthome.zzd.smarthome.model;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.util.Common;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+/**
+ * Created by inobaa on 15/1/21.
+ */
+public class AdbannerInfo implements Parcelable {
+    public long mViewId = 0L;
+    public String mId = "";
+    public String mImgUrl = "";
+    public String mTitle = "";
+    public String mActionUrl = "";
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(mViewId);
+        dest.writeString(mId);
+        dest.writeString(mImgUrl);
+        dest.writeString(mTitle);
+        dest.writeString(mActionUrl);
+    }
+
+    public static final Creator<AdbannerInfo> CREATOR = new Creator<AdbannerInfo>() {
+        public AdbannerInfo createFromParcel(Parcel in) {
+            AdbannerInfo ui = new AdbannerInfo();
+            ui.mViewId = in.readLong();
+            ui.mId = in.readString();
+            ui.mImgUrl = in.readString();
+            ui.mTitle = in.readString();
+            ui.mActionUrl = in.readString();
+            return ui;
+        }
+
+        public AdbannerInfo[] newArray(int size) {
+            return new AdbannerInfo[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+//    public void toParam(JSONObject params){
+//        try{
+//            params.put("id", mId);
+//            params.put("viewId", mViewId);
+//            params.put("imgUrl", mImgUrl);
+//            params.put("title", mTitle);
+//            params.put("actionUrl", mActionUrl);
+//        }catch (JSONException e) {
+//            e.printStackTrace();
+//            return;
+//        }
+//    }
+    public void fromJson(JSONObject jsonObject){
+        try{
+            mViewId = Common.getLongFromJson(jsonObject, "viewId");
+            mId = Common.getStringFromJson(jsonObject, "id");
+            mImgUrl = Common.getStringFromJson(jsonObject, "img_url");
+            mTitle = Common.getStringFromJson(jsonObject, "title");
+            mActionUrl = Common.getStringFromJson(jsonObject, "actionUrl");
+        }
+        catch (JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+}

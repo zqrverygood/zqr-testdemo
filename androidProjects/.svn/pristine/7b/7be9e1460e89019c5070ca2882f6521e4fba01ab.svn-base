@@ -1,0 +1,231 @@
+package app.smarthome.zzd.smarthome;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.RadioGroup;
+import android.widget.Toast;
+
+import com.readystatesoftware.systembartint.SystemBarTintManager;
+import com.umeng.analytics.MobclickAgent;
+import com.umeng.fb.FeedbackAgent;
+import com.umeng.update.UmengUpdateAgent;
+import com.util.db.AppDb;
+
+
+public class ActivityMain extends FragmentActivity {
+
+    public static final int KActivityResultFamilyManage = 101;
+
+    protected long 	        mLastKeyBackPressTime = 0;
+
+    private FragmentManager fragmentManager;
+    private RadioGroup radioGroup;
+
+    public FragmentForMain mCurrentFragment;
+    private FragmentDevices mFragmentDevices;
+    private FragmentScenes mFragmentScenes;
+    private FragmentInteligent mFragmentInteligent;
+    private FragmentMarket mFragmentMarket;
+    private FragmentProfile mFragmentProfile;
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == KActivityResultFamilyManage){
+            long lFid = data.getLongExtra("family_id", 0L);
+            if(lFid > 0) {
+                AppCache.LoginToFamily(lFid);
+
+//                Intent i = new Intent(this, ActivityRoomList.class);
+//                startActivity(i);
+            }
+            return;
+        }
+        mCurrentFragment.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public Fragment switchFragment(int position) {
+
+        switch (position) {
+            case R.id.tbi_devices:
+                if (mFragmentDevices == null){
+                    mFragmentDevices = new FragmentDevices();
+                }
+                mCurrentFragment = mFragmentDevices;
+                break;
+            case R.id.tbi_scence:
+                if (mFragmentScenes == null){
+                    mFragmentScenes = new FragmentScenes();
+                }
+                mCurrentFragment = mFragmentScenes;
+                break;
+            case R.id.tbi_inteligent:
+                if (mFragmentInteligent == null){
+                    mFragmentInteligent = new FragmentInteligent();
+                }
+                mCurrentFragment = mFragmentInteligent;
+                break;
+            case R.id.tbi_market:
+                if (mFragmentMarket == null){
+                    mFragmentMarket = new FragmentMarket();
+                }
+                mCurrentFragment = mFragmentMarket;
+                break;
+            case R.id.tbi_me:
+            default:
+                if (mFragmentProfile == null){
+                    mFragmentProfile = new FragmentProfile();
+                }
+                mCurrentFragment = mFragmentProfile;
+                break;
+        }
+        return mCurrentFragment;
+    }
+
+    static {
+
+    }
+    private void setTranslucentStatus(boolean on) {
+        Window win = getWindow();
+        WindowManager.LayoutParams winParams = win.getAttributes();
+        final int bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+        if (on) {
+            winParams.flags |= bits;
+        } else {
+            winParams.flags &= ~bits;
+        }
+        win.setAttributes(winParams);
+    }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);   //系统栏，最上面那条
+//            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);  //系统栏，最底下那条
+        }
+        SystemBarTintManager tintManager = new SystemBarTintManager(this);
+        tintManager.setStatusBarTintEnabled(true);
+//        tintManager.setNavigationBarTintEnabled(true);
+        tintManager.setTintColor(getResources().getColor(R.color.header_background));
+        tintManager.setNavigationBarTintColor(getResources().getColor(R.color.header_background));
+        tintManager.setStatusBarTintColor(getResources().getColor(R.color.header_background));
+
+        setContentView(R.layout.activity_main);
+
+        fragmentManager = getSupportFragmentManager();
+        radioGroup = (RadioGroup) findViewById(R.id.rg_tab);
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                android.support.v4.app.FragmentTransaction transaction = fragmentManager.beginTransaction();
+                Fragment fragment = switchFragment(checkedId);
+                transaction.replace(R.id.container, fragment);
+                transaction.commit();
+            }
+        });
+        radioGroup.check(R.id.tbi_devices);
+//        radioGroup.check(R.id.tbi_me);
+//        radioGroup.check(R.id.tbi_modes);
+
+//        FeedbackAgent agent = new FeedbackAgent(this);
+//        agent.sync();
+//
+//        UmengUpdateAgent.update(this);
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Config.BoardcastZzdLogouted);
+        registerReceiver(mReceiver, filter);
+    }
+
+    public void checkForInitEnv(){
+        if (AppCache.mMyself.mUid <= 0){
+            Intent i = new Intent(ActivityMain.this, ActivityLogin.class);
+            startActivity(i);
+            finish();
+            return;
+        }
+        else
+        if (AppCache.mFamilies.size() <= 0){
+            Toast.makeText(this, R.string.tip_need_a_family, Toast.LENGTH_LONG).show();
+            Intent i = new Intent(ActivityMain.this, ActivityCreateFamilyWithRoom.class);
+            startActivity(i);
+        }
+        else
+        if (AppCache.mCurFamilyId <= 0){
+            Toast.makeText(this, R.string.tip_need_choose_a_family, Toast.LENGTH_LONG).show();
+            AppCache.ListFamilys();
+            Intent i = new Intent(ActivityMain.this, ActivityFamilyList.class);
+            i.putExtra("is_for_select", true);
+            i.putExtra("hide_return", true);
+//            i.putExtra("create_new", AppCache.mFamilies.size() <= 0);
+            startActivityForResult(i, KActivityResultFamilyManage);
+        }
+        else{
+            AppCache.EnableDeviceStatusTimer(true);
+        }
+    }
+    public void onResume() {
+        Log.d(Config.TagForLog, "Main::onResume");
+
+        checkForInitEnv();
+        if (AppCache.mCurFamilyId > 0){
+            AppCache.EnableDeviceStatusTimer(true);
+        }
+
+        super.onResume();
+        MobclickAgent.onResume(this);
+        MobclickAgent.updateOnlineConfig(this);
+    }
+    public void onPause() {
+        Log.d(Config.TagForLog, "Main::onPause");
+        AppCache.EnableDeviceStatusTimer(false);
+        super.onPause();
+        MobclickAgent.onPause(this);
+    }
+
+    public void onDestroy() {
+        unregisterReceiver(mReceiver);
+        super.onDestroy();
+    }
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK
+                && event.getAction() == KeyEvent.ACTION_DOWN) {
+
+            if(System.currentTimeMillis() > mLastKeyBackPressTime + 2000){
+                Toast.makeText(this, getString(R.string.tip_press_back_again_to_quit), Toast.LENGTH_LONG).show();
+                mLastKeyBackPressTime = System.currentTimeMillis();
+            }
+            else{
+                finish();
+            }
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if(action.equals(Config.BoardcastZzdLogouted)){
+
+                Intent it = new Intent();
+                it.setClass(ActivityMain.this, ActivityLogin.class);
+                ActivityMain.this.startActivity(it);
+                ActivityMain.this.finish();
+            }
+        }
+    };
+}

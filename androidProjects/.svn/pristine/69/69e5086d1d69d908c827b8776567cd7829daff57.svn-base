@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:clipToPadding="true"
+    android:fitsSystemWindows="true"
+    android:background="@color/split_line">
+
+
+    <include
+        android:id="@+id/ly_header"
+        layout="@layout/header"
+        android:background="@color/transparent" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:layout_marginTop="35dp"
+        >
+        <RelativeLayout
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:id="@+id/rl_setting"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true">
+        <TextView
+            android:id="@+id/txt_setting_electric"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="电费:"
+            android:textSize="15dp"
+            android:layout_marginRight="12dp"
+            android:layout_centerVertical="true"
+           />
+        <EditText
+            android:layout_toRightOf="@+id/txt_setting_electric"
+            android:id="@+id/edit_setting_electric"
+            android:layout_width="190dp"
+            android:hint="手动输入电费"
+            android:textSize="13dp"
+            android:background="@color/white"
+            android:layout_height="30dp"
+            android:textColorHint="@color/setting_electric"
+            android:gravity="center"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:inputType="numberDecimal" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="15dp"
+        >
+
+        <RelativeLayout
+            android:layout_width="240dp"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            >
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+           android:layout_marginTop="20dp"
+            android:text="电量电费选择:"
+            android:id="@+id/textView3" />
+
+            <TextView
+                android:id="@+id/txt_select_electric"
+                android:layout_width="135dp"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
+                android:text="千瓦时"
+                android:textSize="13dp"
+                android:layout_marginLeft="12dp"
+                android:layout_toRightOf="@+id/textView3"
+                android:background="@color/white"
+                android:textColor="@color/black"
+                android:gravity="center"
+              />
+
+
+            <ImageView
+                android:id="@+id/img_down_arrow"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/setting_down_arrow"
+                android:clickable="true"
+                android:layout_centerVertical="true"
+                android:layout_alignRight="@+id/txt_select_electric"
+                android:layout_alignEnd="@+id/txt_select_electric" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</LinearLayout>

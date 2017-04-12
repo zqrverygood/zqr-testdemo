@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <include
+        android:id="@+id/ly_header"
+        layout="@layout/header"
+        android:background="@color/transparent" />
+
+
+    <RelativeLayout
+        android:id="@+id/ly_avatar"
+        android:layout_width="fill_parent"
+        android:layout_height="135dp"
+        android:background="@color/split_line">
+
+
+        <ImageView
+            android:id="@+id/img_main"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:src="@mipmap/ic_launcher" />
+
+        <TextView
+            android:id="@+id/txt_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/img_main"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="5dp"
+            android:padding="4dp"
+            android:text="当前版本"
+            android:textColor="@color/dimgrey"
+            android:textSize="12dp" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/ly_account_manage"
+        android:layout_width="fill_parent"
+        android:layout_height="45dp"
+        android:background="@drawable/preference_null_item">
+
+        <TextView
+            android:id="@+id/txt_about_systemInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="2dp"
+            android:padding="8dp"
+            android:text="@string/about_systemInfo"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/dimgrey"
+            android:textSize="14sp" />
+
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/next_to2" />
+
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:background="@color/split_line" />
+
+    <RelativeLayout
+        android:id="@+id/ly_gateway_manage"
+        android:layout_width="fill_parent"
+        android:layout_height="45dp"
+        android:background="@drawable/preference_null_item">
+
+
+        <TextView
+            android:id="@+id/txt_bout_versioni_dentify"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="2dp"
+            android:padding="8dp"
+            android:text="@string/about_versioni_dentify"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/dimgrey"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/next_to2" />
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:background="@color/split_line" />
+
+    <RelativeLayout
+        android:id="@+id/ly_family_manage"
+        android:layout_width="fill_parent"
+        android:layout_height="45dp"
+        android:background="@drawable/preference_null_item">
+
+
+        <TextView
+            android:id="@+id/txtabout_feedback"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="2dp"
+            android:padding="8dp"
+            android:text="@string/about_feedback"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/dimgrey"
+            android:textSize="14sp" />
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/next_to2" />
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:background="@color/split_line" />
+
+    <RelativeLayout
+        android:id="@+id/ly_check_update"
+        android:layout_width="fill_parent"
+        android:layout_height="45dp"
+        android:background="@drawable/preference_null_item">
+
+
+        <TextView
+            android:id="@+id/txt_about_service_phone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="2dp"
+            android:padding="8dp"
+            android:text="@string/about_service_phone"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/dimgrey"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/txt_about_phone_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:textColor="@color/peru"
+            android:text="@string/about_phone_number"/>
+
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/split_line" />
+
+</LinearLayout>
+
+
+

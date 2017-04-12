@@ -1,0 +1,84 @@
+package app.smarthome.zzd.smarthome.view;
+
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.util.AttributeSet;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+import com.util.Common;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Vector;
+
+import app.smarthome.zzd.smarthome.ActivityWebView;
+import app.smarthome.zzd.smarthome.AppCache;
+import app.smarthome.zzd.smarthome.Config;
+import app.smarthome.zzd.smarthome.R;
+import app.smarthome.zzd.smarthome.model.AdbannerInfo;
+
+/**
+ * Created by inobaa on 15/1/30.
+ */
+public class AdbannerViewItem extends RelativeLayout {
+
+    ImageView   mImg;
+    TextView    mTxtTitle;
+
+    public AdbannerViewItem(Context context) {
+        super(context);
+    }
+
+    public AdbannerViewItem(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public void Init(AdbannerInfo r){
+        setTag(r);
+        mImg = (ImageView)findViewById(R.id.img_main);
+        mTxtTitle = (TextView)findViewById(R.id.txt_title);
+
+        if (r != null){
+            mTxtTitle.setText(r.mTitle);
+            String strImgUrl;
+            if(Common.isNullString(r.mImgUrl)){
+                mImg.setImageResource(r.mViewId == 1 ? R.drawable.adview_scene : R.drawable.adview_device);
+            }
+            else{
+                if (r.mImgUrl.startsWith("/")){
+                    strImgUrl = Config.URL.SERVER_URL + r.mImgUrl;
+                }
+                else{
+                    strImgUrl = r.mImgUrl;
+                }
+                AppCache.LoadImage(strImgUrl, mImg);
+            }
+        }
+        else{
+            mTxtTitle.setText("");
+        }
+    }
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+    }
+}

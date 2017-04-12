@@ -1,0 +1,312 @@
+package app.smarthome.zzd.smarthome.view;
+
+import android.content.Context;
+import android.graphics.Canvas;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.util.AttributeSet;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshGridView;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
+
+import app.smarthome.zzd.smarthome.AppCache;
+import app.smarthome.zzd.smarthome.Config;
+import app.smarthome.zzd.smarthome.R;
+import app.smarthome.zzd.smarthome.model.DeviceInfo;
+import app.smarthome.zzd.smarthome.model.RoomInfo;
+import app.smarthome.zzd.smarthome.model.StrategyInfo;
+import app.smarthome.zzd.smarthome.model.TimerInfo;
+
+/**
+ * Created by inobaa on 15/1/30.
+ */
+public class ModesPager extends ViewPager {
+
+    public interface OnModeListener {
+        void onModeClick(long lDeviceId, boolean isTimer);
+        void onModeLongTouch(long lDeviceId, boolean isTimer);
+        void onModeChanged(boolean isTimer);
+    }
+    private OnModeListener   mOnModeListener;
+    public void SetOnModeListener(OnModeListener listener){
+        mOnModeListener = listener;
+    }
+    public class ModesAdapter extends BaseAdapter {
+
+        private LayoutInflater mInflater;
+        public Vector<StrategyInfo> mModes = new Vector<>();
+
+        public ModesAdapter(Context context) {
+            this.mInflater = LayoutInflater.from(context);
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public void notifyDataSetChanged() {
+            mModes.clear();
+            mModes.addAll(AppCache.mStrategys.values());
+            super.notifyDataSetChanged();
+        }
+
+        @Override
+        public int getCount() {
+            return mModes.size();
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            StrategyInfo d = mModes.get(position);
+
+            RelativeLayout rl = (RelativeLayout) mInflater.inflate(R.layout.gi_device_info, null);
+            convertView = rl;
+
+            ImageView iv = (ImageView)rl.findViewById(R.id.img_main);
+
+            TextView tv = (TextView)rl.findViewById(R.id.txt_title);
+            tv.setText(d.mName);
+
+            return convertView;
+        }
+        @Override
+        public Object getItem(int arg0) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int arg0) {
+            return 0;
+        }
+    }
+    public class TimersAdapter extends BaseAdapter {
+
+        private LayoutInflater mInflater;
+        public Vector<TimerInfo> mTimers = new Vector<>();
+
+        public TimersAdapter(Context context) {
+            this.mInflater = LayoutInflater.from(context);
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public void notifyDataSetChanged() {
+            mTimers.clear();
+            mTimers.addAll(AppCache.mTimers.values());
+            super.notifyDataSetChanged();
+        }
+
+        @Override
+        public int getCount() {
+            return mTimers.size();
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            TimerInfo d = mTimers.get(position);
+
+            RelativeLayout rl = (RelativeLayout) mInflater.inflate(R.layout.gi_device_info, null);
+            convertView = rl;
+
+            ImageView iv = (ImageView)rl.findViewById(R.id.img_main);
+
+            TextView tv = (TextView)rl.findViewById(R.id.txt_title);
+            tv.setText(d.mName);
+
+            return convertView;
+        }
+        @Override
+        public Object getItem(int arg0) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int arg0) {
+            return 0;
+        }
+    }
+
+    public class MyViewPagerAdapter extends PagerAdapter {
+
+        List<PullToRefreshGridView> mViewLists = new ArrayList();
+
+        public MyViewPagerAdapter()
+        {
+        }
+
+        @Override
+        public int getCount() {                                                                 //获得size
+            // TODO Auto-generated method stub
+            return 2;
+        }
+
+        @Override
+        public int getItemPosition(Object object) {
+            return POSITION_NONE;
+        }
+
+        @Override
+        public boolean isViewFromObject(View arg0, Object arg1) {
+            // TODO Auto-generated method stub
+            return arg0 == arg1;
+        }
+
+        @Override
+        public void destroyItem(View view, int position, Object object)                       //销毁Item
+        {
+            ((ViewPager) view).removeView(mViewLists.get(position));
+        }
+
+        @Override
+        public Object instantiateItem(View view, int position)                                //实例化Item
+        {
+            ((ViewPager) view).addView(mViewLists.get(position), 0);
+
+            return mViewLists.get(position);
+        }
+
+        public void notifyDataSetChanged() {
+            mViewLists.clear();
+            if(true) {
+                CustomGridView g = (CustomGridView)mInflater.inflate(R.layout.customer_pull_gridview, null);
+                mViewLists.add(g);
+
+                ModesAdapter ma = new ModesAdapter(getContext());
+                g.setAdapter(ma);
+                g.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener<GridView>() {
+                    @Override
+                    public void onRefresh(PullToRefreshBase<GridView> refreshView) {
+                        AppCache.ListStrategy();
+                    }
+                });
+                g.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        int realPos = position - 1;
+                        ModesAdapter da = (ModesAdapter) parent.getAdapter();
+                        if (mOnModeListener != null) {
+                            long lId = da.mModes.get(realPos).mId;
+                            mOnModeListener.onModeClick(lId, false);
+                        }
+                    }
+                });
+                g.getRefreshableView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                    @Override
+                    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        int realPos = i;
+                        ModesAdapter da = (ModesAdapter) adapterView.getAdapter();
+                        if (mOnModeListener != null) {
+                            long lId = da.mModes.get(realPos).mId;
+                            mOnModeListener.onModeLongTouch(lId, false);
+                        }
+                        return false;
+                    }
+                });
+            }
+            if(true) {
+                CustomGridView g = (CustomGridView)mInflater.inflate(R.layout.customer_pull_gridview, null);
+                GridView gv = g.getRefreshableView();
+                mViewLists.add(g);
+
+                TimersAdapter ma = new TimersAdapter(getContext());
+                g.setAdapter(ma);
+
+                g.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener<GridView>() {
+                    @Override
+                    public void onRefresh(PullToRefreshBase<GridView> refreshView) {
+                        AppCache.ListTimer();
+                    }
+                });
+                g.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        int realPos = position - 1;
+                        TimersAdapter da = (TimersAdapter) parent.getAdapter();
+                        if (mOnModeListener != null) {
+                            long lId = da.mTimers.get(realPos).mId;
+                            mOnModeListener.onModeClick(lId, true);
+                        }
+                    }
+                });
+                g.getRefreshableView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                    @Override
+                    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        int realPos = i;
+                        TimersAdapter da = (TimersAdapter) adapterView.getAdapter();
+                        if (mOnModeListener != null) {
+                            long lId = da.mTimers.get(realPos).mId;
+                            mOnModeListener.onModeLongTouch(lId, true);
+                        }
+                        return false;
+                    }
+                });
+            }
+
+            super.notifyDataSetChanged();
+        }
+    }
+
+    private MyViewPagerAdapter  mAdapter = new MyViewPagerAdapter();
+    private LayoutInflater mInflater;
+
+    public void SetIsTimerMode(boolean isTimerMode, boolean bCallListener){
+
+            this.setCurrentItem(isTimerMode ? 1 : 0, true);
+            if (mOnModeListener != null && bCallListener) {
+                mOnModeListener.onModeChanged(isTimerMode);
+            }
+    }
+
+    public ModesPager(Context context) {
+        super(context);
+    }
+
+    public ModesPager(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public void notifyDataSetChanged() {
+        mAdapter.notifyDataSetChanged();
+    }
+    public void Init(LayoutInflater inflater){
+        setAdapter(mAdapter);
+        mInflater = inflater;
+        this.setOnPageChangeListener(new OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+                if (mOnModeListener != null) {
+                    mOnModeListener.onModeChanged(position >= 1);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        mAdapter.notifyDataSetChanged();
+    }
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+    }
+}

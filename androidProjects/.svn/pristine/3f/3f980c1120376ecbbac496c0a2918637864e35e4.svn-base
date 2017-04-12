@@ -1,0 +1,254 @@
+package app.smarthome.zzd.smarthome.view;
+
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.Vector;
+
+import app.smarthome.zzd.smarthome.AppCache;
+import app.smarthome.zzd.smarthome.Config;
+import app.smarthome.zzd.smarthome.R;
+import app.smarthome.zzd.smarthome.model.AdbannerInfo;
+import app.smarthome.zzd.smarthome.model.RoomInfo;
+
+/**
+ * Created by inobaa on 15/1/30.
+ */
+public class AdbannerView extends ViewPager {
+    TextView mTxtAdTitle;
+//    public class MyViewPagerAdapter extends PagerAdapter {
+//
+//        List<View> mViewLists = new ArrayList();
+//
+//        public MyViewPagerAdapter()
+//        {
+//        }
+//
+//        @Override
+//        public int getCount() {
+//            return mViewLists.size();
+//        }
+//
+//        @Override
+//        public int getItemPosition(Object object) {
+//            return POSITION_NONE;
+//        }
+//
+//        @Override
+//        public boolean isViewFromObject(View arg0, Object arg1) {
+//            // TODO Auto-generated method stub
+//            return arg0 == arg1;
+//        }
+//
+//        @Override
+//        public void destroyItem(View view, int position, Object object)                       //销毁Item
+//        {
+//            Log.d(Config.TagForLog, "destroyItem:" + position);
+//            position %= mViewLists.size();
+////            if (mViewLists.size() > 1){
+////                int dist = position + mViewLists.size() - getCurrentItem();
+////                if (dist > 1 || dist < -1) return;
+////            }
+////            ((ViewPager) view).removeView(mViewLists.get(position));
+//        }
+//
+//        @Override
+//        public Object instantiateItem(View view, int position)                                //实例化Item
+//        {
+//            Log.d(Config.TagForLog, "instantiateItem:" + position);
+//            position %= mViewLists.size();
+//            View v = mViewLists.get(position);
+//            if (v.getParent() == null){
+//                ((ViewPager) view).addView(v, 0);
+//            }
+////            ((ViewPager) view).removeView(v);
+//            return v;
+//        }
+//
+//    }
+    class MyViewPagerAdapter extends PagerAdapter {
+
+        List<View> mViewLists = new ArrayList();
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            View view = mViewLists.get(position);
+            container.removeView(view);
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int i) {
+            container.addView(mViewLists.get(i));
+            return mViewLists.get(i);
+        }
+
+        @Override
+        public int getCount() {
+            return mViewLists.size();
+        }
+
+        @Override
+        public boolean isViewFromObject(View view, Object o) {
+            return view == o;
+        }
+    }
+
+    public Vector<AdbannerInfo> mVecAdData = new Vector<>();
+    MyViewPagerAdapter  mAdapter = new MyViewPagerAdapter();
+
+    public AdbannerView(Context context) {
+        super(context);
+    }
+
+    public AdbannerView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public ViewPager.OnPageChangeListener mListener = new ViewPager.OnPageChangeListener(){
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+        }
+
+        @Override
+        public void onPageSelected(int position){
+            Log.d(Config.TagForLog, "+++++++++ = " + position);
+
+            int pageIndex = position;
+
+            if (position == 0) {
+                // 当视图在第一个时，将页面号设置为图片的最后一张。
+                pageIndex = mVecAdData.size();
+            } else if (position == mVecAdData.size() + 1) {
+                // 当视图在最后一个是,将页面号设置为图片的第一张。
+                pageIndex = 1;
+            }
+            if (position != pageIndex) {
+                setCurrentItem(pageIndex, false);
+                if (mTxtAdTitle != null){
+                    mTxtAdTitle.setText(mVecAdData.get(pageIndex - 1).mTitle);
+                }
+                return;
+            }
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+
+        }
+
+    };
+
+    private Handler handler = new Handler();
+    private Runnable runnable = new Runnable() {
+        public void run() {
+            this.update();
+            handler.postDelayed(this, 1000 * 8);// 间隔120秒
+        }
+        void update() {
+            if (mVecAdData.size() > 1){
+                int i = getCurrentItem() + 1;
+                setCurrentItem(i, true);
+            }
+        }
+    };
+    public void SetAdTitleTextView(TextView v){
+        mTxtAdTitle = v;
+    }
+
+    public void ReLoad(LayoutInflater inflater, int viewId){
+
+        mVecAdData.clear();
+        for (AdbannerInfo d : AppCache.mAdBannerData.values()){
+            if (d.mViewId != viewId) continue;
+            mVecAdData.add(d);
+        }
+        if (mVecAdData.size() <= 0){
+            AdbannerInfo a = new AdbannerInfo();
+            a.mId = "0";
+            a.mTitle = getContext().getString(R.string.app_name);
+            a.mViewId = viewId;
+            mVecAdData.add(a);
+        }
+//        if (mVecAdData.size() <= 1){
+//            AdbannerInfo a = new AdbannerInfo();
+//            AdbannerInfo b = mVecAdData.get(0);
+//            a.mId = b.mId;
+//            a.mTitle = b.mTitle + "1";
+//            a.mViewId = b.mViewId;
+//            a.mActionUrl = b.mActionUrl;
+//            a.mImgUrl = b.mImgUrl;
+//            mVecAdData.add(a);
+//        }
+        Collections.sort(mVecAdData, new Comparator<AdbannerInfo>() {
+            @Override
+            public int compare(AdbannerInfo t0, AdbannerInfo t1) {
+                return t0.mId.compareTo(t1.mId);
+//                return (int)(t0.mId - t1.mId);
+            }
+        });
+
+        mAdapter.mViewLists.clear();
+        for (AdbannerInfo r : mVecAdData) {
+            AdbannerViewItem adv = (AdbannerViewItem) inflater.inflate(R.layout.li_ad_view, null);
+            adv.Init(r);
+//            addView(adv);
+            mAdapter.mViewLists.add(adv);
+        }
+        if (mVecAdData.size() > 0){
+            AdbannerViewItem adv = (AdbannerViewItem) inflater.inflate(R.layout.li_ad_view, null);
+            adv.Init(mVecAdData.get(mVecAdData.size() - 1));
+            mAdapter.mViewLists.add(0, adv);
+
+            AdbannerViewItem adv1 = (AdbannerViewItem) inflater.inflate(R.layout.li_ad_view, null);
+            adv1.Init(mVecAdData.get(0));
+            mAdapter.mViewLists.add(adv1);
+        }
+
+        mAdapter.notifyDataSetChanged();
+        setAdapter(mAdapter);
+        setOnPageChangeListener(mListener);
+        setCurrentItem(1);
+    }
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        handler.postDelayed(runnable, 1000 * 5);
+    }
+    @Override
+    protected void onDetachedFromWindow() {
+        handler.removeCallbacks(runnable); //停止刷新
+        super.onDetachedFromWindow();
+    }
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+    }
+}

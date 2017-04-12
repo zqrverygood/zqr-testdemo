@@ -1,0 +1,113 @@
+package app.smarthome.zzd.smarthome.model;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.util.Common;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.Map;
+import java.util.Vector;
+
+/**
+ * Created by zzdios on 15/11/16.
+ */
+public class StrategyInfo implements Parcelable {
+
+    public static class StrategyItems{
+        static final public int KDateCnt = 4;
+
+        public long     mDeviceId;
+        public long     mDataId;
+        public long     mOpt;
+        public long     mSync;
+    }
+
+    public long mId;
+    public long mFamilyId;
+    public String mName;
+    public Vector<StrategyItems> mItems;
+
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(mId);
+        dest.writeLong(mFamilyId);
+        dest.writeString(mName);
+
+        long[] tmp = new long[mItems.size() * StrategyItems.KDateCnt];
+        for (int i = 0; i < mItems.size(); i++) {
+            tmp[i* StrategyItems.KDateCnt] = mItems.get(i).mDeviceId;
+            tmp[i* StrategyItems.KDateCnt+1] = mItems.get(i).mDataId;
+            tmp[i* StrategyItems.KDateCnt+2] = mItems.get(i).mOpt;
+            tmp[i* StrategyItems.KDateCnt+3] = mItems.get(i).mSync;
+        }
+        dest.writeLongArray(tmp);
+    }
+
+    public static final Creator<StrategyInfo> CREATOR = new Creator<StrategyInfo>() {
+        public StrategyInfo createFromParcel(Parcel in) {
+            StrategyInfo di = new StrategyInfo();
+            di.mId = in.readLong();
+            di.mFamilyId = in.readLong();
+            di.mName = in.readString();
+
+            long[] tmp = in.createLongArray();
+            int portCount = tmp.length / StrategyItems.KDateCnt;
+            for (int i = 0; i < tmp.length; i++) {
+                StrategyItems port = new StrategyItems();
+                port.mDeviceId = Long.valueOf(tmp[i* StrategyItems.KDateCnt]);
+                port.mDataId = Long.valueOf(tmp[i* StrategyItems.KDateCnt+1]);
+                port.mOpt = Long.valueOf(tmp[i* StrategyItems.KDateCnt+2]);
+                port.mSync = Long.valueOf(tmp[i* StrategyItems.KDateCnt+3]);
+                di.mItems.add(port);
+            }
+            return di;
+        }
+
+        public StrategyInfo[] newArray(int size) {
+            return new StrategyInfo[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public void toParam(JSONObject params){
+        try{
+            if(mId > 0)params.put("id", mId);
+
+        }catch (org.json.JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+    public void fromJson(JSONObject jsonObject){
+        try{
+            mId = Common.getLongFromJson(jsonObject, "id");
+            mFamilyId = Common.getLongFromJson(jsonObject, "familyId");
+            mName = Common.getStringFromJson(jsonObject, "name");
+
+            if (jsonObject.has("strategyItems")){
+                JSONArray ja = jsonObject.getJSONArray("strategyItems");
+                for (int i = 0; i < ja.length(); i++) {
+                    JSONObject jPort = ja.getJSONObject(i);
+
+                    StrategyItems si = new StrategyItems();
+                    si.mDeviceId = Common.getLongFromJson(jsonObject, "deviceId");
+                    si.mDataId = Common.getLongFromJson(jsonObject, "dataId");
+                    si.mOpt = Common.getLongFromJson(jsonObject, "opt");
+                    si.mSync = Common.getLongFromJson(jsonObject, "sync");
+                    mItems.add(si);
+                }
+            }
+        }catch (org.json.JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+}

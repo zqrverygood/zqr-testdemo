@@ -1,0 +1,157 @@
+package app.smarthome.zzd.smarthome;
+
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.text.Editable;
+import android.text.Selection;
+import android.text.TextWatcher;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
+
+import com.loopj.android.http.RequestHandle;
+import com.util.Common;
+
+import org.json.JSONObject;
+
+import java.util.Vector;
+
+import app.smarthome.zzd.smarthome.model.FamilyInfo;
+import app.smarthome.zzd.smarthome.model.RoomInfo;
+import app.smarthome.zzd.smarthome.model.SceneInfo;
+
+/**
+ * Created by zzdios on 15/11/30.
+ */
+public class ActivitySceneDetail extends ActivityHeaderBase {
+
+
+    private SceneInfo mScene;
+    private Vector<RelativeLayout>  mSceneItems = new Vector<>();
+    private LinearLayout mLyRooms;
+
+    private EditText    mEditName;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_scene_detail);
+
+        mLyRooms = (LinearLayout) findViewById(R.id.ly_members);
+        mEditName = (EditText) findViewById(R.id.edit_name);
+
+        Intent intent = getIntent();
+        long sceneId = intent.getLongExtra("scene_id", 0L);
+        mScene = AppCache.mScenes.get(sceneId);
+        if (mScene == null){
+            mScene = new SceneInfo();
+        }
+
+        String strTitle = getString(mScene.mId > 0 ? R.string.action_edit : R.string.action_add);
+        setTitle(strTitle + getString(R.string.tbi_scence));
+
+        showDevicePorts();
+    }
+
+    public void onDestroy() {
+        if (sReqSaveName != null){
+            sReqSaveName.cancel(true);
+            sReqSaveName = null;
+        }
+        super.onDestroy();
+    }
+
+    private RequestHandle sReqSaveName = null;
+    public void onSaveScene(){
+        final String strName = mEditName.getText().toString();
+
+        if (Common.isNullString(strName)){
+            Toast.makeText(ActivitySceneDetail.this, getString(R.string.tip_need_name), Toast.LENGTH_LONG).show();
+            return;
+        }
+        AppResponseHandler onSaveOK = new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqSaveName = null;
+                mScene.mName = strName;
+
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdSceneUpdate);
+                sendBroadcast(intent);
+
+                mLyRooms.setVisibility(View.VISIBLE);
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqSaveName = null;
+                Toast.makeText(ActivitySceneDetail.this, msg, Toast.LENGTH_LONG).show();
+            }
+            ;
+        };
+
+        if (mScene.mId > 0){
+            sReqSaveName = ServerClient.UpdateScene(mScene, onSaveOK);
+        }
+        else{
+            sReqSaveName = ServerClient.CreateScene(mScene, onSaveOK);
+        }
+    }
+
+    private RelativeLayout createDevicePortItem(RoomInfo r){
+        LayoutInflater inflater = LayoutInflater.from(this);
+        RelativeLayout rl = (RelativeLayout)inflater.inflate(R.layout.li_room_for_scene, null);
+        rl.setTag(r);
+//        EditText et = (EditText) rl.findViewById(R.id.edit);
+//        et.setTag(rl);
+//        et.setText(strLoginName);
+//
+//        ImageButton btnSave = (ImageButton) rl.findViewById(R.id.btn_right_save);
+//        btnSave.setTag(rl);
+//        btnSave.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                RelativeLayout rlt = (RelativeLayout) view.getTag();
+//                onCommitNewShare(rlt);
+//            }
+//        });
+//        ImageButton btnDel = (ImageButton) rl.findViewById(R.id.btn_right_del);
+//        btnDel.setTag(rl);
+//        btnDel.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                RelativeLayout rlShare = (RelativeLayout) view.getTag();
+//                onCommitDelShare(rlShare);
+//            }
+//        });
+//        if (Common.isNullString(strLoginName)){
+//            rl.findViewById(R.id.btn_right_save).setVisibility(View.VISIBLE);
+//            rl.findViewById(R.id.btn_right_del).setVisibility(View.INVISIBLE);
+//
+//        }
+//        else{
+//            rl.findViewById(R.id.btn_right_save).setVisibility(View.INVISIBLE);
+//            rl.findViewById(R.id.btn_right_del).setVisibility(View.VISIBLE);
+//            et.setEnabled(false);
+//        }
+        return rl;
+    };
+    private void showDevicePorts(){
+        for (RelativeLayout rl : mSceneItems){
+            mLyRooms.removeView(rl);
+        }
+        mSceneItems.clear();
+
+        for (RoomInfo r : AppCache.mRooms.values()){
+            RelativeLayout rl = createDevicePortItem(r);
+            mSceneItems.add(rl);
+            mLyRooms.addView(rl, 1);
+        }
+    }
+}

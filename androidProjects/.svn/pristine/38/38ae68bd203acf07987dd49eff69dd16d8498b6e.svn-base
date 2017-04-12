@@ -1,0 +1,327 @@
+package app.smarthome.zzd.smarthome;
+
+import android.content.Context;
+
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.PersistentCookieStore;
+import com.loopj.android.http.RequestHandle;
+import com.loopj.android.http.RequestParams;
+import com.util.Common;
+
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.HTTP;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Vector;
+
+import app.smarthome.zzd.smarthome.model.DeviceInfo;
+import app.smarthome.zzd.smarthome.model.SceneInfo;
+import app.smarthome.zzd.smarthome.model.TimerInfo;
+
+public class ServerClient {
+
+    private static AsyncHttpClient client = new AsyncHttpClient(true, -1, -1);    //实例对象
+    private static PersistentCookieStore myCookieStore = new PersistentCookieStore(AppInstance.getInstance());
+
+    static
+    {
+        client.setTimeout(30000);   //设置链接超时，如果不设置，默认为10s
+        client.setMaxConnections(20);
+        client.setCookieStore(myCookieStore);
+    }
+
+    public static void ClearCookies(){
+        myCookieStore.clear();
+    }
+
+    public static RequestHandle Post(String urlString, AppResponseHandler res)   //带参数，获取json对象或者数组
+    {
+        return Post(urlString, new RequestParams(), res);
+    }
+    public static RequestHandle Get(String urlString, RequestParams requestParams, AppResponseHandler res)   //带参数，获取json对象或者数组
+    {
+        return client.get(urlString, requestParams, res);
+    }
+    public static RequestHandle Post(String urlString, RequestParams params, AppResponseHandler res)   //带参数，获取json对象或者数组
+    {
+        if (params == null){
+            params = new RequestParams();
+        }
+        return client.post(urlString, params, res);
+    }
+    public static RequestHandle Post(String urlString, JSONObject params, AppResponseHandler res)   //带参数，获取json对象或者数组
+    {
+        if (params == null){
+            params = new JSONObject();
+        }
+
+        try {
+            ByteArrayEntity entity = new ByteArrayEntity(params.toString().getBytes("UTF-8"));
+
+            return client.post(null, urlString, entity, "application/json", res);
+        }catch (Exception e) {
+            return null;
+        }
+    }
+    public static AsyncHttpClient getClient()
+    {
+        return client;
+    }
+
+    private static ServerClient serverCSCL;
+    private static String Lang = "zh";
+
+    private ServerClient(Context ctx) {
+
+    }
+    private static void init(Context ctx) {
+        Lang = ctx.getString(R.string.lng);
+    }
+
+    static public RequestHandle GetAdbanner(AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("companyId", ""+ AppCache.mMyself.mCompanyId);
+        return ServerClient.Post(Config.URL.AdBanner(), req, res);
+    }
+    static public RequestHandle ApplyVCode(String phone, boolean forReg, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("platform", "android");
+        req.add("deviceId", AppCache.mUdid);
+        req.add("usage", forReg ? "reg" : "resetpwd");
+        req.add("mobile", phone);
+        return ServerClient.Post(Config.URL.ApplyVCode(), req, res);
+    }
+    static public RequestHandle ResetPassword(String loginName, String phone, String passwd, String vcode, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("loginName", loginName);
+        req.add("mobile", phone);
+        req.add("vcode", vcode);
+        req.add("password", passwd);
+        return ServerClient.Post(Config.URL.ResetPassword(), req, res);
+    }
+    static public RequestHandle Signup(String loginName, String phone, String passwd, String vcode, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("loginName", loginName);
+        req.add("mobile", phone);
+        req.add("vcode", vcode);
+        req.add("password", passwd);
+        return ServerClient.Post(Config.URL.Signup(), req, res);
+    }
+    static public RequestHandle Signin(String loginName, String passwd, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("loginName", loginName);
+        req.add("password", passwd);
+        return ServerClient.Post(Config.URL.Signin(), req, res);
+    }
+    static public RequestHandle Signout(AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        return ServerClient.Post(Config.URL.Signout(), req, res);
+    }
+    static public RequestHandle CheckToken(AppResponseHandler res)
+    {
+        if (!AppCache.HasLogined()){
+            return null;
+        }
+        RequestParams req = new RequestParams();
+        return ServerClient.Post(Config.URL.Signout(), req, res);
+    }
+    static public RequestHandle UpdateMyInfo(RequestParams req, AppResponseHandler res)
+    {
+        if (!AppCache.HasLogined()){
+            return null;
+        }
+        return ServerClient.Post(Config.URL.MyInfoUpdate(), req, res);
+    }
+    static public RequestHandle CreateFamily(String strName, Vector<String> rooms, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.put("name", strName);
+        if (rooms != null && rooms.size() > 0) {
+            String rms = "";
+            for (String r : rooms){
+                rms = rms + r + ",";
+            }
+            rms = rms.substring(0, rms.length() -  1);
+            req.put("rooms", rms);
+        }
+        return ServerClient.Post(Config.URL.FamilyCreate(), req, res);
+    }
+
+    static public RequestHandle CreateFamily(String strName, AppResponseHandler res)
+    {
+        return CreateFamily(strName, null, res);
+    }
+
+    static public RequestHandle UpdateFamily(long lId, String strName, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("id", "" + lId);
+        req.add("name", strName);
+        return ServerClient.Post(Config.URL.FamilyUpdate(), req, res);
+    }
+    static public RequestHandle DeleteFamily(long lId, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("id", "" + lId);
+        return ServerClient.Post(Config.URL.FamilyDelete(), req, res);
+    }
+    static public RequestHandle ListFamily(AppResponseHandler res)
+    {
+        return ServerClient.Post(Config.URL.FamilyList(), res);
+    }
+    static public RequestHandle ShareFamily(long lId, String strLoginName, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("familyId", "" + lId);
+        req.add("loginName", strLoginName);
+        return ServerClient.Post(Config.URL.FamilyShare(), req, res);
+    }
+    static public RequestHandle ShareDeleteFamily(long lId, String strLoginName, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("familyId", "" + lId);
+        req.add("loginName", strLoginName);
+        return ServerClient.Post(Config.URL.FamilyShareDelete(), req, res);
+    }
+
+    static public RequestHandle CreateRoom(long lFamilyId, String strName, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("entity.familyId", "" + lFamilyId);
+        req.add("entity.name", strName);
+        return ServerClient.Post(Config.URL.RoomCreate(), req, res);
+    }
+    static public RequestHandle UpdateRoom(long lId, String strName, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("entity.id", "" + lId);
+        req.add("entity.name", strName);
+        return ServerClient.Post(Config.URL.RoomUpdate(), req, res);
+    }
+    static public RequestHandle DeleteRoom(long lId, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("entity.id", "" + lId);
+        return ServerClient.Post(Config.URL.RoomDelete(), req, res);
+    }
+    static public RequestHandle ListRoom(long lFamilyId, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("familyId", "" + lFamilyId);
+        return ServerClient.Post(Config.URL.RoomList(), req, res);
+    }
+
+    static public RequestHandle CreateScene(SceneInfo stt, AppResponseHandler res)
+    {
+        JSONObject req = new JSONObject();
+        stt.toParam(req);
+        return ServerClient.Post(Config.URL.SceneCreate(), new RequestParams("strategy", req.toString()), res);
+    }
+    static public RequestHandle UpdateScene(SceneInfo stt, AppResponseHandler res)
+    {
+        JSONObject req = new JSONObject();
+        stt.toParam(req);
+        return ServerClient.Post(Config.URL.SceneUpdate(), new RequestParams("strategy", req.toString()), res);
+    }
+    static public RequestHandle DeleteScene(long lId, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("strategyId", "" + lId);
+        return ServerClient.Post(Config.URL.SceneDelete(), req, res);
+    }
+    static public RequestHandle ListScene(long lFamilyId, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("familyId", "" + lFamilyId);
+        req.add("enable", "1");
+        return ServerClient.Post(Config.URL.SceneList(), req, res);
+    }
+    static public RequestHandle RunScene(long lId, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("strategyId", "" + lId);
+        return ServerClient.Post(Config.URL.SceneRun(), req, res);
+    }
+
+    static public RequestHandle CreateTimer(TimerInfo stt, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        stt.toParam(req);
+        return ServerClient.Post(Config.URL.TimerCreate(), req, res);
+    }
+    static public RequestHandle UpdateTimer(TimerInfo stt, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        stt.toParam(req);
+        return ServerClient.Post(Config.URL.TimerUpdate(), req, res);
+    }
+    static public RequestHandle DeleteTimer(long lId, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("id", "" + lId);
+        return ServerClient.Post(Config.URL.TimerDelete(), req, res);
+    }
+    static public RequestHandle ListTimer(long lFamilyId, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("familyId", "" + lFamilyId);
+        return ServerClient.Post(Config.URL.TimerList(), req, res);
+    }
+
+    static public RequestHandle CreatePreQuery(String strCode, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("code", "" + strCode);
+        return ServerClient.Post(Config.URL.DevicePreQuery(), req, res);
+    }
+    static public RequestHandle UpdateDevice(DeviceInfo stt, AppResponseHandler res)
+    {
+        JSONObject req = new JSONObject();
+        stt.toParam(req);
+        return ServerClient.Post(Config.URL.DeviceUpdate(), new RequestParams("device", req.toString()), res);
+    }
+    static public RequestHandle DeleteDevice(long lDeviceId, long lDataId, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("deviceId", "" + lDeviceId);
+        req.add("dataId", "" + lDataId);
+        return ServerClient.Post(Config.URL.DeviceDelete(), req, res);
+    }
+    static public RequestHandle DeleteDevice(long lId, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("deviceId", "" + lId);
+        return ServerClient.Post(Config.URL.DeviceDelete(), req, res);
+    }
+
+    static public RequestHandle ControlDevice(long lDevId, long lDataId, long lStatus, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("deviceId", "" + lDevId);
+        req.add("dataId", "" + lDataId);
+        req.add("opt", "" + lStatus);
+        return ServerClient.Post(Config.URL.DeviceControl(), req, res);
+    }
+    static public RequestHandle ListDevice(long lFamilyId, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("familyId", "" + lFamilyId);
+        return ServerClient.Post(Config.URL.DeviceList(), req, res);
+    }
+    static public RequestHandle GetDeviceStatus(long lFamilyId, AppResponseHandler res)
+    {
+        RequestParams req = new RequestParams();
+        req.add("familyId", "" + lFamilyId);
+        return ServerClient.Post(Config.URL.DeviceRuntime(), req, res);
+    }
+
+}

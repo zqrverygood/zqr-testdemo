@@ -1,0 +1,126 @@
+package app.smarthome.zzd.smarthome;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.View;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.ImageButton;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+public class ActivityWebView extends Activity {
+
+    WebView mWebView = null;
+    String mTitle;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_web_view);
+
+        mWebView = (WebView)findViewById(R.id.web_view);
+        mWebView.getSettings().setJavaScriptEnabled(true);
+        mWebView.getSettings().setBuiltInZoomControls(true);
+        mWebView.getSettings().setLightTouchEnabled(true);
+        mWebView.getSettings().setSupportZoom(true);
+        mWebView.setHapticFeedbackEnabled(false);
+        mWebView.setInitialScale(100);
+        WebSettings webSettings =   mWebView .getSettings();
+        webSettings.setUseWideViewPort(true);//设置此属性，可任意比例缩放
+        webSettings.setLoadWithOverviewMode(true);
+
+        mWebView.setWebViewClient(new WebViewClient(){
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (url.equalsIgnoreCase("zzd://login")){
+                    Intent intent = new Intent();
+                    intent.setClass(ActivityWebView.this, ActivityLogin.class);
+                    intent.putExtra("mode", ActivityLogin.KModeLogin);
+                    startActivity(intent);
+
+                    finish();
+
+                    return true;
+                }
+                else if (url.substring(0, 4).equalsIgnoreCase("tel:")){
+                    String number = url.substring(4, url.length() - 4);
+                    Intent phoneIntent = new Intent("android.intent.action.CALL", Uri.parse("tel:" + number));
+                    //启动
+                    startActivity(phoneIntent);
+                    return true;
+                }
+                view.loadUrl(url);
+                return true;
+            }
+        });
+        Intent intent = getIntent();
+        mTitle = intent.getStringExtra("caption");
+
+        String strContentString = intent.getStringExtra("content");
+        if (strContentString != null && strContentString.length() > 0) {
+            mWebView.loadDataWithBaseURL(null, strContentString, "text/html",  "utf-8", null);
+        }
+        else{
+            mWebView.loadUrl(intent.getStringExtra("url"));
+        }
+        if (mTitle == null){
+            mTitle = mWebView.getTitle();
+        }
+        mWebView.requestFocus();
+
+        InitActionBar();
+    }
+
+    public void InitActionBar() {
+        RelativeLayout header = (RelativeLayout) findViewById(R.id.ly_header);
+        TextView txtTitle = (TextView) header.findViewById(R.id.txt_header);
+        txtTitle.setText(getTitle());
+        ImageButton btnLeft = (ImageButton) header.findViewById(R.id.btn_header_left);
+//        btnLeft.setImageResource(R.drawable.ic_left);
+        btnLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        ImageButton btnRight = (ImageButton) header.findViewById(R.id.btn_header_right);
+        btnRight.setVisibility(View.GONE);
+//        // 自定义标题栏
+//        ActionBar actionBar = getSupportActionBar();
+//        actionBar.setDisplayShowHomeEnabled(true);
+//        actionBar.setDisplayHomeAsUpEnabled(true);
+//        actionBar.setDisplayShowTitleEnabled(true);
+//        actionBar.setDisplayShowCustomEnabled(false);
+//        actionBar.setTitle(mTitle);
+    }
+    @Override
+    protected void onDestroy() {
+    	super.onDestroy();
+    }
+
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        int id = item.getItemId();
+//        switch (id){
+//            case android.R.id.home:
+//                finish();
+//                break;
+//            default:
+//                break;
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+////        if (mSelectedTagIds != null){
+////            getMenuInflater().inflate(R.menu.menu_select_tags, menu);
+////            return true;
+////        }
+//        return false;
+//    }
+
+
+}

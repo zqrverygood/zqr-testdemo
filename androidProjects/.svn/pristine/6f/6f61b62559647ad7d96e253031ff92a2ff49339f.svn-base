@@ -1,0 +1,295 @@
+package app.smarthome.zzd.smarthome;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.os.Handler;
+import android.text.Html;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.loopj.android.http.RequestHandle;
+
+import org.json.JSONObject;
+
+import java.util.Vector;
+
+import app.smarthome.zzd.smarthome.model.FamilyInfo;
+import app.smarthome.zzd.smarthome.model.RoomInfo;
+import app.smarthome.zzd.smarthome.view.ListItemFamily;
+
+/**
+ * Created by zzdios on 15/11/30.
+ */
+public class ActivityFamilyList extends ActivityHeaderBase {
+
+    public boolean mIsForSelect = false;
+
+    public static final int KActivityResultFamilyDetail = 101;
+//    public static final int KActivityDeleteFamilyConfirm = 102;
+
+    public void OnHeaderRightClick(){
+        Intent intent = new Intent();
+        intent.setClass(ActivityFamilyList.this, ActivityFamilyDetail.class);
+        startActivityForResult(intent, KActivityResultFamilyDetail);
+    }
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == KActivityResultFamilyDetail && resultCode == RESULT_OK) {
+            mAdapter.notifyDataSetChanged();
+
+            if (mIsForSelect){
+                Intent intent = new Intent();
+                intent.putExtra("family_id", data.getLongExtra("family_id", 0L));
+                intent.putExtra("family_name", data.getStringExtra("family_name"));
+                setResult(RESULT_OK, intent);
+                finish();
+            }
+        }
+//        else if (requestCode == KActivityDeleteFamilyConfirm && resultCode == RESULT_OK) {
+//            DeleteFamily();
+//        }
+    }
+
+    private long mFamilyIdDeleteing;
+    public void DeleteFamilyWithConfirm(View v){
+
+        FamilyInfo familyInfo = (FamilyInfo) v.getTag();
+        mFamilyIdDeleteing = familyInfo.mId;
+
+        String strTitle = getString(R.string.del_family) + " " + familyInfo.mName;
+        new AlertDialog.Builder(ActivityFamilyList.this)
+                .setTitle(strTitle)
+                .setMessage(R.string.tip_del_cannot_undo)
+                .setPositiveButton(getString(R.string.action_delete), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        DeleteFamily();
+                    }
+                })
+                .setNegativeButton(getString(R.string.action_cancel), null)
+                .show();
+
+//        FamilyInfo familyInfo = (FamilyInfo) v.getTag();
+//        mFamilyIdDeleteing = familyInfo.mId;
+//        Intent intent = new Intent();
+//        intent.setClass(this, ActivityPopup.class);
+//        intent.putExtra("title", getString(R.string.del_family) + ": " + familyInfo.mName);
+//        intent.putExtra("content", getString(R.string.tip_del_cannot_undo));
+//        startActivityForResult(intent, KActivityDeleteFamilyConfirm);
+    }
+    private RequestHandle sReqDeleteFamily = null;
+    public void DeleteFamily(){
+        AppResponseHandler onDeleteOK = new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqDeleteFamily = null;
+
+                AppCache.mFamilies.remove(mFamilyIdDeleteing);
+                AppCache.ListFamilys();
+
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdFamiliesUpdate);
+                sendBroadcast(intent);
+
+                Toast.makeText(ActivityFamilyList.this, R.string.del_finished, Toast.LENGTH_SHORT).show();
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqDeleteFamily = null;
+                Toast.makeText(ActivityFamilyList.this, msg, Toast.LENGTH_LONG).show();
+            }
+
+            ;
+        };
+        sReqDeleteFamily = ServerClient.DeleteFamily(mFamilyIdDeleteing, onDeleteOK);
+    }
+
+    public ListItemFamily.OnFamilyListener mOnFamilyListener = new ListItemFamily.OnFamilyListener() {
+        @Override
+        public void OnDeleteFamily(ListItemFamily v) {
+            DeleteFamilyWithConfirm(v);
+        }
+
+        @Override
+        public void OnEditFamily(ListItemFamily v) {
+            Intent intent = new Intent();
+            FamilyInfo f = (FamilyInfo) v.getTag();
+            intent.putExtra("family_id", f.mId);
+            intent.setClass(ActivityFamilyList.this, ActivityFamilyDetail.class);
+            startActivityForResult(intent, KActivityResultFamilyDetail);
+        }
+
+        @Override
+        public void OnClickFamily(ListItemFamily v) {
+            FamilyInfo f = (FamilyInfo) v.getTag();
+            if (mIsForSelect){
+                Intent intent = new Intent();
+                intent.putExtra("family_id", f.mId);
+                intent.putExtra("family_name", f.mName);
+                setResult(RESULT_OK, intent);
+                finish();
+            }
+            else{
+                long currentFamilyId = AppCache.mCurFamilyId;
+                if (f.mId != currentFamilyId) {
+                    AppCache.LoginToFamily(f.mId);
+                    mAdapter.notifyDataSetChanged();
+                    Toast.makeText(ActivityFamilyList.this, R.string.login_to_family_suc, Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+
+        @Override
+        public void OnLongClickFamily(ListItemFamily v) {
+            final ListItemFamily view = v;
+
+            String[] options = new String[2];
+            options[0] = getString(R.string.action_edit);
+            options[1] = getString(R.string.action_delete);
+            new AlertDialog.Builder(ActivityFamilyList.this)
+                    .setItems(options, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            if (i == 1) {
+                                ActivityFamilyList.this.DeleteFamilyWithConfirm(view);
+                            }
+                            else if (i == 0) {
+                                mOnFamilyListener.OnEditFamily(view);
+                            }
+                        }
+                    })
+                    .show();
+        }
+    };
+    public class MyAdapter extends BaseAdapter {
+
+        private LayoutInflater      mInflater;
+        private Vector<FamilyInfo>  mFamilies;
+
+        public MyAdapter(Context context){
+            this.mInflater = LayoutInflater.from(context);
+            mFamilies = new Vector<>();
+            mFamilies.addAll(AppCache.mFamilies.values());
+        }
+        @Override
+        public void notifyDataSetChanged() {
+            mFamilies = new Vector<>();
+            mFamilies.addAll(AppCache.mFamilies.values());
+            super.notifyDataSetChanged();
+        }
+        @Override
+        public int getCount() {
+            return mFamilies.size();
+        }
+
+        @Override
+        public Object getItem(int arg0) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int arg0) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            FamilyInfo f = mFamilies.get(position);
+
+            ListItemFamily tgv = (ListItemFamily)mInflater.inflate(R.layout.li_family_info, null);
+            convertView = tgv;
+            tgv.SetOnFamilyListener(mOnFamilyListener);
+            tgv.SetFamilyInfo(f);
+
+            if (position >= mFamilies.size() - 1){
+                tgv.findViewById(R.id.txt_bottom_line).setVisibility(View.GONE);
+            }
+            return convertView;
+        }
+    }
+
+    private PullToRefreshListView mPullRefreshListView;
+    protected MyAdapter mAdapter = null;
+
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(Config.BoardcastZzdChangeFamily)
+                    || action.equals(Config.BoardcastZzdFamiliesUpdate)) {
+                mAdapter.notifyDataSetChanged();
+                mPullRefreshListView.onRefreshComplete();
+            }
+        }
+    };
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_listview);
+        setTitle(R.string.family_manage);
+
+        mBtnHeaderRight.setVisibility(View.VISIBLE);
+        mPullRefreshListView = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
+
+        mAdapter = new MyAdapter(this);
+        mPullRefreshListView.setAdapter(mAdapter);
+        mPullRefreshListView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener<ListView>() {
+            @Override
+            public void onRefresh(PullToRefreshBase<ListView> refreshView) {
+                AppCache.ListFamilys();
+            }
+        });
+        TextView tv = new TextView(this);
+        tv.setText((getString(R.string.tip_create_a_family)));
+        tv.setGravity(Gravity.CENTER);
+        mPullRefreshListView.setEmptyView(tv);
+
+        mAdapter.notifyDataSetChanged();
+
+        Intent intent = getIntent();
+        mIsForSelect = intent.getBooleanExtra("is_for_select", false);
+        if (mIsForSelect){
+            setTitle(R.string.tip_need_choose_a_family);
+        }
+
+        boolean bNeedRefresh = intent.getBooleanExtra("need_refresh", false);
+        if (bNeedRefresh){
+            mPullRefreshListView.setRefreshing();
+        }
+
+        boolean bCreateNew = intent.getBooleanExtra("create_new", false);
+        if (bCreateNew){
+            OnHeaderRightClick();
+        }
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Config.BoardcastZzdChangeFamily);
+        filter.addAction(Config.BoardcastZzdFamiliesUpdate);
+        registerReceiver(mReceiver, filter);
+    }
+
+    public void onDestroy() {
+        unregisterReceiver(mReceiver);
+        super.onDestroy();
+    }
+}

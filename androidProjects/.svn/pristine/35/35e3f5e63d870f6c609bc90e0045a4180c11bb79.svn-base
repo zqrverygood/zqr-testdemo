@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="tab_scene_on">#31b77a</color>
+    <color name="tab_scene_off">#f0f0f0</color>
+    <color name="tab_room_off">#969696</color>
+    <color name="tab_room_on">#fafafa</color>
+    <color name="tab_off">#f7f8f8</color>
+    <color name="tab_font_off">#5c5c5c</color>
+    <color name="tab_font_on">#31b77a</color>
+    <color name="btn_dark_red">#f40a20</color>
+    <color name="seperator_line">#DBDBDB</color>
+
+    <color name="result_view">#b0000000</color>
+    <color name="viewfinder_mask">#60000000</color>
+    <color name="possible_result_points">#c0ffff00</color>
+    <color name="login_forgrtpassword">#70BE47</color>
+    <color name="login_other_way">#878787</color>
+
+
+    <color name="profile_username">#FFFFFF</color>
+    <color name="profile_presentfamily">#E7E7E7</color>
+    <color name="split_line">#F0F0F0</color>
+    <color name="header_background">#31b77a</color>
+    <color name="header_background_me">#2cc88f</color>
+    <color name="timepicker_spitline">#e6e5e5</color>
+
+    <color name="bg_scene_1">#30c6d8</color>
+    <color name="bg_scene_2">#e179b6</color>
+    <color name="bg_scene_3">#f5d453</color>
+    <color name="bg_scene_4">#70be47</color>
+
+    <color name="setting_electric">#FFC7C8C9</color>
+    <color name="login_name_password">#FFD7D9DA</color>
+
+</resources>

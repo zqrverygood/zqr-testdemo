@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="64dp">
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:id="@+id/edit"
+        android:layout_gravity="center_horizontal"
+        android:layout_alignParentTop="false"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/btn_right_save"
+        android:layout_toStartOf="@+id/btn_right_save"
+        android:layout_marginLeft="24dp" />
+
+
+    <ImageButton
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:id="@+id/btn_right_save"
+        android:src="@drawable/ic_check_yes"
+        android:background="@null"
+        android:layout_toLeftOf="@+id/btn_right_del"
+        android:layout_toStartOf="@+id/btn_right_del"
+        android:layout_centerVertical="true"
+        android:visibility="invisible"
+        android:layout_alignParentRight="true" />
+
+    <ImageButton
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:id="@+id/btn_right_del"
+        android:src="@drawable/ic_sub_b"
+        android:background="@null"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:visibility="visible" />
+</RelativeLayout>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="app.smarthome.zzd.smarthome">
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.FLASHLIGHT" />
+
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application
+        android:name="app.smarthome.zzd.smarthome.AppInstance"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <activity android:name=".ActivityMain">
+
+            <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+        </activity>
+
+        <activity android:name=".ActivityCaptureQR" android:screenOrientation="portrait">
+        </activity>
+
+        <activity android:name=".ResultActivity">
+        </activity>
+
+        <activity android:name=".ActivityDeviceDetail">
+        </activity>
+
+        <activity android:name=".ActivitySceneDetail">
+        </activity>
+
+        <activity android:name=".ActivityPopup" android:theme="@style/popup_dialog">
+        </activity>
+
+        <activity android:name=".ActivityFamilyDetail">
+        </activity>
+
+        <activity android:name=".ActivityFamilyList">
+        </activity>
+
+
+        <activity android:name=".ActivityLogin">
+        </activity>
+
+
+
+        <activity android:name=".ActivityWebView">
+        </activity>
+
+        <activity android:name=".ActivityGuide">
+        </activity>
+
+        <activity android:name=".ActivityFirst">
+        </activity>
+
+        <activity android:name=".ActivityTimeSet">
+        </activity>
+
+        <activity android:name=".ActivitySettingElectric">
+        </activity>
+
+        <activity android:name=".ActivityRoomList">
+        </activity>
+
+        <meta-data
+            android:name="UMENG_APPKEY"
+            android:value="*****" />
+        <meta-data
+            android:name="UMENG_CHANNEL"
+            android:value="default" />
+        <!-- ###################注册SDK使用的Activity###################### -->
+        <!-- 分享编辑页 -->
+        <activity
+            android:name="com.umeng.socialize.view.ShareActivity"
+            android:configChanges="orientation|keyboard"
+            android:launchMode="singleTask"
+            android:noHistory="true"
+            android:theme="@style/Theme.UMDialog"
+            android:windowSoftInputMode="stateVisible|adjustResize" />
+        <activity
+            android:name=".wxapi.WXEntryActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity android:name="com.umeng.fb.ConversationActivity" />
+
+        <service
+            android:name="com.umeng.update.net.DownloadingService"
+            android:process=":DownloadingService" />
+
+        <activity
+            android:name="com.umeng.update.UpdateDialogActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+    </application>
+
+</manifest>

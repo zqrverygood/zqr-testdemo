@@ -1,0 +1,167 @@
+package app.smarthome.zzd.smarthome;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.loopj.android.http.RequestHandle;
+import com.umeng.analytics.MobclickAgent;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.w3c.dom.Text;
+
+import java.util.Vector;
+
+import app.smarthome.zzd.smarthome.view.AdbannerView;
+import app.smarthome.zzd.smarthome.view.ScenesPager;
+import app.smarthome.zzd.smarthome.view.RoomDevicePager;
+
+/**
+ * Created by inobaa on 15/1/20.
+ */
+public class FragmentScenes extends FragmentForMain {
+
+    private final static int ACTIVITY_MODE_DETAIL = 100;
+
+    private ScenesPager              mScenesPager;
+    private AdbannerView            mAdView;
+    private LayoutInflater          mInflater;
+    private TextView                mTxtToScenes;
+    private TextView                mTxtToTimers;
+
+    public FragmentScenes() {
+    }
+    public void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart("FragmentScenes"); //统计页面
+    }
+    public void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd("FragmentScenes");
+    }
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(Config.BoardcastZzdStrategyUpdate)) {
+                mScenesPager.OnScenesChanged();
+            }
+            else if(action.equals(Config.BoardcastZzdTimerUpdate)){
+                mScenesPager.OnTimersChanged();
+            }
+            else if(action.equals(Config.BoardcastZzdAdbannerUpdate)){
+                mAdView.ReLoad(mInflater, 1);
+            }
+        }
+    };
+    public void OnHeaderLeftClick(){
+    }
+    public void OnHeaderRightClick(){
+        Intent intent = new Intent();
+        intent.setClass(getActivity(), ActivityDeviceDetail.class);
+//        intent.putExtra("strategy_id", 0);
+        startActivityForResult(intent, ACTIVITY_MODE_DETAIL);
+    }
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case ACTIVITY_MODE_DETAIL:
+                if(resultCode == Activity.RESULT_OK){
+                    mScenesPager.notifyDataSetChanged();
+                }
+                break;
+        }
+    }
+    public void SwitchToScene(boolean isTimerScene){
+        if (isTimerScene) {
+            mTxtToScenes.setTextColor(getResources().getColor(R.color.tab_scene_off));
+            mTxtToTimers.setTextColor(getResources().getColor(R.color.tab_scene_on));
+//            mTxtToScenes.setBackgroundResource(0);
+//            mTxtToTimers.setBackgroundResource(R.drawable.tab_scene_on);
+        }
+        else{
+            mTxtToScenes.setTextColor(getResources().getColor(R.color.tab_scene_on));
+            mTxtToTimers.setTextColor(getResources().getColor(R.color.tab_scene_off));
+//            mTxtToScenes.setBackgroundResource(R.drawable.tab_scene_on);
+//            mTxtToTimers.setBackgroundResource(0);
+        }
+        mScenesPager.SetIsTimerScene(isTimerScene, false);
+    }
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        mInflater = inflater;
+        View rootView = super.onCreateView(inflater, container, savedInstanceState, R.layout.fragment_scenes);
+        mTxtHeaderTitle.setText(R.string.tbi_scence);
+        mTxtHeaderTitle.setVisibility(View.INVISIBLE);
+//        mBtnHeaderLeft.setVisibility(View.VISIBLE);
+        mBtnHeaderRight.setVisibility(View.VISIBLE);
+
+        mTxtToScenes = (TextView)rootView.findViewById(R.id.txt_scene_now);
+        mTxtToScenes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SwitchToScene(false);
+            }
+        });
+        mTxtToTimers = (TextView)rootView.findViewById(R.id.txt_scene_timer);
+        mTxtToTimers.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SwitchToScene(true);
+            }
+        });
+
+        mAdView = (AdbannerView)rootView.findViewById(R.id.view_pager_adbanner);
+        mAdView.ReLoad(mInflater, 1);
+
+        mScenesPager = (ScenesPager)rootView.findViewById(R.id.view_pager_scenes);
+        mScenesPager.Init(mInflater);
+        mScenesPager.SetOnSceneListener(new ScenesPager.OnSceneListener() {
+            @Override
+            public void onSceneClick(long lDeviceId, boolean isTimer) {
+
+            }
+
+            @Override
+            public void onSceneLongTouch(long lDeviceId, boolean isTimer) {
+
+            }
+
+            @Override
+            public void onSceneChanged(boolean isTimer) {
+                SwitchToScene(isTimer);
+            }
+        });
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Config.BoardcastZzdStrategyUpdate);
+        filter.addAction(Config.BoardcastZzdTimerUpdate);
+        getActivity().registerReceiver(mReceiver, filter);
+        return rootView;
+    }
+
+    public void onDestroy() {
+        getActivity().unregisterReceiver(mReceiver);
+        super.onDestroy();
+    }
+}

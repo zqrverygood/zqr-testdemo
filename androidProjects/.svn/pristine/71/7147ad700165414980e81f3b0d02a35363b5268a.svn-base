@@ -1,0 +1,261 @@
+package app.smarthome.zzd.smarthome;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.loopj.android.http.RequestHandle;
+
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+
+import app.smarthome.zzd.smarthome.model.UserInfo;
+
+/**
+ * Created by Administrator on 2015/12/10.
+ */
+public class ActivityLogin2 extends Activity{
+    public static final int         KModeLogin = 0;
+    public static final int         KModeReg = 1;
+    public static final int         KModeForgetPasswd = 2;
+    int      mCurrentMode =         KModeReg;
+
+    private Animation               mRotateAction;
+    private Animation               mWarningAction;
+
+    private TextView                mRegisterNewAccount;
+    private  ViewPager              mViewPager;
+    private ViewPagerAdapter        mAdapter;
+    private ArrayList<View>         mViewList;
+    private int                     mPreviousPosition = 0;//图片的索引
+    private Button                  mButtonSentVcode;//发送验证码
+    private Button                  mButtonRegister;//注册
+    private Button                  mButtonLogin;//登录
+    private EditText                mEditAccount;
+    private EditText                mEditVCode;
+    private EditText                mEditPassword;
+    private EditText                mEditPasswordConfirm;
+    private EditText                mEditPhone;
+    private EditText                mEditLoginAccount;//登录页的账号
+    private EditText                mEditLoginPassword;//登录页的密码
+
+
+    private RequestHandle           sReqVCodeId = null;
+    private  int                     time;  //倒计时的时间
+    private Handler handler = new Handler() {
+
+        public void handleMessage(android.os.Message msg) {
+                 time -= 1;
+                if (time<=0) {
+                    mButtonSentVcode.setClickable(true);
+                    mButtonSentVcode.setText("发送验证码");
+                    mButtonSentVcode.setBackgroundResource(R.drawable.send_code);
+                }else {
+                    mButtonSentVcode.setText(time+"秒后重新获取");
+                    mButtonSentVcode.setBackgroundResource(R.drawable.btn_background);
+                    mButtonSentVcode.setTextSize(13);
+                    handler.sendEmptyMessageDelayed(0, 1000);
+            }
+        };
+    };
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.login_viewpager);
+
+        mViewPager = (ViewPager) findViewById(R.id.login_viewpager);
+
+        mViewList = new ArrayList<View>();
+        final View login = getLayoutInflater().inflate(R.layout.activity_register, null);
+        mViewList.add(login);
+        View register = getLayoutInflater().inflate(R.layout.activity_login2, null);
+        mViewList.add(register);
+
+        mAdapter = new ViewPagerAdapter();
+        mViewPager.setAdapter(mAdapter);
+        mViewPager.setCurrentItem(mPreviousPosition);
+
+        mRegisterNewAccount = (TextView) login.findViewById(R.id.register_new_account);
+        mButtonLogin = (Button) login.findViewById(R.id.login_btn_login);
+        mEditLoginAccount = (EditText) login.findViewById(R.id.login_edit_account);
+        mEditLoginPassword = (EditText) login.findViewById(R.id.login_edit_password);
+
+        mButtonSentVcode = (Button) register.findViewById(R.id.sent_vcode);
+        mButtonRegister = (Button) register.findViewById(R.id.btn_submit);
+        mEditAccount = (EditText) register.findViewById(R.id.edit_account);
+        mEditPassword = (EditText) register.findViewById(R.id.edit_password);
+        mEditPasswordConfirm = (EditText) register.findViewById(R.id.edit_password_confirm);
+        mEditVCode = (EditText) register.findViewById(R.id.edit_vcode);
+        mEditPhone = (EditText) register.findViewById(R.id.edit_phonenumber);
+
+
+        //点击进入注册页
+        mRegisterNewAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mViewPager.setCurrentItem(mViewPager.getCurrentItem() + 1, true);
+            }
+        });
+
+        //发送验证码
+        mButtonSentVcode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String phone = mEditPhone.getText().toString();
+                if (phone.length() < 5){
+                    Toast.makeText(ActivityLogin2.this,"号码不能少于六位",Toast.LENGTH_LONG).show();
+                }
+                sReqVCodeId  = ServerClient.ApplyVCode(phone,true, new AppResponseHandler() {
+                    public void onReqSuccess(JSONObject arg0) {
+
+                        try {
+                            Long jo = arg0.getLong("availTime");
+                            String succes = arg0.getString("success");
+                            System.out.println(jo);
+                            mButtonSentVcode.setClickable(false);
+                            time=5;
+                            handler.sendEmptyMessageDelayed(0, 1000);
+                        } catch (org.json.JSONException e) {
+                            e.printStackTrace();
+                            mEditVCode.setEnabled(true);
+                            return;
+                        }
+                    }
+                    public void onReqFailure(String msg) {
+
+                        Toast.makeText(ActivityLogin2.this, msg, Toast.LENGTH_LONG).show();
+                    };
+                });
+
+
+
+            }
+        });
+
+        //提交注册
+        mButtonRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String loginname = mEditAccount.getText().toString();
+                String phone = mEditPhone.getText().toString();
+                String vcode = mEditVCode.getText().toString();
+                String passwd = mEditPassword.getText().toString();
+                String passwdConfirm = mEditPasswordConfirm.getText().toString();
+                if (!passwdConfirm.equals(passwd)){
+                    Toast.makeText(ActivityLogin2.this,"两次输入的密码不一致",Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                RequestHandle rqh = ServerClient.Signup(loginname, phone, passwd, vcode, new AppResponseHandler() {
+                    public void onReqSuccess(JSONObject arg0) {
+                        try {
+                           String message = arg0.getString("message");
+                            String loginName = arg0.getString("loginName");
+                           // String token = arg0.getString("token");
+                            System.out.println(loginName);
+
+                            Toast.makeText(ActivityLogin2.this,message,Toast.LENGTH_LONG).show();
+                            Intent i = new Intent(ActivityLogin2.this,ActivityMain.class);
+                            startActivity(i);
+                            finish();
+
+
+
+                        } catch (Exception e) {
+                            Toast.makeText(ActivityLogin2.this, e.toString(), Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                    }
+
+
+                    public void onReqFailure(String msg) {
+                        System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbb");
+                        Toast.makeText(ActivityLogin2.this, msg, Toast.LENGTH_LONG).show();
+                    }
+
+
+                });
+
+
+            }
+        });
+
+        //登录
+        mButtonLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String loginName = mEditLoginAccount.getText().toString();
+               String password = mEditLoginPassword.getText().toString();
+
+                RequestHandle rqh = ServerClient.Signin(loginName,password,new AppResponseHandler(){
+                            public void onReqSuccess(JSONObject arg0){
+                                try {
+
+                                    Toast.makeText(ActivityLogin2.this,"登录成功",Toast.LENGTH_LONG).show();
+                                    Intent i = new Intent(ActivityLogin2.this,ActivityMain.class);
+                                    startActivity(i);
+                                    finish();
+                                }catch (Exception e){
+                                    Toast.makeText(ActivityLogin2.this, e.toString(), Toast.LENGTH_LONG).show();
+                                    return;
+                                }
+
+
+                            }
+                            public void onReqFailure(String msg){
+                                System.out.println("ccccccccccccccccccccccccc");
+                                Toast.makeText(ActivityLogin2.this, msg, Toast.LENGTH_LONG).show();
+                            }
+                        }
+
+
+                );
+            }
+        });
+
+
+    }
+    //适配器
+    protected class ViewPagerAdapter extends PagerAdapter {
+
+        @Override
+        public int getCount() {
+            return mViewList.size();
+        }
+
+
+        @Override
+        public boolean isViewFromObject(View arg0, Object arg1) {
+            return arg0 == arg1;
+        }
+
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            container.removeView(mViewList.get(position));
+        }
+
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            container.addView(mViewList.get(position));
+            return mViewList.get(position);
+        }
+
+    }
+
+
+
+
+}

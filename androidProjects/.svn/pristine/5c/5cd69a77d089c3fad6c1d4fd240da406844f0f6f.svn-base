@@ -1,0 +1,59 @@
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/white">
+
+    <FrameLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
+
+
+    <RadioGroup
+        android:id="@+id/rg_tab"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/tb_bg"
+        android:layout_marginTop="-2dp">
+
+        <RadioButton
+            style="@style/tab_main_style"
+            android:drawableTop="@drawable/tbi_device"
+            android:layout_weight="1"
+            android:text="@string/tbi_devices"
+            android:id="@+id/tbi_devices" />
+
+        <RadioButton
+            style="@style/tab_main_style"
+            android:drawableTop="@drawable/tbi_scence"
+            android:layout_weight="1"
+            android:text="@string/tbi_scence"
+            android:id="@+id/tbi_scence" />
+
+        <RadioButton
+            style="@style/tab_main_style"
+            android:drawableTop="@drawable/tbi_inteligent"
+            android:layout_weight="1"
+            android:text="@string/tbi_inteligent"
+            android:id="@+id/tbi_inteligent" />
+
+        <RadioButton
+            style="@style/tab_main_style"
+            android:drawableTop="@drawable/tbi_market"
+            android:layout_weight="1"
+            android:text="@string/tbi_market"
+            android:id="@+id/tbi_market" />
+
+        <RadioButton
+            style="@style/tab_main_style"
+            android:drawableTop="@drawable/tbi_me"
+            android:layout_weight="1"
+            android:text="@string/tbi_me"
+            android:id="@+id/tbi_me" />
+    </RadioGroup>
+
+</LinearLayout>

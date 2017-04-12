@@ -1,0 +1,99 @@
+package app.smarthome.zzd.smarthome;
+
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v7.app.ActionBarActivity;
+import android.widget.ImageView;
+
+public class ActivityFirst extends ActionBarActivity {
+
+    private ImageView iv_first;
+    private SharedPreferences sp;
+    private Intent intent;
+    private Handler handler = new Handler() {
+
+    };
+    private Message msg;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        sp = getSharedPreferences("config",MODE_PRIVATE);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_first);
+
+        iv_first = (ImageView) findViewById(R.id.img_firstview);
+        isShowingMain();
+
+    }
+
+    /**
+     * 进入主页
+     */
+    private void enterMain() {
+        intent = new Intent(ActivityFirst.this, ActivityMain.class);
+        startActivity(intent);
+        finish();
+    }
+
+    /**
+     * 进入引导页
+     */
+    private void enterGuideView() {
+        intent = new Intent(ActivityFirst.this, ActivityGuide.class);
+        startActivity(intent);
+        finish();
+    };
+
+    /**
+     * 通过SharedPreferences判断是否进入主界面
+     */
+    private void isShowingMain(){
+        String versionName = getVersionName();
+        String vn = sp.getString("versionname","0.0001");
+        //判断版本号是否一致，一致的话2秒后进入主页面，否则进入引导页
+        if (versionName.equals(vn)){
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    enterMain();
+                }
+            },2000);
+
+        }else {
+            SharedPreferences.Editor edit = sp.edit();
+            edit.putString("versionname",versionName);
+            edit.commit();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    enterGuideView();
+                }
+            },0);
+        }
+    }
+
+    /**得到应用程序的版本名称
+     * @return  版本号
+     */
+    private String getVersionName(){
+        //用来管理手机的APK
+        PackageManager pm = getPackageManager();
+        try {
+            //得到知道的APK的功能清单文件
+            PackageInfo info = pm.getPackageInfo(getPackageName(), 0);
+            return info.versionName;
+
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+
+
+}

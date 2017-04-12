@@ -1,0 +1,60 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/ly_header"
+        layout="@layout/header" />
+
+    <HorizontalScrollView
+        android:id="@+id/ly_rooms_scroll_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/lllightgray"
+        android:gravity="center_horizontal"
+        android:scrollbars="none"
+        android:foregroundGravity="center"
+        android:paddingLeft="6dp"
+        android:paddingRight="6dp">
+
+        <app.smarthome.zzd.smarthome.view.RoomListView
+            android:id="@+id/ly_rooms"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:minHeight="32dp"></app.smarthome.zzd.smarthome.view.RoomListView>
+    </HorizontalScrollView>
+
+    <app.smarthome.zzd.smarthome.view.AdbannerView
+        android:id="@+id/view_pager_adbanner"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:background="@drawable/bg_ad_device" />
+
+    <app.smarthome.zzd.smarthome.view.RoomDevicePager
+        android:id="@+id/view_pager_devices"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#fafafa"
+        android:scrollbars="none"
+        android:paddingTop="12dp" />
+
+    <!--<com.handmark.pulltorefresh.library.PullToRefreshGridView-->
+    <!--android:id="@+id/pull_refresh_grid"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:divider="@color/transparent"-->
+    <!--android:dividerHeight="0dp"-->
+    <!--android:cacheColorHint="#00000000"-->
+    <!--android:smoothScrollbar="true"-->
+    <!--android:focusable="true"-->
+    <!--android:focusableInTouchMode="true"-->
+    <!--android:numColumns="3"-->
+    <!--android:stretchMode="columnWidth"-->
+    <!--android:gravity="center"-->
+    <!--android:paddingTop="@dimen/grid_view_spacing"-->
+    <!--android:paddingLeft="@dimen/grid_view_spacing"-->
+    <!--android:paddingRight="@dimen/grid_view_spacing"/>-->
+
+</LinearLayout>

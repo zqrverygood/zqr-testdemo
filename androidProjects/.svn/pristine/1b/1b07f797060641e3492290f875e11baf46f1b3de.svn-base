@@ -1,0 +1,647 @@
+package app.smarthome.zzd.smarthome;
+
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+import com.loopj.android.http.RequestHandle;
+import com.util.Common;
+import com.util.LLong;
+import com.util.db.AppDb;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Vector;
+import app.smarthome.zzd.smarthome.model.DeviceInfo;
+import app.smarthome.zzd.smarthome.model.RoomInfo;
+import app.smarthome.zzd.smarthome.model.SceneInfo;
+import app.smarthome.zzd.smarthome.model.TimerInfo;
+import app.smarthome.zzd.smarthome.view.GridIconScene;
+
+/**
+ * Created by zzdios on 15/11/30.
+ */
+public class ActivitySceneDetail extends ActivityHeaderBase {
+
+    public static final int KActivityResultSetTime = 101;
+
+    private ProgressDialog          mProgDialog;
+
+    private HashMap<LLong, Long>    mSceneItems = new HashMap<>();
+    private TimerInfo               mTimer = new TimerInfo();
+    private SceneInfo               mScene = new SceneInfo();
+    private boolean                 mIsTimerEnable = false;
+    private boolean                 mbHasEdited = false;
+
+
+    private HashMap<Long, LinearLayout>         mRoomItems = new HashMap<>();
+    private Vector<RelativeLayout>              mLySceneItems = new Vector<>();
+
+    private GridIconScene                       mCurSelectIcon;
+    private EditText                            mEditName;
+    private LinearLayout                        mLyRooms;
+    private LinearLayout                        mLyIcons;
+    private TextView                            mTxtTimeInfo;
+    private ImageView                           mCheckBoxIsTimer;
+
+    private void UpdateTimerInfo(){
+        String strTimerInfo = String.format(getString(R.string.scene_timer_fmt), mTimer.mTime, mTimer.getDaysInWeek().size());
+        mTxtTimeInfo.setText(strTimerInfo);
+        mTxtTimeInfo.setTextColor(getResources().getColor(mIsTimerEnable ? R.color.dddarkgray : R.color.gray));
+        mCheckBoxIsTimer.setImageResource(mIsTimerEnable ? R.drawable.switch_box_on_green : R.drawable.switch_box_off);
+    }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_scene_detail);
+
+        mbHasEdited = false;
+
+        mProgDialog = new ProgressDialog(this);
+        mProgDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgDialog.setMessage(getString(R.string.tip_saving));
+        mProgDialog.setIndeterminate(false);
+        mProgDialog.setCancelable(false);
+
+        mTxtHeaderRight.setText(R.string.action_save);
+        mTxtHeaderRight.setVisibility(View.VISIBLE);
+
+        mEditName = (EditText) findViewById(R.id.edit_name);
+        mLyRooms = (LinearLayout) findViewById(R.id.ly_rooms);
+        mLyIcons = (LinearLayout) findViewById(R.id.ly_icons);
+        mCheckBoxIsTimer = (ImageView) findViewById(R.id.img_switch_is_timer);
+        mCheckBoxIsTimer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mIsTimerEnable = !mIsTimerEnable;
+
+                mbHasEdited = true;
+
+                UpdateTimerInfo();
+            }
+        });
+        mTxtTimeInfo = (TextView)findViewById(R.id.txt_scene_timer);
+        mTxtTimeInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                OnSelectTimerInfo();
+            }
+        });
+
+        Intent intent = getIntent();
+        long timerId = intent.getLongExtra("timer_id", 0L);
+
+        if (timerId > 0) {
+            mTimer.copyFrom(AppCache.mTimers.get(timerId));
+            mIsTimerEnable = true;
+        }
+        else{
+            Calendar c = Calendar.getInstance();
+            int hour = c.get(Calendar.HOUR_OF_DAY);
+            int minute = c.get(Calendar.MINUTE);
+            mTimer.mTime = String.format("%02d:%02d:00", hour, minute);
+            mTimer.mWeekMask = 62;
+        }
+        UpdateTimerInfo();
+
+        long sceneId = mTimer.mSceneId;
+        if (sceneId <= 0){
+            sceneId = intent.getLongExtra("scene_id", 0L);
+        }
+        if (sceneId <= 0){
+            sceneId = mTimer.mSceneId;
+        }
+        if (sceneId > 0){
+            mScene.copyFrom(AppCache.mScenes.get(sceneId));
+        }
+
+        if (mScene.mId <= 0){
+            mScene.mFamilyId = AppCache.mCurFamilyId;
+            mScene.mIcon = "" + Character.valueOf((char) ('a' + (int)(Math.random() * 4))) + "a";
+        }
+
+        String strTitle = getString(mScene.mId > 0 ? R.string.action_edit : R.string.action_add);
+        setTitle(strTitle + getString(R.string.tbi_scence));
+
+        mEditName.setText(mScene.mName);
+
+        initIcons();
+        showDevicePorts();
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case KActivityResultSetTime:
+                if (resultCode == RESULT_OK){
+                    mbHasEdited = true;
+
+                    mTimer.mWeekMask = data.getIntExtra("week_mask", 62);
+                    int hour = data.getIntExtra("hour", 8);
+                    int minute = data.getIntExtra("minute", 30);
+                    int second = data.getIntExtra("second", 0);
+
+                    mTimer.mTime = String.format(getResources().getString(R.string.time_fmt), hour, minute, second);
+
+                    String strTimerInfo = String.format(getString(R.string.scene_timer_fmt), mTimer.mTime, mTimer.getDaysInWeek().size());
+                    mTxtTimeInfo.setText(strTimerInfo);
+                }
+                break;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public void initIcons(){
+//        int iconSize = mLyIcons.getHeight();
+        int iconSize = 64;
+        LayoutInflater inflater = LayoutInflater.from(this);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(iconSize, iconSize);
+        lp.setMargins(12, 6, 12, 6);
+
+        View.OnClickListener onClick = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mCurSelectIcon != null) mCurSelectIcon.SetSelected(false);
+                mCurSelectIcon = (GridIconScene) view;
+                mCurSelectIcon.SetSelected(true);
+
+                mScene.mIcon = mScene.mIcon.substring(0, 1) + Character.valueOf((char) ('a' + (int)(mCurSelectIcon.getTag())));
+            }
+        };
+        int iconColorIdx = 0;
+        int iconIdx = 0;
+        if (mScene.mIcon.length() >= 1){
+            iconColorIdx = (mScene.mIcon.toLowerCase().charAt(0)) - 'a';
+        }
+        if (mScene.mIcon.length() >= 2){
+            iconIdx = (mScene.mIcon.toLowerCase().charAt(1)) - 'a';
+        }
+
+        for (int i = 0; i < GridIconScene.TotalIconCount; ++i) {
+            GridIconScene icon = (GridIconScene) (inflater.inflate(R.layout.gi_scene_info, null));
+            icon.InitForChoose(i, iconColorIdx);
+            icon.setTag(i);
+            mLyIcons.addView(icon, lp);
+            icon.setOnClickListener(onClick);
+
+            if (iconIdx % GridIconScene.TotalIconCount == i){
+                mCurSelectIcon = icon;
+                mCurSelectIcon.SetSelected(true);
+            }
+        }
+    }
+    public void onDestroy() {
+        if (sReqSaveScene != null){
+            sReqSaveScene.cancel(true);
+            sReqSaveScene = null;
+        }
+        if (sReqSaveTimer != null){
+            sReqSaveTimer.cancel(true);
+            sReqSaveTimer = null;
+        }
+        super.onDestroy();
+    }
+
+    private void OnSelectTimerInfo(){
+        Intent intent = new Intent();
+        int lSeconds = (int) Common.getSecondsByHMS(mTimer.mTime);
+        intent.putExtra("hour", lSeconds / 3600);
+        intent.putExtra("minute", (lSeconds / 60) % 60);
+        intent.putExtra("week_mask", (int)mTimer.mWeekMask);
+        intent.setClass(this, ActivityTimeSet.class);
+        startActivityForResult(intent, KActivityResultSetTime);
+    }
+
+    private void AfterSaveOK(){
+
+        mProgDialog.hide();
+
+        final AlertDialog dialog = new AlertDialog.Builder(ActivitySceneDetail.this)
+                .setMessage(getString(R.string.save_finished))
+                .show();
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                dialog.dismiss();
+                if (mProgDialog.isShowing()) mProgDialog.dismiss();
+                setResult(RESULT_OK);
+                ActivitySceneDetail.this.finish();
+            }
+        }, Toast.LENGTH_LONG);
+    }
+
+    private RequestHandle sReqSaveTimer = null;
+    public void SaveTimer(){
+        if (!mIsTimerEnable) return;
+
+        final TimerInfo toSave = mTimer;
+        toSave.mFamilyId = AppCache.mCurFamilyId;
+        toSave.mSceneId = mScene.mId;
+//        toSave.mWeekMask;
+//        toSave.mTime;
+        AppResponseHandler onSaveOK = new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqSaveTimer = null;
+
+                try {
+                    JSONArray dataList = arg0.getJSONArray("dataList");
+                    JSONObject jTimer = dataList.getJSONObject(0);
+                    mTimer.fromJson(jTimer);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    mProgDialog.hide();
+                    return;
+                }
+                AppCache.mTimers.put(toSave.mId, toSave);
+//                AppDb.getInstance(null).setConfig(AppCache.KDbKeyTimer, "");
+                AppCache.ListTimer();
+
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdTimerUpdate);
+                sendBroadcast(intent);
+
+                AfterSaveOK();
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqSaveTimer = null;
+                mProgDialog.hide();
+                Toast.makeText(ActivitySceneDetail.this, msg, Toast.LENGTH_LONG).show();
+            }
+            ;
+        };
+
+        if (mTimer.mId > 0){
+            sReqSaveTimer = ServerClient.UpdateTimer(toSave, onSaveOK);
+        }
+        else{
+            sReqSaveTimer = ServerClient.CreateTimer(toSave, onSaveOK);
+        }
+    }
+    public void DeleteTimer(){
+        if (mIsTimerEnable || mTimer.mId <= 0) return;
+
+        final TimerInfo toSave = mTimer;
+        AppResponseHandler onSaveOK = new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqSaveTimer = null;
+
+                AppCache.mTimers.remove(toSave.mId);
+                AppCache.mSceneId2TimerId.remove(toSave.mId);
+//                AppDb.getInstance(null).setConfig(AppCache.KDbKeyScene, "");
+                AppCache.ListTimer();
+
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdTimerUpdate);
+                sendBroadcast(intent);
+
+                AfterSaveOK();
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqSaveTimer = null;
+                mProgDialog.hide();
+                Toast.makeText(ActivitySceneDetail.this, msg, Toast.LENGTH_LONG).show();
+            }
+            ;
+        };
+
+        sReqSaveTimer = ServerClient.DeleteTimer(toSave.mId, onSaveOK);
+    }
+
+    private RequestHandle sReqSaveScene = null;
+    public void onSaveScene(){
+        final SceneInfo toSave = mScene;
+
+        toSave.mId = mScene.mId;
+        toSave.mName = mEditName.getText().toString();
+        toSave.mFamilyId = AppCache.mCurFamilyId;
+        toSave.mIcon = mScene.mIcon;//.substring(0, 1) + Character.valueOf((char) ('a' + (int)(mCurSelectIcon.getTag())));
+
+        if (Common.isNullString(toSave.mName)){
+            mEditName.requestFocus();
+            Toast.makeText(ActivitySceneDetail.this, getString(R.string.tip_need_name), Toast.LENGTH_LONG).show();
+            return;
+        }
+        toSave.mItems.clear();
+        for (LLong id : mSceneItems.keySet()){
+            SceneInfo.SceneItem item = new SceneInfo.SceneItem();
+            item.mDataId = id.l2;
+            item.mDeviceId = id.l1;
+            item.mOpt = mSceneItems.get(id);
+            toSave.mItems.add(item);
+        }
+        AppResponseHandler onSaveOK = new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqSaveScene = null;
+
+                try {
+                    JSONArray jDatas = arg0.getJSONArray("dataList");
+                    JSONObject jScene = jDatas.getJSONObject(0);
+                    mScene.fromJson(jScene);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    mProgDialog.hide();
+                    Toast.makeText(ActivitySceneDetail.this, e.toString(), Toast.LENGTH_LONG).show();
+                    return;
+                }
+                AppCache.mScenes.put(mScene.mId, mScene);
+                AppDb.getInstance(null).setConfig(AppCache.KDbKeyScene, "");
+                AppCache.ListScene();
+
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdSceneUpdate);
+                sendBroadcast(intent);
+
+                if (mIsTimerEnable){
+                    SaveTimer();
+                }
+                else if (mTimer.mId > 0) {
+                    DeleteTimer();
+                }
+                else {
+                    AfterSaveOK();
+                }
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqSaveScene = null;
+                mProgDialog.hide();
+                Toast.makeText(ActivitySceneDetail.this, msg, Toast.LENGTH_LONG).show();
+            }
+            ;
+        };
+
+        if(!mProgDialog.isShowing())mProgDialog.show();
+        if (mScene.mId > 0){
+            sReqSaveScene = ServerClient.UpdateScene(toSave, onSaveOK);
+        }
+        else{
+            sReqSaveScene = ServerClient.CreateScene(toSave, onSaveOK);
+        }
+    }
+
+    public void OnHeaderRightClick(){
+        onSaveScene();
+    }
+
+    private View.OnClickListener mOnRoomHeadClicker = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            LinearLayout llp = (LinearLayout) view.getTag();
+            if (llp == null) return;
+            ImageView img = (ImageView)(llp.findViewById(R.id.ly_room_title).findViewById(R.id.img_left));
+            if (View.VISIBLE == llp.findViewById(R.id.ly_devices).getVisibility()) {
+                llp.findViewById(R.id.ly_devices).setVisibility(View.GONE);
+                img.setImageResource(R.drawable.arrow_down_gray);
+            } else {
+                llp.findViewById(R.id.ly_devices).setVisibility(View.VISIBLE);
+                img.setImageResource(R.drawable.arrow_up_gray);
+            }
+        }
+    };
+
+    private View.OnClickListener mOnDeviceSelectClicker = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            RelativeLayout lyParent = (RelativeLayout) view.getTag();
+            if (lyParent == null) return;
+            LLong did = (LLong) lyParent.getTag();
+            if (did == null) return;
+
+            mbHasEdited = true;
+
+            ImageView img_selected = (ImageView) lyParent.findViewById(R.id.img_select_status);
+            ImageView img_open_status = (ImageView) lyParent.findViewById(R.id.img_switch_status);
+            if (!mSceneItems.containsKey(did)){
+                mSceneItems.put(did, 0L);
+                img_selected.setImageResource(R.drawable.check_box_on_yellow);
+                img_open_status.setImageResource(R.drawable.switch_box_off);
+//                img_open_status.setOnClickListener(mOnDeviceSwitchStatusClicker);
+            }
+            else{
+                mSceneItems.remove(did);
+                img_selected.setImageResource(R.drawable.check_box_off);
+                img_open_status.setImageResource(R.drawable.switch_box_off);
+//                img_open_status.setOnClickListener(null);
+            }
+        }
+    };
+    private View.OnClickListener mOnDeviceSwitchStatusClicker = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            RelativeLayout lyParent = (RelativeLayout) view.getTag();
+            if (lyParent == null) return;
+            LLong did = (LLong) lyParent.getTag();
+            if (did == null) return;
+
+            mbHasEdited = true;
+
+            ImageView img_open_status = (ImageView) lyParent.findViewById(R.id.img_switch_status);
+            if (!mSceneItems.containsKey(did)){
+                ImageView img_selected = (ImageView) lyParent.findViewById(R.id.img_select_status);
+                mSceneItems.put(did, 1L);
+                img_selected.setImageResource(R.drawable.check_box_on_yellow);
+                img_open_status.setImageResource(R.drawable.switch_box_on_green);
+                return;
+            }
+            else{
+                Long lOption = mSceneItems.get(did);
+                img_open_status.setImageResource(lOption > 0 ? R.drawable.switch_box_off : R.drawable.switch_box_on_green);
+                if (lOption > 0){
+                    img_open_status.setImageResource(R.drawable.switch_box_off);
+                    mSceneItems.put(did, 0L);
+                }
+                else{
+                    img_open_status.setImageResource(R.drawable.switch_box_on_green);
+                    mSceneItems.put(did, 1L);
+                }
+            }
+        }
+    };
+    private void createRoomItem(String strRoomName, Vector<LLong> vecDeviceIds){
+        LayoutInflater inflater = LayoutInflater.from(this);
+        LinearLayout ll = (LinearLayout)inflater.inflate(R.layout.li_room_for_scene, null);
+        mLyRooms.addView(ll);
+
+        View rlRoomHead = ll.findViewById(R.id.ly_room_title);
+        rlRoomHead.setTag(ll);
+
+        ((TextView)rlRoomHead.findViewById(R.id.txt_title)).setText(strRoomName);
+
+        rlRoomHead.setOnClickListener(mOnRoomHeadClicker);
+
+        LinearLayout llDevices = (LinearLayout) ll.findViewById(R.id.ly_devices);
+
+        for (LLong did : vecDeviceIds){
+            DeviceInfo d = AppCache.mDevices.get(did.l1);
+            if (d == null) continue;
+
+            DeviceInfo.DevicePortInfo p = d.mPorts.get(did.l2);
+            if (p == null) continue;
+
+            RelativeLayout rl = (RelativeLayout)inflater.inflate(R.layout.li_dev_port_for_scene, null);
+            llDevices.addView(rl);
+
+            rl.setTag(did);
+
+            ImageView icon = (ImageView) rl.findViewById(R.id.img_left);
+            if (d.mDeviceType == Config.DeviceType.KDeviceTypeSwitch){
+                icon.setImageResource(p.mStatus > 0 ? R.drawable.switch_on : R.drawable.switch_off);
+            }
+            else{
+                icon.setImageResource(p.mStatus > 0 ? R.drawable.socket_on : R.drawable.socket_off);
+            }
+
+            TextView txtTitle = (TextView) rl.findViewById(R.id.txt_title);
+            txtTitle.setText(p.mName);
+
+            ImageView img_selected = (ImageView) rl.findViewById(R.id.img_select_status);
+            ImageView img_open_status = (ImageView) rl.findViewById(R.id.img_switch_status);
+            if (mSceneItems.containsKey(did)){
+                img_selected.setImageResource(R.drawable.check_box_on_yellow);
+                img_open_status.setImageResource(mSceneItems.get(did) > 0 ? R.drawable.switch_box_on_green : R.drawable.switch_box_off);
+            }
+            else{
+                img_selected.setImageResource(R.drawable.check_box_off);
+                img_open_status.setImageResource(R.drawable.switch_box_off);
+            }
+
+            img_selected.setTag(rl);
+            img_selected.setOnClickListener(mOnDeviceSelectClicker);
+
+            img_open_status.setTag(rl);
+            img_open_status.setOnClickListener(mOnDeviceSwitchStatusClicker);
+
+            mLySceneItems.add(rl);
+        }
+    };
+    private void showDevicePorts(){
+        for (LinearLayout rl : mRoomItems.values()){
+            mLyRooms.removeView(rl);
+        }
+        mRoomItems.clear();
+        mLySceneItems.clear();
+
+        for (SceneInfo.SceneItem i : mScene.mItems){
+            LLong id = new LLong();
+            id.l1 = i.mDeviceId;
+            id.l2 = i.mDataId;
+            mSceneItems.put(id, i.mOpt);
+        }
+
+        HashMap<Long, Vector<LLong> > room2ports = new HashMap<>();
+//        for (RoomInfo r : AppCache.mRooms.values()){
+//            room2ports.put(r.mId, new Vector<LLong>());
+//        }
+
+        for (DeviceInfo d : AppCache.mDevices.values()){
+            if (d.mDeviceType != Config.DeviceType.KDeviceTypeSwitch
+                    && d.mDeviceType != Config.DeviceType.KDeviceTypeAdapter10A
+                    && d.mDeviceType != Config.DeviceType.KDeviceTypeAdapter16A){
+                continue;
+            }
+            for (DeviceInfo.DevicePortInfo p : d.mPorts.values()){
+
+                LLong pid = new LLong();
+                pid.l1 = d.mId;
+                pid.l2 = p.mPortId;
+
+                Vector<LLong> rports;
+                if (room2ports.containsKey(p.mRoomId)){
+                    rports = room2ports.get(p.mRoomId);
+                }
+                else{
+                    rports = new Vector<>();
+                    room2ports.put(p.mRoomId, rports);
+                }
+                rports.add(pid);
+            }
+        }
+
+        // 保证开关排前面，同类型设备按名称排序
+        final Comparator<LLong> VECTOR_COMPARATOR_PORT_ID = new Comparator<LLong>() {
+            @Override
+            public int compare(LLong v2, LLong v1) {
+
+                DeviceInfo d1 = AppCache.mDevices.get(v1.l1);
+                if (d1 == null) return -1;
+
+                DeviceInfo d2 = AppCache.mDevices.get(v2.l1);
+                if (d2 == null) return 1;
+
+                if (d1.mDeviceType != Config.DeviceType.KDeviceTypeSwitch
+                        && d2.mDeviceType == Config.DeviceType.KDeviceTypeSwitch) return -1;
+
+                if (d1.mDeviceType == Config.DeviceType.KDeviceTypeSwitch
+                        && d2.mDeviceType != Config.DeviceType.KDeviceTypeSwitch) return 1;
+
+                DeviceInfo.DevicePortInfo p1 = d1.mPorts.get(v1.l2);
+                if (p1 == null) return -1;
+
+                DeviceInfo.DevicePortInfo p2 = d2.mPorts.get(v2.l2);
+                if (p2 == null) return 1;
+
+                return p1.mName.compareTo(p2.mName);
+            }
+        };
+
+        for (Long rid : room2ports.keySet()){
+            RoomInfo r = AppCache.mRooms.get(rid);
+            String roomName = (r == null ? getString(R.string.un_named) : r.mName);
+
+            Vector<LLong> vecDeviceIds = room2ports.get(rid);
+            Collections.sort(vecDeviceIds, VECTOR_COMPARATOR_PORT_ID);
+            createRoomItem(roomName, vecDeviceIds);
+        }
+    }
+
+    public boolean HasEdit(){
+        SceneInfo scene = AppCache.mScenes.get(mScene.mId);
+        if (scene == null) return false;
+
+        if (!mScene.mName.equals(scene.mName)) return true;
+        if (!mScene.mIcon.equals(scene.mIcon)) return true;
+
+        return mbHasEdited;
+    }
+
+    public void OnHeaderLeftClick(){
+        if (HasEdit()){
+            new AlertDialog.Builder(this)
+                    .setMessage(R.string.tip_quit_without_save)
+                    .setPositiveButton(getString(R.string.action_quit), new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    })
+                    .setNegativeButton(getString(R.string.action_cancel), null)
+                    .show();
+            return;
+        }
+        finish();
+    }
+}

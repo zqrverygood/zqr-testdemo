@@ -1,0 +1,167 @@
+package app.smarthome.zzd.smarthome;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+
+import java.util.Vector;
+
+import app.smarthome.zzd.smarthome.model.FamilyInfo;
+
+/**
+ * Created by zzdios on 15/11/30.
+ */
+public class ActivityFamilyList extends Activity {
+
+    public static final int KActivityResultFamilyDetail = 101;
+    private View.OnClickListener mOnFamilyInfo = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent();
+            FamilyInfo f = (FamilyInfo) view.getTag();
+            intent.putExtra("family_id", f.mId);
+            intent.setClass(ActivityFamilyList.this, ActivityFamilyDetail.class);
+            startActivityForResult(intent, KActivityResultFamilyDetail);
+        }
+    };
+    private void OnAddFamily(){
+        Intent intent = new Intent();
+        intent.setClass(ActivityFamilyList.this, ActivityFamilyDetail.class);
+        startActivityForResult(intent, KActivityResultFamilyDetail);
+    }
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == KActivityResultFamilyDetail && resultCode == RESULT_OK) {
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+    public class MyAdapter extends BaseAdapter {
+
+        private LayoutInflater      mInflater;
+        private Vector<FamilyInfo>  mFamilies;
+
+        public MyAdapter(Context context){
+            this.mInflater = LayoutInflater.from(context);
+            mFamilies = new Vector<>();
+            mFamilies.addAll(AppCache.mFamilies.values());
+        }
+        @Override
+        public void notifyDataSetChanged() {
+            mFamilies = new Vector<>();
+            mFamilies.addAll(AppCache.mFamilies.values());
+            super.notifyDataSetChanged();
+        }
+        @Override
+        public int getCount() {
+            return mFamilies.size();
+        }
+
+        @Override
+        public Object getItem(int arg0) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int arg0) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            FamilyInfo f = mFamilies.get(position);
+
+            RelativeLayout tgv = (RelativeLayout)mInflater.inflate(R.layout.li_family_info, null);
+            convertView = tgv;
+            tgv.setTag(f);
+
+            ImageView ivAvatar = ((ImageView)tgv.findViewById(R.id.img_main));
+
+            ImageView ivRight = ((ImageView)tgv.findViewById(R.id.img_right));
+            ivRight.setTag(f);
+            ivRight.setOnClickListener(ActivityFamilyList.this.mOnFamilyInfo);
+
+            TextView txtTitle = ((TextView)tgv.findViewById(R.id.txt_title));
+            txtTitle.setText(f.mName);
+            if (f.mId == mCurrentFamilyId){
+                txtTitle.setTextColor(getResources().getColor(R.color.blue));
+            }
+            else{
+                txtTitle.setTextColor(getResources().getColor(R.color.dddarkgray));
+            }
+
+            return convertView;
+        }
+        public void onItemClick(View view, int position){
+            FamilyInfo f = (FamilyInfo) view.getTag();
+            if (f.mId != mCurrentFamilyId) {
+                AppCache.LoginToFamily(f.mId);
+            }
+        }
+    }
+
+    private PullToRefreshListView mPullRefreshListView;
+    protected MyAdapter mAdapter = null;
+    private long      mCurrentFamilyId = 0L;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.fragment_listview);
+
+        ImageButton mButtonBack = (ImageButton) findViewById(R.id.btn_header_left);
+        mButtonBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ActivityFamilyList.this.finish();
+            }
+        });
+
+        ImageView imgRight = ((ImageView)findViewById(R.id.btn_header_right));
+        imgRight.setVisibility(View.VISIBLE);
+        imgRight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                OnAddFamily();
+            }
+        });
+
+        TextView title = (TextView) findViewById(R.id.txt_header);
+        title.setText(R.string.family_manage);
+
+        Intent intent = getIntent();
+
+        mCurrentFamilyId = AppCache.mCurFamily == null ? 0 : AppCache.mCurFamily.mId;
+
+        mPullRefreshListView = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
+        ListView actualListView = mPullRefreshListView.getRefreshableView();
+
+        mAdapter = new MyAdapter(this);
+        mPullRefreshListView.setAdapter(mAdapter);
+
+        mPullRefreshListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mAdapter.onItemClick(view, position - 1);
+            }
+        });
+
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//            }
+//        }, 2000);
+    }
+}

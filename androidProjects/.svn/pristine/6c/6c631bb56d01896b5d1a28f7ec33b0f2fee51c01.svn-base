@@ -1,0 +1,263 @@
+package app.smarthome.zzd.smarthome;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.text.Editable;
+import android.text.Selection;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.loopj.android.http.RequestHandle;
+import com.util.Common;
+
+import org.json.JSONObject;
+
+import java.util.Vector;
+
+import app.smarthome.zzd.smarthome.model.FamilyInfo;
+
+/**
+ * Created by zzdios on 15/11/30.
+ */
+public class ActivityFamilyDetail extends Activity {
+
+    public int KActivityDeleteFamilyConfirm   = 1001;
+
+    private FamilyInfo  mFamily;
+    private EditText    mEditName;
+    private Vector<RelativeLayout>  mShareItems = new Vector<>();
+    private LinearLayout mLyShares;
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == KActivityDeleteFamilyConfirm && resultCode == RESULT_OK) {
+//            AppCache.DeleteFamily(mFamily.mId);
+            AppCache.mFamilies.remove(mFamily.mId);
+            setResult(RESULT_OK);
+            ActivityFamilyDetail.this.finish();
+            //TODO
+        }
+    }
+    public void onLoginThisFamily(View v){
+        AppCache.LoginToFamily(mFamily.mId);
+    }
+
+    private RequestHandle sReqUpdateInfo = null;
+    private AppResponseHandler onUpdateFamilyResp = new AppResponseHandler() {
+        public void onReqSuccess(JSONObject arg0) {
+
+        };
+
+        public void onReqFailure(String msg) {
+            Log.e(Config.TagForLog, msg);
+            Toast.makeText(ActivityFamilyDetail.this, msg, Toast.LENGTH_LONG).show();
+        };
+    };
+    public void onSaveFamily(){
+        String strName = mEditName.getText().toString();
+
+        if (Common.isNullString(strName)){
+            Toast.makeText(ActivityFamilyDetail.this, getString(R.string.tip_need_name), Toast.LENGTH_LONG).show();
+            return;
+        }
+        findViewById(R.id.txt_login_to_family).requestFocus();
+        if (mFamily.mId > 0){
+//            sReqUpdateInfo = ServerClient.UpdateFamily(mFamily.mId, strName, onUpdateFamilyResp);
+            mFamily.mName = strName;
+            findViewById(R.id.btn_save_family).setVisibility(View.INVISIBLE);
+        }
+        else{
+//            sReqUpdateInfo = ServerClient.CreateFamily(strName, onUpdateFamilyResp);
+            mFamily.mName = strName;
+            mFamily.mId = (long) (Math.random() * 100000);
+            AppCache.mFamilies.put(mFamily.mId, mFamily);
+
+            findViewById(R.id.txt_login_to_family).setVisibility(View.VISIBLE);
+            findViewById(R.id.txt_del_family).setVisibility(View.VISIBLE);
+            findViewById(R.id.btn_save_family).setVisibility(View.INVISIBLE);
+            mLyShares.setVisibility(View.VISIBLE);
+        }
+    }
+    public void onDeleteFamily(View v){
+        Intent intent = new Intent();
+        intent.setClass(this, ActivityPopup.class);
+        intent.putExtra("title", getString(R.string.del_family) + mFamily.mName);
+        intent.putExtra("content", getString(R.string.del_cannot_undo));
+        startActivityForResult(intent, KActivityDeleteFamilyConfirm);
+    }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_family_detail);
+
+        mLyShares = (LinearLayout) findViewById(R.id.ly_members);
+
+        ImageButton buttonBack = (ImageButton) findViewById(R.id.btn_header_left);
+        buttonBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setResult(RESULT_OK);
+                ActivityFamilyDetail.this.finish();
+            }
+        });
+        ImageView imgRight = ((ImageView)findViewById(R.id.btn_header_right));
+        imgRight.setVisibility(View.GONE);
+
+        mEditName = (EditText) findViewById(R.id.edit_name);
+
+        TextView title = (TextView) findViewById(R.id.txt_header);
+        title.setText(R.string.family_manage);
+
+        Intent intent = getIntent();
+        long familyId = intent.getLongExtra("family_id", 0L);
+        mFamily = AppCache.mFamilies.get(familyId);
+        if (mFamily == null){
+            mFamily = new FamilyInfo();
+            mEditName.setText(getString(R.string.family) + (AppCache.mFamilies.size() + 1));
+            mLyShares.setVisibility(View.GONE);
+            findViewById(R.id.txt_login_to_family).setVisibility(View.GONE);
+            findViewById(R.id.txt_del_family).setVisibility(View.GONE);
+            findViewById(R.id.btn_save_family).setVisibility(View.VISIBLE);
+        }
+        else{
+            mEditName.setText(mFamily.mName);
+            findViewById(R.id.txt_login_to_family).setVisibility(View.VISIBLE);
+            findViewById(R.id.txt_del_family).setVisibility(View.VISIBLE);
+            findViewById(R.id.btn_save_family).setVisibility(View.INVISIBLE);
+        }
+
+        Editable etext = mEditName.getText();
+        Selection.setSelection(etext, etext.length());
+        mEditName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (mEditName.getText().toString().compareTo(mFamily.mName) != 0) {
+                    findViewById(R.id.btn_save_family).setVisibility(View.VISIBLE);
+                } else {
+                    findViewById(R.id.btn_save_family).setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
+        findViewById(R.id.txt_add_share).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onNewShare(view);
+            }
+        });
+
+        findViewById(R.id.txt_login_to_family).requestFocus();
+        findViewById(R.id.txt_login_to_family).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onLoginThisFamily(view);
+            }
+        });
+
+        findViewById(R.id.btn_save_family).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onSaveFamily();
+            }
+        });
+        findViewById(R.id.txt_del_family).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onDeleteFamily(view);
+            }
+        });
+        showMembers();
+    }
+
+    public void onCommitNewShare(RelativeLayout rl){
+        EditText et = (EditText) rl.findViewById(R.id.edit);
+        String strLoginName = et.getText().toString();
+        if (Common.isNullString(strLoginName)){
+            Toast.makeText(ActivityFamilyDetail.this, getString(R.string.tip_need_name), Toast.LENGTH_LONG).show();
+            return;
+        }
+        rl.findViewById(R.id.btn_right_save).setVisibility(View.INVISIBLE);
+        rl.findViewById(R.id.btn_right_del).setVisibility(View.VISIBLE);
+        findViewById(R.id.txt_add_share).setVisibility(View.VISIBLE);
+        mFamily.mMemberAccounts.add(strLoginName);
+    }
+    private RelativeLayout createShareItem(String strLoginName){
+        LayoutInflater inflater = LayoutInflater.from(this);
+        RelativeLayout rl = (RelativeLayout)inflater.inflate(R.layout.li_family_share, null);
+        rl.setTag(strLoginName);
+        EditText et = (EditText) rl.findViewById(R.id.edit);
+        et.setTag(rl);
+        et.setText(strLoginName);
+
+        ImageButton btnSave = (ImageButton) rl.findViewById(R.id.btn_right_save);
+        btnSave.setTag(rl);
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                RelativeLayout rlt = (RelativeLayout) view.getTag();
+                onCommitNewShare(rlt);
+
+                EditText et = (EditText) rlt.findViewById(R.id.edit);
+                et.setEnabled(false);
+            }
+        });
+        ImageButton btnDel = (ImageButton) rl.findViewById(R.id.btn_right_del);
+        btnDel.setTag(rl);
+        btnDel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                RelativeLayout rlShare = (RelativeLayout) view.getTag();
+                mLyShares.removeView(rlShare);
+                mShareItems.remove(rlShare);
+            }
+        });
+        if (Common.isNullString(strLoginName)){
+            rl.findViewById(R.id.btn_right_save).setVisibility(View.VISIBLE);
+            rl.findViewById(R.id.btn_right_del).setVisibility(View.INVISIBLE);
+
+        }
+        else{
+            rl.findViewById(R.id.btn_right_save).setVisibility(View.INVISIBLE);
+            rl.findViewById(R.id.btn_right_del).setVisibility(View.VISIBLE);
+            et.setEnabled(false);
+        }
+        return rl;
+    };
+    public void onNewShare(View v){
+        RelativeLayout rl = createShareItem("");
+        mShareItems.add(rl);
+        mLyShares.addView(rl, mShareItems.size());
+        findViewById(R.id.txt_add_share).setVisibility(View.GONE);
+        EditText et = (EditText) rl.findViewById(R.id.edit);
+        et.requestFocus();
+    }
+    private void showMembers(){
+        for (RelativeLayout rl : mShareItems){
+            mLyShares.removeView(rl);
+        }
+        mShareItems.clear();
+
+        for (String strLoginName : mFamily.mMemberAccounts){
+            RelativeLayout rl = createShareItem(strLoginName);
+            mShareItems.add(rl);
+            mLyShares.addView(rl, 1);
+        }
+    }
+}

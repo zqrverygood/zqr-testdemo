@@ -1,0 +1,194 @@
+<resources>
+    <string name="app_name">SmartHome</string>
+
+    <string name="lng">zh</string>
+    <string name="nothing"></string>
+    <string name="blank" />
+    <string name="dash_line">-------</string>
+    <string name="un_named">未命名</string>
+
+    <string name="tbi_devices">设备</string>
+    <string name="tbi_scence">场景</string>
+    <string name="tbi_inteligent">智能</string>
+    <string name="tbi_market">商城</string>
+    <string name="tbi_me">我的</string>
+
+    <string name="has_no_items">没有内容</string>
+    <string name="has_no_devices">未添加任何设备</string>
+    <string name="has_no_message">没有消息</string>
+
+    <string name="action_settings">设置</string>
+    <string name="action_search">搜索</string>
+    <string name="action_add">添加</string>
+    <string name="action_new">新建</string>
+    <string name="action_import">导入</string>
+    <string name="action_edit">编辑</string>
+    <string name="action_modify">修改</string>
+    <string name="action_delete">删除</string>
+    <string name="action_ok">确定</string>
+    <string name="action_cancel">取消</string>
+    <string name="action_quit">退出</string>
+    <string name="action_save">保存</string>
+    <string name="action_share">分享</string>
+    <string name="action_submit">提交</string>
+    <string name="action_return">返回</string>
+    <string name="action_finish">完成</string>
+
+    <string name="modify_device">修改设备</string>
+
+    <string name="all_room">全部</string>
+    <string name="account">账号</string>
+    <string name="family">家庭</string>
+    <string name="cur_family">(当前家庭)</string>
+    <string name="family_name">家庭名称</string>
+    <string name="family_member">家庭成员</string>
+    <string name="name">姓名</string>
+    <string name="nickname">昵称</string>
+    <string name="phone">手机号</string>
+    <string name="email">电子邮件</string>
+    <string name="gender">性别</string>
+    <string name="male">男</string>
+    <string name="female">女</string>
+    <string name="account_manage">账号管理</string>
+    <string name="gateway_manage">网关列表</string>
+    <string name="room_manage">房间设置</string>
+    <string name="family_manage">家庭切换</string>
+    <string name="gateway_set_time">网关手动校时</string>
+    <string name="check_update">软件版本更新</string>
+    <string name="cur_version_fmt">(当前v%1$s)</string>
+    <string name="about">关于</string>
+    <string name="user_feedback">交互反馈</string>
+
+
+    <string name="hint_device_id">"8个字符"</string>
+    <string name="hint_switch_data1">开关1</string>
+    <string name="hint_switch_data2">开关2</string>
+    <string name="hint_switch_data3">开关3</string>
+
+    <string name="def_account">my_phone_number</string>
+    <string name="def_family">当前家庭：XXX</string>
+    <string name="def_room">房间</string>
+    <string name="def_gateway">网关</string>
+    <string name="def_room1">房间1</string>
+    <string name="def_device">默认设备</string>
+    <string name="def_scene">情景模式</string>
+    <string name="def_title">Title</string>
+    <string name="def_content">Content</string>
+    <string name="def_date">20xx–xx-xx</string>
+    <string name="def_time">xx:xx</string>
+    <string name="def_date_time">20xx-xx-xx xx:xx</string>
+    <string name="def_number">00000</string>
+
+    <string name="tip_need_id_first">（请先输入设备ID）</string>
+    <string name="tip_id_length8">设备ID是8个字符！</string>
+    <string name="tip_quit_without_save">资料有修改，不保存退出？</string>
+    <string name="tip_need_name">必须输入名称</string>
+    <string name="tip_press_back_again_to_quit">再按一次返回桌面</string>
+
+
+    <string name="check_update_no_update">已经是最新版本</string>
+    <string name="check_update_timeout">检查更新超时，请检查网络连接</string>
+    <string name="avatar_select_file">从图库中选择</string>
+    <string name="avatar_from_camera">拍照</string>
+    <string name="avatar_upload_fail">传输图片失败:</string>
+    <string name="avatar_upload_success">设置成功</string>
+    <string name="add_finished">添加成功</string>
+    <string name="create_finished">创建成功</string>
+    <string name="modify_finished">修改成功</string>
+    <string name="save_finished">保存成功</string>
+    <string name="del_finished">删除成功</string>
+
+    <string name="input_manual">手动输入</string>
+    <string name="scan_text_title">扫描设备二维码</string>
+    <string name="scan_text">将二维码放入框内, 即可自动扫描</string>
+    <string name="login_to_family">登陆此家庭</string>
+    <string name="login_to_family_suc">成功登陆此家庭</string>
+    <string name="add_family_share">添加成员</string>
+    <string name="del_family">删除此家庭</string>
+    <string name="del_Room">删除此房间</string>
+    <string name="def_toask_title">提示标题</string>
+    <string name="def_toask_content">删除后，连接到该网关的设备\n都会一同删除.确定要删除？</string>
+    <string name="yes">是</string>
+    <string name="no">否</string>
+    <string name="scene_now">即时模式</string>
+    <string name="scene_timer">定时模式</string>
+    <string name="title_me">个人中心</string>
+
+    <string name="tip_saving">正在保存</string>
+    <string name="tip_deleteing">正在删除</string>
+    <string name="tip_run_scene">正在启动情景模式 </string>
+    <string name="tip_del_gateway1">该网关下连接了 </string>
+    <string name="tip_del_gateway2"> 个设备，\n删除网关时，这些设备也会一同删除，\n并且不可恢复。\n确定要删除？</string>
+    <string name="tip_del_cannot_undo">删除后不可撤销，确定删除吗？</string>
+    <string name="tip_need_input_account">账号不能为空！</string>
+    <string name="tip_need_input_name">名称不能为空！</string>
+    <string name="tip_need_input_room">必须选择房间！</string>
+    <string name="tip_need_input_family">必须选择所属家庭！</string>
+
+    <string name="create_room">新建房间</string>
+    <string name="update_room_name">修改房间名称</string>
+    <string name="select_room">选择房间</string>
+    <string name="select_family">选择家庭</string>
+    <string name="select_gateway">选择网关</string>
+    <string name="dev_name">输入名称</string>
+    <string name="del_room">删除房间</string>
+    <string name="del_device">删除设备</string>
+    <string name="del_gateway">删除网关</string>
+    <string name="device_gateway">接入网关</string>
+    <string name="device_id">设备ID</string>
+    <string name="query_device_id">验证ID</string>
+    <string name="add_device">添加设备</string>
+    <string name="device_detail">设备详情</string>
+    <string name="device_type">设备类型</string>
+    <string name="device_type_gateway">智能网关</string>
+    <string name="device_type_adapter_10A">智能插座</string>
+    <string name="device_type_adapter_16A">空调插座</string>
+    <string name="device_type_switch1">单键开关</string>
+    <string name="device_type_switch2">2键开关</string>
+    <string name="device_type_switch3">3键开关</string>
+
+    <string name="scene_name">情景名称</string>
+    <string name="icon">图标</string>
+    <string name="scene_icon">情景图标</string>
+    <string name="scene_timer_setting">定时执行</string>
+    <string name="del_scene">删除情景</string>
+    <string name="del_timer">删除定时情景</string>
+    <string name="scene_timer_fmt">%1$s(每周%2$d天)</string>
+    <string name="time_fmt">%1$2d:%2$02d:%3$02d</string>
+
+    <string name="about_systemInfo">系统通知</string>
+    <string name="about_versioni_dentify">厂商及版本标识</string>
+    <string name="about_feedback">意见反馈</string>
+    <string name="about_service_phone">客服电话</string>
+    <string name="about_phone_number">021-54585-5465</string>
+    <string name="about_title">关于</string>
+
+    <string name="number_cn_1">一</string>
+    <string name="number_cn_2">二</string>
+    <string name="number_cn_3">三</string>
+    <string name="number_cn_4">四</string>
+    <string name="number_cn_5">五</string>
+    <string name="number_cn_6">六</string>
+    <string name="sun">日</string>
+
+    <string name="time_picker_hours">时</string>
+    <string name="time_picker_min">分</string>
+    <string name="time_picker_repetity">重复</string>
+    <string name="time_picker_title">定时设置</string>
+    
+    <string name="total_kwh">总耗能</string>
+    <string name="total_kwh_fmt">总耗能 %1$d %2$s</string>
+    <string name="money_fmt">%1$1.2f</string>
+    <string name="total_kwh_money">总电费</string>
+    <string name="unit_yuan">元</string>
+    <string name="unit_kwh">kWh</string>
+    <string name="tip_kwh_price_unknow">——</string>
+
+    <string name="setting_electric">设置</string>
+    <string name="login_header_title">登录</string>
+    <string name="register_header_title">注册</string>
+    <string name="reset_password_header_title">重置密码</string>
+    <string name="resetpassword_button">重置密码</string>
+
+
+</resources>

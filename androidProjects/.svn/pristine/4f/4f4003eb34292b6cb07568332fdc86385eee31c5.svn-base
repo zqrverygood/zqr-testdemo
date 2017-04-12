@@ -1,0 +1,382 @@
+package app.smarthome.zzd.smarthome;
+
+import android.app.ActionBar;
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.text.Editable;
+import android.text.Selection;
+import android.text.TextWatcher;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.loopj.android.http.RequestHandle;
+import com.util.Common;
+import com.util.LLong;
+import com.util.StringMd5;
+import com.util.db.AppDb;
+
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Vector;
+
+import app.smarthome.zzd.smarthome.model.DeviceInfo;
+import app.smarthome.zzd.smarthome.model.FamilyInfo;
+import app.smarthome.zzd.smarthome.model.RoomInfo;
+import app.smarthome.zzd.smarthome.model.SceneInfo;
+import app.smarthome.zzd.smarthome.model.TimerInfo;
+import app.smarthome.zzd.smarthome.view.GridIconScene;
+
+/**
+ * Created by zzdios on 15/11/30.
+ */
+public class ActivitySceneDetail extends ActivityHeaderBase {
+
+    HashMap<LLong, Long>                        mSceneItems = new HashMap<>();
+    private HashMap<Long, LinearLayout>         mRoomItems = new HashMap<>();
+    private Vector<RelativeLayout>              mLySceneItems = new Vector<>();
+    private GridIconScene                       mCurSelectIcon;
+
+    private TimerInfo       mTimer;
+    private SceneInfo       mScene;
+    private EditText        mEditName;
+    private LinearLayout    mLyRooms;
+    private LinearLayout    mLyIcons;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_scene_detail);
+
+        mTxtHeaderRight.setText(R.string.action_save);
+        mTxtHeaderRight.setVisibility(View.VISIBLE);
+
+        mEditName = (EditText) findViewById(R.id.edit_name);
+        mLyRooms = (LinearLayout) findViewById(R.id.ly_rooms);
+        mLyIcons = (LinearLayout) findViewById(R.id.ly_icons);
+
+        Intent intent = getIntent();
+        long timerId = intent.getLongExtra("timer_id", 0L);
+
+        long sceneId = intent.getLongExtra("scene_id", 0L);
+        if (timerId > 0) {
+            mTimer = AppCache.mTimers.get(timerId);
+        }
+        if (mTimer != null){
+            sceneId = mTimer.mSceneId;
+        }
+
+        mScene = AppCache.mScenes.get(sceneId);
+        if (mScene == null){
+            mScene = new SceneInfo();
+            mScene.mFamilyId = AppCache.mCurFamily.mId;
+            mScene.mIcon = "" + Character.valueOf((char) ('a' + (int)(Math.random() * 4))) + "a";
+        }
+
+        String strTitle = getString(mScene.mId > 0 ? R.string.action_edit : R.string.action_add);
+        setTitle(strTitle + getString(R.string.tbi_scence));
+
+        mEditName.setText(mScene.mName);
+
+        initIcons();
+        showDevicePorts();
+    }
+
+    public void initIcons(){
+//        int iconSize = mLyIcons.getHeight();
+        int iconSize = 80;
+        LayoutInflater inflater = LayoutInflater.from(this);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(iconSize, iconSize);
+        lp.setMargins(12, 6, 12, 6);
+
+        View.OnClickListener onClick = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mCurSelectIcon != null) mCurSelectIcon.SetSelected(false);
+                mCurSelectIcon = (GridIconScene) view;
+                mCurSelectIcon.SetSelected(true);
+            }
+        };
+        int iconColorIdx = 0;
+        int iconIdx = 0;
+        if (mScene.mIcon.length() >= 1){
+            iconColorIdx = (mScene.mIcon.toLowerCase().charAt(0)) - 'a';
+        }
+        if (mScene.mIcon.length() >= 2){
+            iconIdx = (mScene.mIcon.toLowerCase().charAt(1)) - 'a';
+        }
+
+        for (int i = 0; i < GridIconScene.TotalIconCount; ++i) {
+            GridIconScene icon = (GridIconScene) (inflater.inflate(R.layout.gi_scene_info, null));
+            icon.InitForChoose(i, iconColorIdx);
+            icon.setTag(i);
+            mLyIcons.addView(icon, lp);
+            icon.setOnClickListener(onClick);
+
+            if (iconIdx % GridIconScene.TotalIconCount == i){
+                mCurSelectIcon = icon;
+                mCurSelectIcon.SetSelected(true);
+            }
+        }
+    }
+    public void onDestroy() {
+        if (sReqSaveName != null){
+            sReqSaveName.cancel(true);
+            sReqSaveName = null;
+        }
+        super.onDestroy();
+    }
+
+    private RequestHandle sReqSaveName = null;
+    public void onSaveScene(){
+        final SceneInfo toSave = new SceneInfo();
+
+        toSave.mId = mScene.mId;
+        toSave.mName = mEditName.getText().toString();
+        toSave.mFamilyId = AppCache.mCurFamily.mId;
+        toSave.mIcon = mScene.mIcon.substring(0, 1) + Character.valueOf((char) ('a' + (int)(mCurSelectIcon.getTag())));
+
+        if (Common.isNullString(toSave.mName)){
+            mEditName.requestFocus();
+            Toast.makeText(ActivitySceneDetail.this, getString(R.string.tip_need_name), Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        for (LLong id : mSceneItems.keySet()){
+            SceneInfo.SceneItem item = new SceneInfo.SceneItem();
+            item.mDataId = id.l2;
+            item.mDeviceId = id.l1;
+            item.mOpt = mSceneItems.get(id);
+            toSave.mItems.add(item);
+        }
+        AppResponseHandler onSaveOK = new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqSaveName = null;
+
+                AppCache.mScenes.put(toSave.mId, toSave);
+//                AppDb.getInstance(null).setConfig(AppCache.KDbKeyScene, "");
+                AppCache.ListScene();
+
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdSceneUpdate);
+                sendBroadcast(intent);
+
+                final AlertDialog dialog = new AlertDialog.Builder(ActivitySceneDetail.this)
+                        .setMessage(getString(R.string.save_finished))
+                        .show();
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog.dismiss();
+                        setResult(RESULT_OK);
+                        ActivitySceneDetail.this.finish();
+                    }
+                }, Toast.LENGTH_LONG);
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqSaveName = null;
+                Toast.makeText(ActivitySceneDetail.this, msg, Toast.LENGTH_LONG).show();
+            }
+            ;
+        };
+
+        if (mScene.mId > 0){
+            sReqSaveName = ServerClient.UpdateScene(toSave, onSaveOK);
+        }
+        else{
+            sReqSaveName = ServerClient.CreateScene(toSave, onSaveOK);
+        }
+    }
+
+    public void OnHeaderRightClick(){
+        onSaveScene();
+    }
+
+    private View.OnClickListener mOnRoomHeadClicker = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            LinearLayout llp = (LinearLayout) view.getTag();
+            if (llp == null) return;
+            ImageView img = (ImageView)(llp.findViewById(R.id.ly_room_title).findViewById(R.id.img_left));
+            if (View.VISIBLE == llp.findViewById(R.id.ly_devices).getVisibility()) {
+                llp.findViewById(R.id.ly_devices).setVisibility(View.GONE);
+                img.setImageResource(R.drawable.arrow_down_gray);
+            } else {
+                llp.findViewById(R.id.ly_devices).setVisibility(View.VISIBLE);
+                img.setImageResource(R.drawable.arrow_up_gray);
+            }
+        }
+    };
+
+    private View.OnClickListener mOnDeviceSelectClicker = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            RelativeLayout lyParent = (RelativeLayout) view.getTag();
+            if (lyParent == null) return;
+            LLong did = (LLong) lyParent.getTag();
+            if (did == null) return;
+
+            ImageView img_selected = (ImageView) lyParent.findViewById(R.id.img_select_status);
+            ImageView img_open_status = (ImageView) lyParent.findViewById(R.id.img_switch_status);
+            if (!mSceneItems.containsKey(did)){
+                mSceneItems.put(did, 0L);
+                img_selected.setImageResource(R.drawable.check_box_on_yellow);
+                img_open_status.setImageResource(R.drawable.switch_box_off);
+                img_open_status.setOnClickListener(mOnDeviceSwitchStatusClicker);
+            }
+            else{
+                mSceneItems.remove(did);
+                img_selected.setImageResource(R.drawable.check_box_off);
+                img_open_status.setImageResource(R.drawable.switch_box_off);
+                img_open_status.setOnClickListener(null);
+            }
+        }
+    };
+    private View.OnClickListener mOnDeviceSwitchStatusClicker = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            RelativeLayout lyParent = (RelativeLayout) view.getTag();
+            if (lyParent == null) return;
+            LLong did = (LLong) lyParent.getTag();
+            if (did == null) return;
+
+            ImageView img_open_status = (ImageView) lyParent.findViewById(R.id.img_switch_status);
+            if (!mSceneItems.containsKey(did)){
+                return;
+            }
+            else{
+                Long lOption = mSceneItems.get(did);
+                img_open_status.setImageResource(lOption > 0 ? R.drawable.switch_box_off : R.drawable.switch_box_on_green);
+                if (lOption > 0){
+                    img_open_status.setImageResource(R.drawable.switch_box_off);
+                    mSceneItems.put(did, 0L);
+                }
+                else{
+                    img_open_status.setImageResource(R.drawable.switch_box_on_green);
+                    mSceneItems.put(did, 1L);
+                }
+            }
+        }
+    };
+    private void createRoomItem(String strRoomName, HashSet<LLong> setDeviceIds){
+        LayoutInflater inflater = LayoutInflater.from(this);
+        LinearLayout ll = (LinearLayout)inflater.inflate(R.layout.li_room_for_scene, null);
+        mLyRooms.addView(ll);
+
+        View rlRoomHead = ll.findViewById(R.id.ly_room_title);
+        rlRoomHead.setTag(ll);
+
+        ((TextView)rlRoomHead.findViewById(R.id.txt_title)).setText(strRoomName);
+
+        rlRoomHead.setOnClickListener(mOnRoomHeadClicker);
+
+        LinearLayout llDevices = (LinearLayout) ll.findViewById(R.id.ly_devices);
+
+        for (LLong did : setDeviceIds){
+            DeviceInfo d = AppCache.mDevices.get(did.l1);
+            if (d == null) continue;
+
+            DeviceInfo.DevicePortInfo p = d.mPorts.get(did.l2);
+            if (p == null) continue;
+
+            RelativeLayout rl = (RelativeLayout)inflater.inflate(R.layout.li_dev_port_for_scene, null);
+            llDevices.addView(rl);
+
+            rl.setTag(did);
+
+            ImageView icon = (ImageView) rl.findViewById(R.id.img_left);
+            if (d.mDeviceType == Config.DeviceType.KDeviceTypeSwitch){
+                icon.setImageResource(p.mStatus > 0 ? R.drawable.switch_on : R.drawable.switch_off);
+            }
+            else{
+                icon.setImageResource(p.mStatus > 0 ? R.drawable.socket_on : R.drawable.socket_off);
+            }
+
+            TextView txtTitle = (TextView) rl.findViewById(R.id.txt_title);
+            txtTitle.setText(p.mName);
+
+            ImageView img_selected = (ImageView) rl.findViewById(R.id.img_select_status);
+            ImageView img_open_status = (ImageView) rl.findViewById(R.id.img_switch_status);
+            if (mSceneItems.containsKey(did)){
+                img_selected.setImageResource(R.drawable.check_box_on_yellow);
+                img_open_status.setImageResource(mSceneItems.get(did) > 0 ? R.drawable.switch_box_on_green : R.drawable.switch_box_off);
+            }
+            else{
+                img_selected.setImageResource(R.drawable.check_box_off);
+                img_open_status.setImageResource(R.drawable.switch_box_off);
+            }
+
+            img_selected.setTag(rl);
+            img_selected.setOnClickListener(mOnDeviceSelectClicker);
+
+            img_open_status.setTag(rl);
+            img_open_status.setOnClickListener(mOnDeviceSwitchStatusClicker);
+
+            mLySceneItems.add(rl);
+        }
+    };
+    private void showDevicePorts(){
+        for (LinearLayout rl : mRoomItems.values()){
+            mLyRooms.removeView(rl);
+        }
+        mRoomItems.clear();
+        mLySceneItems.clear();
+
+        for (SceneInfo.SceneItem i : mScene.mItems){
+            LLong id = new LLong();
+            id.l1 = i.mDeviceId;
+            id.l2 = i.mDataId;
+            mSceneItems.put(id, i.mOpt);
+        }
+
+        HashMap<Long, HashSet<LLong> > room2ports = new HashMap<>();
+        for (RoomInfo r : AppCache.mRooms.values()){
+            room2ports.put(r.mId, new HashSet<LLong>());
+        }
+
+        for (DeviceInfo d : AppCache.mDevices.values()){
+            if (d.mDeviceType != Config.DeviceType.KDeviceTypeSwitch
+                    && d.mDeviceType != Config.DeviceType.KDeviceTypeAdapter10A
+                    && d.mDeviceType != Config.DeviceType.KDeviceTypeAdapter16A){
+                continue;
+            }
+            for (DeviceInfo.DevicePortInfo p : d.mPorts.values()){
+
+                LLong pid = new LLong();
+                pid.l1 = d.mId;
+                pid.l2 = p.mPortId;
+
+                HashSet<LLong> rports;
+                if (room2ports.containsKey(p.mRoomId)){
+                    rports = room2ports.get(p.mRoomId);
+                }
+                else{
+                    rports = new HashSet<>();
+                    room2ports.put(p.mRoomId, rports);
+                }
+                rports.add(pid);
+            }
+        }
+
+        for (Long rid : room2ports.keySet()){
+            RoomInfo r = AppCache.mRooms.get(rid);
+            String roomName = (r == null ? getString(R.string.un_named) : r.mName);
+            createRoomItem(roomName, room2ports.get(rid));
+        }
+    }
+}

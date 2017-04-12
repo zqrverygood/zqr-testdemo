@@ -1,0 +1,40 @@
+package app.smarthome.zzd.smarthome.view;
+
+import android.content.Context;
+import android.graphics.Canvas;
+import android.util.AttributeSet;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import app.smarthome.zzd.smarthome.AppCache;
+import app.smarthome.zzd.smarthome.R;
+import app.smarthome.zzd.smarthome.model.FamilyInfo;
+
+/**
+ * Created by inobaa on 15/1/30.
+ */
+public class ListItemSocketKwh extends RelativeLayout {
+
+    public TextView             mTxtTitle;
+
+    public ListItemSocketKwh(Context context) {
+        super(context);
+    }
+
+    public ListItemSocketKwh(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public ListItemSocketKwh(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
+    public void SetInfo(String strTitle, String strKwh){
+    }
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+    }
+}

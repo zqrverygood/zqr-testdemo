@@ -1,0 +1,123 @@
+package app.smarthome.zzd.smarthome.model;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.loopj.android.http.RequestParams;
+import com.util.Common;
+
+import org.apache.http.params.HttpParams;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.Set;
+import java.util.Vector;
+
+/**
+ * Created by zzdios on 15/11/16.
+ */
+public class TimerInfo implements Parcelable {
+
+    public long mId;
+    public long mFamilyId;
+    public long mSceneId;
+    public String mTime;
+    public long mWeekMask;
+    public long mEnable;
+    public long mSync;
+
+    public Vector<Integer> getDaysInWeek(){
+        Vector<Integer> ret = new Vector<>();
+        for (int i = 0; i < 7; ++i){
+            if ((mWeekMask & (1 << i)) > 0){
+                ret.add(i);
+            }
+        }
+        return ret;
+    }
+    public void copyFrom(TimerInfo t) {
+        if (t == null) return;
+        mId = t.mId;
+        mFamilyId = t.mFamilyId;
+        mSceneId = t.mSceneId;
+        mTime = "" + t.mTime;
+        mWeekMask = t.mWeekMask;
+        mEnable = t.mEnable;
+        mSync = t.mSync;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(mId);
+        dest.writeLong(mFamilyId);
+        dest.writeLong(mSceneId);
+        dest.writeString(mTime);
+        dest.writeLong(mWeekMask);
+        dest.writeLong(mEnable);
+        dest.writeLong(mSync);
+    }
+
+    public static final Creator<TimerInfo> CREATOR = new Creator<TimerInfo>() {
+        public TimerInfo createFromParcel(Parcel in) {
+            TimerInfo di = new TimerInfo();
+            di.mId = in.readLong();
+            di.mFamilyId = in.readLong();
+            di.mSceneId = in.readLong();
+            di.mTime = in.readString();
+            di.mWeekMask = in.readLong();
+            di.mEnable = in.readLong();
+            di.mSync = in.readLong();
+
+            return di;
+        }
+
+        public TimerInfo[] newArray(int size) {
+            return new TimerInfo[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+//    public void toParam(JSONObject params){
+//        try{
+//            if(mId > 0)params.put("id", mId);
+//            params.put("familyId", mFamilyId);
+//            params.put("strategyId", mSceneId);
+//            params.put("time", mTime);
+//            params.put("weekMask", mWeekMask);
+////            params.put("enable", mEnable);
+////            params.put("sync", mSync);
+//
+//        }catch (org.json.JSONException e) {
+//            e.printStackTrace();
+//            return;
+//        }
+//    }
+    public void toParam(RequestParams params){
+        if(mId > 0)params.add("entity.id", "" + mId);
+        params.put("entity.familyId", mFamilyId);
+        params.put("entity.strategyId", mSceneId);
+        params.put("entity.time", mTime);
+        params.put("entity.weekMask", mWeekMask);
+//        params.put("enable", mEnable);
+//        params.put("sync", mSync);
+    }
+    public void fromJson(JSONObject jsonObject){
+        try{
+            mId = Common.getLongFromJson(jsonObject, "id");
+            mFamilyId = Common.getLongFromJson(jsonObject, "familyId");
+            mSceneId = Common.getLongFromJson(jsonObject, "strategyId");
+            mTime = Common.getStringFromJson(jsonObject, "time");
+            mWeekMask = Common.getLongFromJson(jsonObject, "weekMask");
+            mEnable = Common.getLongFromJson(jsonObject, "enable");
+            mSync = Common.getLongFromJson(jsonObject, "sync");
+        }
+        catch (org.json.JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+}

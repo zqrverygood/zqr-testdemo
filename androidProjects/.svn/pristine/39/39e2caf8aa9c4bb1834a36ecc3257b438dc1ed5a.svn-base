@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:clipToPadding="true"
+    android:fitsSystemWindows="true"
+  >
+
+    <include
+        android:id="@+id/ly_header"
+        layout="@layout/header"
+        android:background="@color/transparent" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true">
+
+            <app.smarthome.zzd.smarthome.view.PickerView
+                android:id="@+id/pickerview_hours"
+                android:layout_width="160dp"
+                android:layout_height="160dp" />
+
+            <TextView
+                android:id="@+id/minute_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/pickerview_hours"
+                android:text="@string/time_picker_hours"
+                android:textColor="#71DFAD"
+                android:textSize="18dp"
+                android:layout_marginLeft="-60dp" />
+
+            <app.smarthome.zzd.smarthome.view.PickerView
+                android:id="@+id/pickerview_min"
+                android:layout_width="160dp"
+                android:layout_height="160dp"
+                android:layout_marginLeft="40dp"
+                android:layout_toRightOf="@id/minute_tv" />
+
+            <TextView
+                android:id="@+id/second_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/pickerview_min"
+                android:text="@string/time_picker_min"
+                android:textColor="#71DFAD"
+                android:textSize="18dp"
+                android:layout_marginLeft="-60dp" />
+        </RelativeLayout>
+
+    </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/timepicker_spitline"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="75dp"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/txt_timepicker_repetity"
+            android:layout_weight="1"
+            android:layout_width="50dp"
+            android:layout_height="40dp"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:text="@string/time_picker_repetity"
+           />
+        <TextView
+            android:id="@+id/img_weekday"
+            android:layout_weight="1"
+            android:layout_width="30dp"
+            android:layout_height="45sp"
+            android:textSize="18sp"
+            android:layout_marginLeft="11dp"
+            android:background="@drawable/bg_weekday_off"
+            android:text="@string/sun"
+            android:gravity="center"
+            android:autoText="false" />
+        <TextView
+            android:id="@+id/img_monday"
+            android:layout_weight="1"
+            android:layout_width="30dp"
+            android:layout_marginLeft="11dp"
+            android:layout_height="45sp"
+            android:textSize="18sp"
+            android:background="@drawable/bg_weekday_off"
+            android:gravity="center"
+            android:text="@string/number_cn_1" />
+        <TextView
+            android:id="@+id/img_tuesday"
+            android:layout_weight="1"
+            android:layout_width="30dp"
+            android:layout_height="45sp"
+            android:textSize="18sp"
+            android:layout_marginLeft="11dp"
+            android:background="@drawable/bg_weekday_off"
+            android:gravity="center"
+            android:text="@string/number_cn_2" />
+        <TextView
+            android:id="@+id/img_wednesday"
+            android:layout_weight="1"
+            android:layout_width="30dp"
+            android:layout_height="45sp"
+            android:textSize="18sp"
+            android:layout_marginLeft="11dp"
+            android:background="@drawable/bg_weekday_off"
+            android:gravity="center"
+            android:text="@string/number_cn_3" />
+        <TextView
+            android:id="@+id/img_thursday"
+            android:layout_weight="1"
+            android:layout_width="30dp"
+            android:layout_height="45sp"
+            android:textSize="18sp"
+            android:layout_marginLeft="11dp"
+            android:background="@drawable/bg_weekday_off"
+            android:gravity="center"
+            android:text="@string/number_cn_4" />
+        <TextView
+            android:id="@+id/img_friday"
+            android:layout_weight="1"
+            android:layout_width="30dp"
+            android:layout_height="45sp"
+            android:textSize="18sp"
+            android:layout_marginLeft="11dp"
+            android:background="@drawable/bg_weekday_off"
+            android:gravity="center"
+            android:text="@string/number_cn_5" />
+
+        <TextView
+            android:id="@+id/img_saturday"
+            android:layout_weight="1"
+            android:layout_width="30dp"
+            android:layout_height="45sp"
+            android:textSize="18sp"
+            android:layout_marginLeft="11dp"
+            android:background="@drawable/bg_weekday_off"
+            android:gravity="center"
+            android:layout_marginRight="15sp"
+            android:text="@string/number_cn_6" />
+
+    </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/timepicker_spitline"/>
+
+
+</LinearLayout>

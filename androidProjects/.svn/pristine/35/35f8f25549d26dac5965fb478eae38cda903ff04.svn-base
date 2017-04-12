@@ -1,0 +1,84 @@
+package app.smarthome.zzd.smarthome;
+
+import android.content.Context;
+
+import com.umeng.analytics.MobclickAgent;
+
+public class Config {
+
+    public static final int KPageSizeTutor = 10;
+    public static class URL{
+        static public String SERVER_HOST = "http://58.23.3.114:58081/app/";
+
+        static public String CheckToken()           { return SERVER_HOST + "user_checktoken.action";}
+        static public String Signin()               { return SERVER_HOST + "user_login.action";}
+        static public String Signup()               { return SERVER_HOST + "user_reg.action";}
+        static public String ResetPassword()        { return SERVER_HOST + "user_resetpassword.action";}
+        static public String ApplyVCode()           { return SERVER_HOST + "user_getvcode.action";}
+        static public String Signout()              { return SERVER_HOST + "user_logout.action";}
+        static public String MyInfoUpdate()         { return SERVER_HOST + "user_update.action";}
+
+        static public String FamilyCreate()         { return SERVER_HOST + "family_create.action"; }
+        static public String FamilyUpdate()         { return SERVER_HOST + "family_update.action"; }
+        static public String FamilyDelete()         { return SERVER_HOST + "family_delete.action"; }
+        static public String FamilyList()           { return SERVER_HOST + "family_list.action"; }
+        static public String FamilyShare()          { return SERVER_HOST + "family_share.action"; }
+        static public String FamilyShareDelete()    { return SERVER_HOST + "family_sharedelete.action"; }
+
+        static public String RoomCreate()           { return SERVER_HOST + "room_create.action"; }
+        static public String RoomUpdate()           { return SERVER_HOST + "room_update.action"; }
+        static public String RoomDelete()           { return SERVER_HOST + "room_delete.action"; }
+        static public String RoomList()             { return SERVER_HOST + "room_list.action"; }
+
+        static public String DevicePreQuery()       { return SERVER_HOST + "device_query.action"; }
+        static public String DeviceUpdate()         { return SERVER_HOST + "device_update.action"; }
+        static public String DeviceDelete()         { return SERVER_HOST + "device_delete.action"; }
+        static public String DeviceList()           { return SERVER_HOST + "device_list.action"; }
+        static public String DeviceRuntime()        { return SERVER_HOST + "device_runtime.action"; }
+
+        static public String StrategyCreate()       { return SERVER_HOST + "strategy_create.action"; }
+        static public String StrategyUpdate()       { return SERVER_HOST + "strategy_update.action"; }
+        static public String StrategyDelete()       { return SERVER_HOST + "strategy_delete.action"; }
+        static public String StrategyRun()          { return SERVER_HOST + "strategy_run.action"; }
+        static public String StrategyList()         { return SERVER_HOST + "strategy_list.action"; }
+
+        static public String TimerCreate()       { return SERVER_HOST + "timer_create.action"; }
+        static public String TimerUpdate()       { return SERVER_HOST + "timer_update.action"; }
+        static public String TimerDelete()       { return SERVER_HOST + "timer_delete.action"; }
+        static public String TimerList()         { return SERVER_HOST + "timer_list.action"; }
+        
+        static public String AdBanner()  { return SERVER_HOST + "adbanner_list.action"; }
+    }
+
+    public static class DeviceType{
+        final static public int KDeviceTypeGateway = 50;
+        final static public int KDeviceTypeSocket = 51;
+        final static public int KDeviceTypeSwitch = 52;
+    };
+    public static void init(Context ctx) {
+        String server = MobclickAgent.getConfigParams(ctx, "host_full_url");
+        if (server != null && server.length() > 4){
+            Config.URL.SERVER_HOST = server;
+        }
+
+    }
+
+    public static final String TagForLog = "ZZD_SmartHome";
+
+    public static final String UmengKey = "*";
+
+    public static final String BoardcastZzdLogined = "bd.zzd.myself.logined";
+    public static final String BoardcastZzdLogouted = "bd.zzd.myself.logouted";
+
+    public static final String BoardcastZzdChangeFamily = "bd.zzd.myself.chg_family";
+    public static final String BoardcastZzdMyInfoUpdated = "bd.zzd.my.info.updated";
+
+    public static final String BoardcastZzdDevicesUpdate = "bd.zzd.dev.update";
+    public static final String BoardcastZzdDeviceRuntime = "bd.zzd.dev.runtime";
+
+    public static final String BoardcastZzdRoomsUpdate = "bd.zzd.room.update";
+
+    public static final String WeXinAppId = "*";
+    public static final String WeXinAppSecret = "*";
+
+}

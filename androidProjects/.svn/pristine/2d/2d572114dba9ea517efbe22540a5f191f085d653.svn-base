@@ -1,0 +1,61 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/ly_header"
+        layout="@layout/header" />
+
+    <HorizontalScrollView
+        android:id="@+id/ly_rooms_scroll_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/lllightgray"
+        android:gravity="center_horizontal"
+        android:scrollbars="none"
+        android:foregroundGravity="center"
+        android:paddingLeft="6dp"
+        android:paddingRight="6dp">
+
+        <app.smarthome.zzd.smarthome.view.RoomListView
+            android:id="@+id/ly_rooms"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:orientation="horizontal">
+        </app.smarthome.zzd.smarthome.view.RoomListView>
+    </HorizontalScrollView>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal">
+
+        <app.smarthome.zzd.smarthome.view.AdbannerView
+            android:id="@+id/view_pager_adbanner"
+            android:layout_width="match_parent"
+            android:layout_height="120dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="@string/blank"
+            android:id="@+id/txt_ad_title"
+            android:singleLine="true"
+            android:textColor="@color/ddarkgray"
+            android:textSize="16sp"
+            android:layout_marginLeft="8dp"
+            android:layout_alignBottom="@+id/view_pager_adbanner"
+            android:layout_marginBottom="3dp" />
+    </RelativeLayout>
+
+    <app.smarthome.zzd.smarthome.view.RoomDevicePager
+        android:id="@+id/view_pager_devices"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#fafafa"
+        android:scrollbars="none"
+        android:paddingTop="12dp" />
+
+</LinearLayout>

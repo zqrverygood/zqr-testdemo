@@ -1,0 +1,172 @@
+package com.util.db;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Vector;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import android.util.Log;
+import android.util.Pair;
+import com.util.Common;
+
+import app.smarthome.zzd.smarthome.R;
+
+
+public class AppDb extends SQLiteOpenHelper {
+
+	protected static String DATABASE_NAME = "default.sqlite";
+	protected static int DATABASE_VERSION = 1;
+    private static AppDb dbInst = null;
+
+    public static AppDb getInstance(Context ctx) {
+        if (dbInst == null)
+        	dbInst = new AppDb(ctx);
+        
+        return dbInst;
+    }
+    
+	public void setConfig(String strKey, String strValue){
+		ContentValues values = new ContentValues();
+		values.put("strKey", strKey);
+		values.put("strValue", strValue);
+        replaceInto("config", values);
+	}
+
+    public void replaceInto(String table, ContentValues values){
+        this.getWritableDatabase().insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+	public String getBySql(String strSql){
+		String[] strFilter = new String[0];
+		return getBySql(strSql, strFilter);
+	}
+    public String getBySql(String strSql, String[] strFilter){
+        Cursor cursor = this.getWritableDatabase().rawQuery(strSql, strFilter);
+        String strValue = "";
+        cursor.moveToFirst();
+        if (!(cursor.isAfterLast())) {
+            strValue = cursor.getString(0);
+            if (strValue == null) strValue = "";
+        }
+        cursor.close();
+        return strValue;
+    }
+
+    public Vector<String> getVectorBySql(String strSql){
+        String[] strFilter = new String[0];
+        Cursor cursor = this.getWritableDatabase().rawQuery(strSql, strFilter);
+        String strValue = "";
+        cursor.moveToFirst();
+        Vector<String> res = new Vector<>();
+        while (!(cursor.isAfterLast())) {
+            strValue = cursor.getString(0);
+            res.add(strValue);
+            cursor.moveToNext();
+        }
+        cursor.close();
+        return res;
+    }
+
+	public String getConfig(String strKey, String strDefVal){
+		String[] strFilter = new String[1];
+		strFilter[0] = strKey;
+		Cursor cursor = this.getWritableDatabase().rawQuery("select * from config where strKey = ?", strFilter);
+		String strValue = strDefVal;
+		int valueIndex = cursor.getColumnIndex("strValue");
+		cursor.moveToFirst();
+		if (!(cursor.isAfterLast())) {
+			strValue = cursor.getString(valueIndex);
+		}
+		cursor.close();
+		return strValue;
+	}
+	public float getConfig(String strKey, float fDefVal){
+		String[] strFilter = new String[1];
+		strFilter[0] = strKey;
+		Cursor cursor = this.getWritableDatabase().rawQuery("select * from config where strKey = ?", strFilter);
+
+		float fVal = fDefVal;
+		
+		int valueIndex = cursor.getColumnIndex("strValue");
+		cursor.moveToFirst();
+		if (!(cursor.isAfterLast())) {
+			String strValue = cursor.getString(valueIndex);
+			fVal = Common.floatValue(strValue).floatValue();
+		}
+		cursor.close();
+		return fVal;
+	}
+
+
+    public AppDb(Context context, String name,CursorFactory factory, int version) {
+        super(context, name, factory, version);
+    }
+
+    public AppDb(Context context) {
+        this(context, DATABASE_NAME, DATABASE_VERSION);
+    }
+
+    public AppDb(Context context, String name, int version) {
+        this(context, name, null, version);
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        db.execSQL("create table IF NOT EXISTS [config] ([strKey] text, [strValue] text,  constraint pk_t_config primary key ([strKey]) )");
+    }
+
+
+    @Override
+    public synchronized void close() {
+        super.close();
+    }
+
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		dropAllTables(db);
+		onCreate(db);
+    }
+
+    private void dropAllTables(SQLiteDatabase db) {
+   	 	db.execSQL("DROP TABLE IF EXISTS config");
+    }
+//    new File(ctx.getDatabasePath(DATABASE_NAME));  
+    public static void checkAndCopyDatabase(Context ctx) throws Exception{  
+        File dbFile = ctx.getDatabasePath(DATABASE_NAME);
+        File dir = dbFile.getParentFile();
+        if (dbFile.exists()) {
+			return;
+		}
+        if(dir.exists() == false){
+            dir.mkdirs();
+        }
+        Log.e("Copy","copy start");
+
+        InputStream is = ctx.getResources().openRawResource(R.raw.appdb);
+        FileOutputStream fos =  new FileOutputStream(dbFile);
+
+        byte[] buffer =new byte[1024];  
+        int size = 0;  
+        int length = 0; //字节  
+        while( (length= is.read(buffer)) > 0){  
+            fos.write(buffer,0,length);  
+            size += length;
+        }
+        Log.e("Copy","copy finish" + size);
+        fos.flush();  
+        fos.close();  
+        is.close();
+    }
+}

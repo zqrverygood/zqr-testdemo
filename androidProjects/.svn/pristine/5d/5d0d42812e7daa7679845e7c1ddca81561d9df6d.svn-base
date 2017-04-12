@@ -1,0 +1,318 @@
+package app.smarthome.zzd.smarthome;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class ActivityTimeSet extends ActivityHeaderBase {
+    PickerView              mPickerviewHours;   //时view
+    PickerView              mpickerviewMin;     // 分view
+
+    private    int          mShowHours = 12;    //要显示的小时
+    private    int          mShowMin   = 12;    //要显示的分钟
+    private    int          mWeekMask  = 213;   //二进制11010101
+
+//    private ImageView       mImageViewMonday;   //周一
+//    private ImageView       mImageViewTuesday;  //周二
+//    private ImageView       mImageViewWednesday;//周三
+//    private ImageView       mImageViewThursday; //周四
+//    private ImageView       mImageViewFriday;   //周五
+//    private ImageView       mImageViewSaturday; //周六
+//    private ImageView       mImageViewWeekday;  //周日
+
+    private TextView[]       mTxtSelWeekDay = new TextView[7];   //周一~日
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_time_set);
+
+        mTxtHeaderRight.setText(R.string.action_ok);
+        mTxtHeaderRight.setVisibility(View.VISIBLE);
+        mTxtHeaderTitle.setText(R.string.time_picker_title);
+
+        mTxtSelWeekDay[0] = (TextView) findViewById(R.id.img_weekday);
+        mTxtSelWeekDay[1] = (TextView) findViewById(R.id.img_monday);
+        mTxtSelWeekDay[2] = (TextView) findViewById(R.id.img_tuesday);
+        mTxtSelWeekDay[3] = (TextView) findViewById(R.id.img_wednesday);
+        mTxtSelWeekDay[4] = (TextView) findViewById(R.id.img_thursday);
+        mTxtSelWeekDay[5] = (TextView) findViewById(R.id.img_friday);
+        mTxtSelWeekDay[6] = (TextView) findViewById(R.id.img_saturday);
+
+        mPickerviewHours = (PickerView) findViewById(R.id.pickerview_hours);
+        mpickerviewMin = (PickerView) findViewById(R.id.pickerview_min);
+        List<String> data = new ArrayList<String>();
+        List<String> seconds = new ArrayList<String>();
+        for (int i = 0; i < 24; i++)
+        {
+            data.add(i < 10 ? "0" + i : "" + i);
+        }
+        for (int i = 0; i < 60; i++)
+        {
+            seconds.add(i < 10 ? "0" + i : "" + i);
+        }
+        mPickerviewHours.setData(data);
+        mpickerviewMin.setData(seconds);
+
+        Intent intent = getIntent();
+        mShowHours = intent.getIntExtra("hour", 12);
+        mShowMin = intent.getIntExtra("minute", 12);
+        mWeekMask = intent.getIntExtra("week_mask", 62);
+
+        init();
+        setListener();
+    }
+
+    public void OnHeaderRightClick(){
+        Intent intent = new Intent();
+        intent.putExtra("hour", mShowHours);
+        intent.putExtra("minute", mShowMin);
+        intent.putExtra("week_mask", mWeekMask);
+
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+    /**
+     * 界面的初始化
+     */
+    private void init(){
+        //初始时pickerview和分pivkerview显示的数
+        mPickerviewHours.setSelected(mShowHours);
+        mpickerviewMin.setSelected(mShowMin);
+
+        for (int i = 0; i < 7; ++i){
+            mTxtSelWeekDay[i].setTag(i);
+            boolean focused = ((mWeekMask & (1 << i)) != 0);
+            mTxtSelWeekDay[i].setBackgroundResource(focused ? R.drawable.bg_weekday_on : R.drawable.bg_weekday_off);
+            mTxtSelWeekDay[i].setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int i = (int) v.getTag();
+                    if ((mWeekMask & (1 << i)) == 0) {
+                        v.setBackgroundResource(R.drawable.bg_weekday_on);
+                        mWeekMask = mWeekMask ^ (1 << i);
+//                        Toast.makeText(ActivityTimeSet.this, mWeekMask + "",
+//                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        v.setBackgroundResource(R.drawable.bg_weekday_off);
+                        mWeekMask = mWeekMask ^ (1 << i);
+//                        Toast.makeText(ActivityTimeSet.this, mWeekMask + " ",
+//                                Toast.LENGTH_SHORT).show();
+
+                    }
+                }
+            });
+        }
+
+//        mImageViewWeekday = (ImageView) findViewById(R.id.img_weekday);
+//        mImageViewWeekday.setTag(0);
+//        mImageViewMonday = (ImageView) findViewById(R.id.img_monday);
+//        mImageViewMonday.setTag(1);
+//        mImageViewTuesday = (ImageView) findViewById(R.id.img_tuesday);
+//        mImageViewTuesday.setTag(2);
+//        mImageViewWednesday = (ImageView) findViewById(R.id.img_wednesday);
+//        mImageViewWednesday.setTag(3);
+//        mImageViewThursday = (ImageView) findViewById(R.id.img_thursday);
+//        mImageViewThursday.setTag(4);
+//        mImageViewFriday = (ImageView) findViewById(R.id.img_friday);
+//        mImageViewFriday.setTag(5);
+//        mImageViewSaturday = (ImageView) findViewById(R.id.img_saturday);
+//        mImageViewSaturday.setTag(6);
+//
+//       //设置初始化week的显示状态
+//        if ((mWeekMask&(1<<0)) == 0){
+//        }
+//        else {
+//            mImageViewWeekday.setBackgroundResource(R.drawable.week_weekday_focused);
+//        }
+//        if ((mWeekMask&(1<<1)) == 0){
+//        }
+//        else {
+//            mImageViewMonday.setBackgroundResource(R.drawable.week_monday_focused);
+//        }
+//        if ((mWeekMask&(1<<2)) == 0){
+//        }
+//        else {
+//            mImageViewTuesday.setBackgroundResource(R.drawable.week_tuesday_focused);
+//        }
+//        if ((mWeekMask&(1<<3)) == 0){
+//        }
+//        else {
+//            mImageViewWednesday.setBackgroundResource(R.drawable.week_wedenesday_focused);
+//        }
+//        if ((mWeekMask&(1<<4)) == 0){
+//        }
+//        else {
+//            mImageViewThursday.setBackgroundResource(R.drawable.week_thursday_focused);
+//        }
+//        if ((mWeekMask&(1<<5)) == 0){
+//        }
+//        else {
+//            mImageViewFriday.setBackgroundResource(R.drawable.week_friday_focused);
+//        }
+//        if ((mWeekMask&(1<<6)) == 0){
+//        }
+//        else {
+//            mImageViewSaturday.setBackgroundResource(R.drawable.week_saturday_focused);
+//        }
+
+    }
+
+    /**
+     * 各种事件的监听
+     */
+    private void setListener(){
+
+        mPickerviewHours.setOnSelectListener(new PickerView.onSelectListener() {
+            @Override
+            public void onSelect(String text) {
+                mShowHours = Integer.parseInt(text);
+            }
+        });
+        mpickerviewMin.setOnSelectListener(new PickerView.onSelectListener() {
+            @Override
+            public void onSelect(String text) {
+                mShowMin = Integer.parseInt(text);
+            }
+        });
+
+//        //周日的点击事件
+//        mImageViewWeekday.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                int i = (int) mImageViewWeekday.getTag();
+//                if ((mWeekMask&(1<<i)) == 0 ) {
+//                    mImageViewWeekday.setBackgroundResource(R.drawable.week_weekday_focused);
+//                    mWeekMask =  mWeekMask^(1<<i);
+//                    Toast.makeText(ActivityTimeSet.this, mWeekMask+"" ,
+//                            Toast.LENGTH_SHORT).show();
+//                }
+//                else {
+//                    mImageViewWeekday.setBackgroundResource(R.drawable.week_weekday_normal);
+//                    mWeekMask =  mWeekMask^(1<<i);
+//                    Toast.makeText(ActivityTimeSet.this,  mWeekMask + " " ,
+//                            Toast.LENGTH_SHORT).show();
+//
+//                }
+//            }
+//        });
+//        //周一的点击事件
+//        mImageViewMonday.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                int i = (int) mImageViewMonday.getTag();
+//                if ((mWeekMask&(1<<i)) == 0 ) {
+//                    mImageViewMonday.setBackgroundResource(R.drawable.week_monday_focused);
+//                    mWeekMask =  mWeekMask^(1<<i);
+//
+//                }
+//                else {
+//                    mImageViewMonday.setBackgroundResource(R.drawable.week_monday_normal);
+//                    mWeekMask =  mWeekMask^(1<<i);
+//
+//                }
+//            }
+//        });
+//        //周二的点击事件
+//        mImageViewTuesday.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                int i = (int) mImageViewTuesday.getTag();
+//                if ((mWeekMask&(1<<i)) == 0 ) {
+//                    mImageViewTuesday.setBackgroundResource(R.drawable.week_tuesday_focused);
+//                    mWeekMask =  mWeekMask^(1<<i);
+//
+//                }
+//                else {
+//                    mImageViewTuesday.setBackgroundResource(R.drawable.week_tuesday_normal);
+//                    mWeekMask =  mWeekMask^(1<<i);
+//
+//                }
+//            }
+//        });
+//        //周三的点击事件
+//        mImageViewWednesday.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                int i = (int) mImageViewWednesday.getTag();
+//                if ((mWeekMask&(1<<i)) == 0 ) {
+//                    mImageViewWednesday.setBackgroundResource(R.drawable.week_wedenesday_focused);
+//                    mWeekMask =  mWeekMask^(1<<i);
+//
+//                }
+//                else {
+//                    mImageViewWednesday.setBackgroundResource(R.drawable.week_wedenesday_normal);
+//                    mWeekMask =  mWeekMask^(1<<i);
+//
+//                }
+//            }
+//        });
+//        //周四的点击事件
+//        mImageViewThursday.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                int i = (int) mImageViewThursday.getTag();
+//                if ((mWeekMask&(1<<i)) == 0 ) {
+//                    mImageViewThursday.setBackgroundResource(R.drawable.week_thursday_focused);
+//                    mWeekMask =  mWeekMask^(1<<i);
+//
+//                }
+//                else {
+//                    mImageViewThursday.setBackgroundResource(R.drawable.week_thursday_normal);
+//                    mWeekMask =  mWeekMask^(1<<i);
+//
+//                }
+//            }
+//        });
+//        //周五的点击事件
+//        mImageViewFriday.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                int i = (int) mImageViewFriday.getTag();
+//                if ((mWeekMask&(1<<i)) == 0 ) {
+//                    mImageViewFriday.setBackgroundResource(R.drawable.week_friday_focused);
+//                    mWeekMask =  mWeekMask^(1<<i);
+//
+//                }
+//                else {
+//                    mImageViewFriday.setBackgroundResource(R.drawable.week_friday_normal);
+//                    mWeekMask =  mWeekMask^(1<<i);
+//
+//                }
+//            }
+//        });
+//        //周六的点击事件
+//        mImageViewSaturday.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                int i = (int) mImageViewSaturday.getTag();
+//                if ((mWeekMask&(1<<i)) == 0 ) {
+//                    mImageViewSaturday.setBackgroundResource(R.drawable.week_saturday_focused);
+//                    mWeekMask =  mWeekMask^(1<<i);
+//
+//                }
+//                else {
+//                    mImageViewSaturday.setBackgroundResource(R.drawable.week_saturday_normal);
+//                    mWeekMask =  mWeekMask^(1<<i);
+//
+//                }
+//            }
+//        });
+
+
+
+        }
+
+    @Override
+    protected void onDestroy() {
+        mShowHours = 0;
+        mShowMin  = 0;
+        //mWeekMask = 0000000;
+        super.onDestroy();
+    }
+}

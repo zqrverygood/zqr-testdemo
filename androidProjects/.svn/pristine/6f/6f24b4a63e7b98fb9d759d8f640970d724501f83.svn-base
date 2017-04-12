@@ -1,0 +1,67 @@
+package app.smarthome.zzd.smarthome.model;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+/**
+ * Created by inobaa on 15/1/21.
+ */
+public class UserFamily implements Parcelable {
+    public long mUserId = 0L;
+    public long mFamilyId = 0L;
+    public long mFlag = 0L;
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(mUserId);
+        dest.writeLong(mFamilyId);
+        dest.writeLong(mFlag);
+
+    }
+
+    public static final Creator<UserFamily> CREATOR = new Creator<UserFamily>() {
+        public UserFamily createFromParcel(Parcel in) {
+            UserFamily ui = new UserFamily();
+            ui.mUserId = in.readLong();
+            ui.mFamilyId = in.readLong();
+            ui.mFlag = in.readLong();
+            return ui;
+        }
+
+        public UserFamily[] newArray(int size) {
+            return new UserFamily[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public void toParam(JSONObject params){
+        try{
+            params.put("userId", mUserId);
+            params.put("familyId", mFamilyId);
+            params.put("flag", mFlag);
+        }catch (JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+    public void fromJson(JSONObject jsonObject){
+        try{
+            if (jsonObject.has("userId")) mUserId = jsonObject.getLong("userId");
+            else mUserId = 0L;
+            if (jsonObject.has("familyId")) mFamilyId = jsonObject.getLong("familyId");
+            else mFamilyId = 0L;
+            if (jsonObject.has("flag")) mFlag = jsonObject.getLong("flag");
+            else mFlag = 0L;
+        }catch (JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+}

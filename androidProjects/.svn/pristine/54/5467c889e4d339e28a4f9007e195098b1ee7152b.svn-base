@@ -1,0 +1,183 @@
+package app.smarthome.zzd.smarthome.view;
+
+import android.app.ActivityManager;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.os.Handler;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.util.Common;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import app.smarthome.zzd.smarthome.Config;
+import app.smarthome.zzd.smarthome.R;
+
+/**
+ * Created by inobaa on 15/1/30.
+ */
+public class RelativeLayoutScrollLeft extends RelativeLayout{
+
+    private static Handler              mLongClickTimer = new Handler();
+
+    private View                        mScrollMenu;
+    private View.OnClickListener        mClickListener;
+    private View.OnLongClickListener    mLonglickListener;
+    private Runnable                    mLongClickRunable = null;
+
+    public RelativeLayoutScrollLeft(Context context) {
+        super(context);
+    }
+
+    public RelativeLayoutScrollLeft(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public RelativeLayoutScrollLeft(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
+    public void setOnLongClickListener(View.OnLongClickListener l) {
+        mLonglickListener = l;
+    }
+
+    public void setOnClickListener(View.OnClickListener l) {
+        mClickListener = l;
+    }
+    public class MyTouchListener implements OnTouchListener {
+        private float       mTouchX = -1;
+        private boolean     mStartMove = false;
+
+        public boolean onTouch(View v, MotionEvent event) {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                Log.d(Config.TagForLog, "MotionEvent.ACTION_DOWN");
+                if (mScrollMenu.getVisibility() != View.INVISIBLE){
+                    mScrollMenu.setVisibility(View.INVISIBLE);
+                    return true;
+                }
+                mStartMove = false;
+                mTouchX = event.getX();
+                setPressed(true);
+                if (mLongClickRunable == null){
+                    mLongClickRunable = new Runnable() {
+                        @Override
+                        public void run() {
+                            mStartMove = true;
+                            mLongClickRunable = null;
+                            if (mLonglickListener != null)
+                                mLonglickListener.onLongClick(RelativeLayoutScrollLeft.this);
+                        }
+                    };
+                    mLongClickTimer.postDelayed(mLongClickRunable, 1200);
+                }
+//                onTouchEvent(event);
+                return true;
+            }
+            else if (event.getAction() == MotionEvent.ACTION_UP) {// 松开处理
+                Log.d(Config.TagForLog, "MotionEvent.ACTION_UP");
+                setPressed(false);
+                if (!mStartMove){
+                    if (mLongClickRunable != null){
+
+                        mLongClickTimer.removeCallbacks(mLongClickRunable);
+                        mLongClickRunable = null;
+
+                        if (mClickListener != null){
+                            mClickListener.onClick(RelativeLayoutScrollLeft.this);
+                        }
+                    }
+                    return false;
+                }
+                float fScrollX = mTouchX - event.getX();
+
+                if (fScrollX <= 20){
+                    mScrollMenu.setVisibility(View.INVISIBLE);
+                    return false;
+                }
+                int pw = v.getWidth();
+                mScrollMenu.setX(pw - mScrollMenu.getWidth());
+                RelativeLayoutScrollLeft.this.requestFocus();
+                return true;
+            }
+            else if (event.getAction() == MotionEvent.ACTION_MOVE) {//当滑动时背景为选中状态
+                Log.d(Config.TagForLog, "MotionEvent.ACTION_MOVE");
+                float fScrollX = mTouchX - event.getX();
+                if (!mStartMove){
+                    if (fScrollX <= 8){
+//                        onTouchEvent(event);
+                        return false;
+                    }
+
+                    if (mLongClickRunable != null){
+                        mLongClickTimer.removeCallbacks(mLongClickRunable);
+                        mLongClickRunable = null;
+                    }
+                    mStartMove = true;
+                    if (mScrollMenu.getVisibility() != View.VISIBLE){
+                        mScrollMenu.setVisibility(View.VISIBLE);
+                    }
+                }
+              setPressed(false);
+                if (fScrollX >= mScrollMenu.getWidth()){
+                    fScrollX = mScrollMenu.getWidth();
+                }
+                int pw = v.getWidth();
+                mScrollMenu.setX(pw - fScrollX);
+
+                return true;
+            } else {//其他模式
+//                onTouchEvent(event);
+                setPressed(false);
+                if (mLongClickRunable != null){
+                    mLongClickTimer.removeCallbacks(mLongClickRunable);
+                    mLongClickRunable = null;
+                }
+                if (mScrollMenu.getVisibility() != View.INVISIBLE){
+                    mTouchX = -1;
+                    mScrollMenu.setX(v.getWidth());
+                    mScrollMenu.setVisibility(View.INVISIBLE);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+    MyTouchListener mTouchListener = new MyTouchListener();
+
+    public void setupTouch(){
+        mScrollMenu = findViewById(R.id.ly_scroll_menu);
+        if (mScrollMenu != null){
+            setOnTouchListener(mTouchListener);
+            setOnFocusChangeListener(new OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View view, boolean b) {
+                    if (!b){
+                        setPressed(false);
+                        if (mScrollMenu.getVisibility() != View.INVISIBLE){
+                            mScrollMenu.setX(view.getWidth());
+                            mScrollMenu.setVisibility(View.INVISIBLE);
+                        }
+                    }
+                }
+            });
+        }
+    }
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+    }
+}

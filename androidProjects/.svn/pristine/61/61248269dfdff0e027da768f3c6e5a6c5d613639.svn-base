@@ -1,0 +1,221 @@
+package app.smarthome.zzd.smarthome;
+
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.Uri;
+import android.os.Bundle;
+import android.text.Html;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.handmark.pulltorefresh.library.PullToRefreshWebView;
+import com.umeng.analytics.MobclickAgent;
+import com.util.Common;
+import com.util.LLong;
+
+import java.util.Vector;
+
+import app.smarthome.zzd.smarthome.model.DeviceInfo;
+import app.smarthome.zzd.smarthome.model.FamilyInfo;
+import app.smarthome.zzd.smarthome.view.ListItemFamily;
+import app.smarthome.zzd.smarthome.view.ListItemSocketKwh;
+
+/**
+ * Created by inobaa on 15/1/20.
+ */
+public class FragmentInteligent extends FragmentForMain {
+
+    public class MyAdapter extends BaseAdapter {
+
+        private LayoutInflater      mInflater;
+        private Vector<LLong>       mSockets;
+
+        public MyAdapter(Context context){
+            this.mInflater = LayoutInflater.from(context);
+            mSockets = new Vector<>();
+        }
+        @Override
+        public void notifyDataSetChanged() {
+            mSockets = new Vector<>();
+            mTotalKwh = 0;
+            for (DeviceInfo d : AppCache.mDevices.values()){
+                if (d.mDeviceType != Config.DeviceType.KDeviceTypeAdapter10A &&
+                        d.mDeviceType != Config.DeviceType.KDeviceTypeAdapter16A){
+                    continue;
+                }
+                for (DeviceInfo.DevicePortInfo p : d.mPorts.values()){
+                    mSockets.add(new LLong(d.mId, p.mPortId));
+                    mTotalKwh += p.mKwh;
+                }
+            }
+
+            mTxtTotalKwh.setText("" + mTotalKwh);
+            mTxtUnitKwh.setText(AppCache.mStrKwhUnit);
+
+            if (AppCache.mKwhPrice > 0.01f){
+                float fMoney = AppCache.mKwhPrice * mTotalKwh;
+                String strTimerInfo = String.format(getResources().getString(R.string.money_fmt), fMoney);
+                mTxtTotalCost.setText(strTimerInfo);
+            }
+            else{
+                mTxtTotalCost.setText(R.string.tip_kwh_price_unknow);
+            }
+
+            mPullRefreshListView.onRefreshComplete();
+            super.notifyDataSetChanged();
+        }
+        @Override
+        public int getCount() {
+            return mSockets.size();
+        }
+
+        @Override
+        public Object getItem(int arg0) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int arg0) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            LLong dpid = mSockets.get(position);
+
+            ListItemSocketKwh tgv = (ListItemSocketKwh)mInflater.inflate(R.layout.li_socket_kwh_info, null);
+            convertView = tgv;
+
+            tgv.SetInfo(dpid);
+
+            if (position >= mSockets.size() - 1){
+                tgv.findViewById(R.id.txt_bottom_line).setVisibility(View.GONE);
+            }
+            return convertView;
+        }
+    }
+
+    public static final int KActivityResultSetting = 101;
+    public  float                mTotalKwh = 0L;
+
+    private PullToRefreshListView mPullRefreshListView;
+    protected MyAdapter mAdapter;
+
+    private TextView            mTxtTotalKwh;
+    private TextView            mTxtUnitKwh;
+    private TextView            mTxtTotalCost;
+
+    public FragmentInteligent() {
+    }
+    public void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart("FragmentMarket"); //统计页面
+    }
+    public void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd("FragmentMarket");
+    }
+    public void OnHeaderRightClick(){
+        Intent intent = new Intent();
+        intent.putExtra("price", "" + AppCache.mKwhPrice);
+        intent.putExtra("unit", "" + AppCache.mStrKwhUnit);
+        intent.setClass(getActivity(), ActivitySettingElectric.class);
+        startActivityForResult(intent, KActivityResultSetting);
+    }
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode & 0x0000FFFF) {
+            case KActivityResultSetting:
+                if (resultCode == Activity.RESULT_OK){
+                    String strPrice = data.getStringExtra("price");
+                    String strUnit = data.getStringExtra("unit");
+                    AppCache.SetKwhParam(Common.floatValue(strPrice), strUnit);
+                    mAdapter.notifyDataSetChanged();
+                }
+                break;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = super.onCreateView(inflater, container, savedInstanceState, R.layout.fragment_intelligence);
+        mTxtHeaderTitle.setText(R.string.tbi_inteligent);
+        mBtnHeaderRight.setImageResource(R.drawable.settings_gear);
+        mBtnHeaderRight.setVisibility(View.VISIBLE);
+
+        mTxtUnitKwh = (TextView)rootView.findViewById(R.id.txt_unit_kwh);
+        mTxtTotalKwh = (TextView)rootView.findViewById(R.id.txt_kwh);
+        mTxtTotalCost = (TextView)rootView.findViewById(R.id.txt_kwh_money);
+
+        mPullRefreshListView = (PullToRefreshListView)rootView.findViewById(R.id.pull_refresh_list);
+        mAdapter = new MyAdapter(getActivity());
+        mPullRefreshListView.setAdapter(mAdapter);
+        mAdapter.notifyDataSetChanged();
+
+        mPullRefreshListView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener<ListView>() {
+            @Override
+            public void onRefresh(PullToRefreshBase<ListView> refreshView) {
+                AppCache.GetDeviceStatus();
+            }
+        });
+        mPullRefreshListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                LLong dpid = (LLong) view.getTag();
+
+                DeviceInfo d = AppCache.mDevices.get(dpid.l1);
+                if (d == null) return;
+                DeviceInfo.DevicePortInfo p = d.mPorts.get(dpid.l2);
+                if (p == null) return;
+
+                Intent intent = new Intent();
+                intent.putExtra("url", Config.URL.SERVER_HOST + "report.html?deviceId=" + d.mId + "&dataId=" + p.mPortId);
+                intent.putExtra("caption", p.mName);
+                intent.setClass(getActivity(), ActivityWebView.class);
+                startActivity(intent);
+            }
+        });
+        TextView tv = new TextView(getActivity());
+        tv.setText((getActivity().getString(R.string.tip_add_a_socket_device)));
+        tv.setSingleLine(false);
+        tv.setGravity(Gravity.CENTER);
+        mPullRefreshListView.setEmptyView(tv);
+
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Config.BoardcastZzdDevicesUpdate);
+        filter.addAction(Config.BoardcastZzdDevicesRuntime);
+        getActivity().registerReceiver(mReceiver, filter);
+        return rootView;
+    }
+    public void onDestroy() {
+        getActivity().unregisterReceiver(mReceiver);
+        super.onDestroy();
+    }
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if(action.equals(Config.BoardcastZzdDevicesRuntime)
+                    || action.equals(Config.BoardcastZzdDevicesUpdate) )
+            {
+                mAdapter.notifyDataSetChanged();
+            }
+        }
+    };
+}

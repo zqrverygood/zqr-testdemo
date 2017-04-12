@@ -1,0 +1,80 @@
+package app.smarthome.zzd.smarthome.model;
+
+import android.location.Location;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Vector;
+
+/**
+ * Created by inobaa on 15/1/21.
+ */
+public class UserInfo implements Parcelable {
+    public long mUid = 0L;
+    public String mLoginName = "";
+    public String mName = "";
+    public String mMobile = "";
+    public String mAvatar = "";
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(mUid);
+        dest.writeString(mLoginName);
+        dest.writeString(mName);
+        dest.writeString(mMobile);
+
+    }
+
+    public static final Parcelable.Creator<UserInfo> CREATOR = new Parcelable.Creator<UserInfo>() {
+        public UserInfo createFromParcel(Parcel in) {
+            UserInfo ui = new UserInfo();
+            ui.mUid = in.readLong();
+            ui.mLoginName = in.readString();
+            ui.mName = in.readString();
+            ui.mMobile = in.readString();
+            return ui;
+        }
+
+        public UserInfo[] newArray(int size) {
+            return new UserInfo[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public void toParam(JSONObject params){
+        try{
+            params.put("id", mUid);
+            params.put("loginName", mLoginName);
+            params.put("name", mName);
+            params.put("mobile", mMobile);
+        }catch (org.json.JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+    public void fromJson(JSONObject jsonObject){
+        try{
+
+            if (jsonObject.has("id")) mUid = jsonObject.getLong("id");
+            else mUid = 0L;
+            if (jsonObject.has("loginName")) mLoginName = jsonObject.getString("loginName");
+            else mLoginName = "";
+            if (jsonObject.has("name")) mName = jsonObject.getString("name");
+            else mName = "";
+            if (jsonObject.has("mobile")) mMobile = jsonObject.getString("mobile");
+            else mMobile = "";
+        }catch (org.json.JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+}

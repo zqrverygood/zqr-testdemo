@@ -1,0 +1,96 @@
+package app.smarthome.zzd.smarthome.view;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.util.AttributeSet;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import app.smarthome.zzd.smarthome.AppCache;
+import app.smarthome.zzd.smarthome.Config;
+import app.smarthome.zzd.smarthome.R;
+import app.smarthome.zzd.smarthome.model.DeviceInfo;
+
+/**
+ * Created by inobaa on 15/1/30.
+ */
+public class GridIconDevice extends RelativeLayout {
+
+    static Drawable mDefaultAvatar;
+
+    ImageView mImgAvatar;
+    ImageView mImgRightUp;
+
+    TextView mTxtTitle;
+
+    public GridIconDevice(Context context) {
+        super(context);
+    }
+
+    public GridIconDevice(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public GridIconDevice(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
+    public void Init(long lDevId, DeviceInfo.DevicePortInfo port, boolean isOnControl){
+
+        DeviceInfo dev = AppCache.mDevices.get(lDevId);
+
+        mTxtTitle = ((TextView)(findViewById(R.id.txt_title)));
+        mImgAvatar = ((ImageView)(findViewById(R.id.img_main)));
+        mImgRightUp = ((ImageView)(findViewById(R.id.img_right_up)));
+
+
+        switch ((int)dev.mDeviceType){
+            case Config.DeviceType.KDeviceTypeAdapter10A:
+            case Config.DeviceType.KDeviceTypeAdapter16A:
+                if (port.mStatus == 0){
+                    mImgAvatar.setImageResource(R.drawable.socket_off);
+                }else if (port.mStatus == 1){
+                    mImgAvatar.setImageResource(R.drawable.socket_on);
+                }else{
+                    mImgAvatar.setImageResource(R.drawable.socket_offline);
+                }
+                break;
+            case Config.DeviceType.KDeviceTypeSwitch:
+                if (port.mStatus == 0){
+                    mImgAvatar.setImageResource(R.drawable.switch_off);
+                }else if (port.mStatus == 1){
+                    mImgAvatar.setImageResource(R.drawable.switch_on);
+                }else{
+                    mImgAvatar.setImageResource(R.drawable.switch_offline);
+                }
+                break;
+        }
+
+        mTxtTitle.setText(port.mName);
+
+        if (isOnControl){
+            mImgRightUp.setVisibility(View.VISIBLE);
+        }
+        else{
+            mImgRightUp.setVisibility(View.GONE);
+        }
+    }
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+    }
+}

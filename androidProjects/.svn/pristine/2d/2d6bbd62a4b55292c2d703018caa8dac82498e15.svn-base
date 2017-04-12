@@ -1,0 +1,653 @@
+package app.smarthome.zzd.smarthome;
+
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.loopj.android.http.RequestHandle;
+import com.loopj.android.http.RequestParams;
+import com.util.Common;
+import com.util.CycloUtil;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import app.smarthome.zzd.smarthome.model.UserInfo;
+import app.smarthome.zzd.smarthome.view.PickerView;
+
+
+/**
+ * Created by Administrator on 2015/12/30.
+ */
+public class ActivityAccoutManage extends ActivityHeaderBase {
+    /* 头像文件 */
+    private static final String IMAGE_FILE_NAME = "temp_head_image.jpg";
+
+    /* 请求识别码 */
+    private static final int CODE_GALLERY_REQUEST = 0xa0;
+    private static final int CODE_CAMERA_REQUEST = 0xa1;
+    private static final int CODE_RESULT_REQUEST = 0xa2;
+
+    // 裁剪后图片的宽(X)和高(Y),480 X 480的正方形。
+    private static int         output_X = 300;
+    private static int         output_Y = 300;
+    private ImageView          mImgUserPhoto = null;
+    private RelativeLayout     mRlUserPhoto;
+    private RelativeLayout     mRlAccountMamageSex;
+    private RelativeLayout     mRlAccountManageBirthday;
+    private RelativeLayout     mRlAccountManageAddress;
+    private RelativeLayout     mRlAcconutManagePhone;
+    private RelativeLayout     mRlAcconutManageName;
+
+    private TextView           mTxtAcconutName;
+    private TextView           mTxtPhone;
+    private TextView           mTxtSex;
+    private TextView           mTxtBirtfday;
+    private TextView           mTxtAddress;
+    private TextView           mTetName;
+
+    private int                mShowYear;
+    private int                mShowMouth;
+    private int                mShowDay;
+    private String             mShowSex;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_account_manage);
+
+        mTxtHeaderTitle.setText(R.string.account_manage_title);
+        mBtnHeaderRight.setVisibility(View.GONE);
+
+        mImgUserPhoto = (ImageView) findViewById(R.id.img_user_photo);
+        mRlUserPhoto = (RelativeLayout) findViewById(R.id.ly_user_photo);
+        mRlAccountMamageSex = (RelativeLayout) findViewById(R.id.rl_account_manage_sex);
+        mRlAccountManageBirthday = (RelativeLayout) findViewById(R.id.rl_accout_manage_birthday);
+        mRlAccountManageAddress = (RelativeLayout) findViewById(R.id.rl_account_manage_address);
+        mRlAcconutManagePhone = (RelativeLayout) findViewById(R.id.rl_account_phone);
+        mRlAcconutManageName = (RelativeLayout) findViewById(R.id.rl_account_manage_name);
+
+        mTxtAcconutName = (TextView) findViewById(R.id.txt_account_manage_username);
+        mTxtPhone = (TextView) findViewById(R.id.txt_account_manage_phone);
+        mTxtSex = (TextView) findViewById(R.id.txt_account_manage_sex);
+        mTxtBirtfday = (TextView) findViewById(R.id.txt_account_manage_bidthday);
+        mTxtAddress = (TextView) findViewById(R.id.txt_account_manage_address);
+        mTetName = (TextView) findViewById(R.id.txt_account_manage_name);
+
+        //选择头像
+        mRlUserPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showPhotoDialog();
+            }
+        });
+
+        //选择性别
+        mRlAccountMamageSex.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showSexDialog();
+            }
+        });
+
+        //选择生日
+        mRlAccountManageBirthday.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                showBirthdayDialog();
+            }
+        });
+        //选择电话
+        mRlAcconutManagePhone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+        //选择姓名
+        mRlAcconutManageName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final EditText inputServer = new EditText(ActivityAccoutManage.this);
+                inputServer.setText(AppCache.mMyself.mName);
+                inputServer.setSelectAllOnFocus(true);
+                AlertDialog.Builder builder = new AlertDialog.Builder(ActivityAccoutManage.this);
+                builder.setTitle(R.string.account_manage_true_name)
+//                .setIcon(android.R.drawable.ic_dialog_info)
+                        .setView(inputServer)
+                        .setNegativeButton(R.string.action_cancel, null)
+                        .setPositiveButton(R.string.action_ok, new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface dialog, int which) {
+                                String strName = inputServer.getText().toString();
+                                mTetName.setText(strName);
+                                if (Common.isNullString(strName)){
+                                    Toast.makeText(ActivityAccoutManage.this, R.string.tip_promit_name, Toast.LENGTH_LONG).show();
+                                }
+                                else {
+                                    RequestParams req = new RequestParams();
+                                    req.put("name", strName);
+                                    RequestHandle rqh = ServerClient.UpdateMyInfo(req ,new AppResponseHandler()
+                                    {
+                                        public void onReqSuccess(JSONObject arg0) {
+                                            try {
+                                                UserInfo user = new UserInfo();
+                                                JSONArray ja = arg0.getJSONArray("dataList");
+                                                user.fromJson(ja.getJSONObject(0));
+                                                AppCache.OnLogined(user);
+                                            } catch (Exception e) {
+                                                Toast.makeText(ActivityAccoutManage.this, e.toString(), Toast.LENGTH_LONG).show();
+                                                return;
+                                            }
+                                        }
+                                                public void onReqFailure(String msg) {
+                                                    Toast.makeText(ActivityAccoutManage.this, msg, Toast.LENGTH_LONG).show();
+                                                }
+                                            }
+                                    );
+                                }
+
+                            }
+                        });
+                builder.show();
+            }
+        });
+
+        //选择地址
+        mRlAccountManageAddress.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final EditText inputServer = new EditText(ActivityAccoutManage.this);
+                inputServer.setText(AppCache.mMyself.mAddress);
+                inputServer.setSelectAllOnFocus(true);
+                AlertDialog.Builder builder = new AlertDialog.Builder(ActivityAccoutManage.this);
+                builder.setTitle(R.string.account_manage_address)
+//                .setIcon(android.R.drawable.ic_dialog_info)
+                        .setView(inputServer)
+                        .setNegativeButton(R.string.action_cancel, null)
+                        .setPositiveButton(R.string.action_ok, new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface dialog, int which) {
+                                String strAddress = inputServer.getText().toString();
+                                mTxtAddress.setText(strAddress);
+                                if (Common.isNullString(strAddress)){
+                                    Toast.makeText(ActivityAccoutManage.this, R.string.tip_need_address, Toast.LENGTH_LONG).show();
+                                }
+                                else {
+                                    RequestParams req = new RequestParams();
+                                    req.put("address", strAddress);
+                                    RequestHandle rqh = ServerClient.UpdateMyInfo(req ,new AppResponseHandler()
+                                            {
+                                                public void onReqSuccess(JSONObject arg0) {
+                                                    try {
+                                                        UserInfo user = new UserInfo();
+                                                        JSONArray ja = arg0.getJSONArray("dataList");
+                                                        user.fromJson(ja.getJSONObject(0));
+                                                        AppCache.OnLogined(user);
+                                                    } catch (Exception e) {
+                                                        Toast.makeText(ActivityAccoutManage.this, e.toString(), Toast.LENGTH_LONG).show();
+                                                        return;
+                                                    }
+                                                }
+                                                public void onReqFailure(String msg) {
+                                                    Toast.makeText(ActivityAccoutManage.this, msg, Toast.LENGTH_LONG).show();
+                                                }
+                                            }
+                                    );
+                                }
+
+                            }
+                        });
+                builder.show();
+            }
+        });
+
+    }
+
+
+    private void showSexDialog() {
+        final AlertDialog dialog = new AlertDialog.Builder(ActivityAccoutManage.this)
+                .create();
+        dialog.show();
+        Window window = dialog.getWindow();
+        //弹出内容至于底部
+        window.setGravity(Gravity.BOTTOM);
+        // 设置布局
+        window.setContentView(R.layout.dialgo_acount_manage_birthday);
+        // 设置宽高
+        window.setLayout(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        // 设置弹出的动画效果
+        window.setWindowAnimations(R.style.AnimBottom);
+
+        PickerView  pickerviewMouth = (PickerView) window.findViewById(R.id.pickerview_month);
+        LinearLayout.LayoutParams linearParams = (LinearLayout.LayoutParams) pickerviewMouth.getLayoutParams(); // 取控件mGrid当前的布局参数
+        linearParams.height = 200;// 当控件的高强制设成120象素
+        pickerviewMouth.setLayoutParams(linearParams); // 使设置好的布局参数应用到控件
+        PickerView  pickerviewYear = (PickerView) window.findViewById(R.id.pickerview_year);
+        pickerviewYear.setVisibility(View.GONE);
+        PickerView  picketviewDay = (PickerView) window.findViewById(R.id.pickerview_day);
+        picketviewDay.setVisibility(View.GONE);
+        Button ok = (Button) window.findViewById(R.id.btn_ok);
+        Button close = (Button) window.findViewById(R.id.btn_close);
+
+        List<String> sex = new ArrayList<String>();
+        String male = getResources().getString(R.string.male);
+        String female = getResources().getString(R.string.female);
+        sex.add(male);
+        sex.add(female);
+        pickerviewMouth.setData(sex);
+
+        pickerviewMouth.setOnSelectListener(new PickerView.onSelectListener() {
+            @Override
+            public void onSelect(String text) {
+                mShowSex = text;
+            }
+        });
+
+        ok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mTxtSex.setText(mShowSex);
+                Long gander;
+                if (mShowSex.equals(getResources().getString(R.string.male))) {
+                    gander = 1L;
+                } else {
+                    gander = 2L;
+                }
+                RequestParams req = new RequestParams();
+                req.put("gender", gander);
+                RequestHandle rqh = ServerClient.UpdateMyInfo(req ,new AppResponseHandler()
+                        {
+                            public void onReqSuccess(JSONObject arg0) {
+                                try {
+                                    UserInfo user = new UserInfo();
+                                    JSONArray ja = arg0.getJSONArray("dataList");
+                                    user.fromJson(ja.getJSONObject(0));
+                                    AppCache.OnLogined(user);
+                                } catch (Exception e) {
+                                    Toast.makeText(ActivityAccoutManage.this, e.toString(), Toast.LENGTH_LONG).show();
+                                    return;
+                                }
+                            }
+                            public void onReqFailure(String msg) {
+                                Toast.makeText(ActivityAccoutManage.this, msg, Toast.LENGTH_LONG).show();
+                            }
+                        }
+                );
+                dialog.cancel();
+            }
+        });
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.cancel();
+            }
+        });
+    }
+
+    private void showBirthdayDialog() {
+        final AlertDialog dialog = new AlertDialog.Builder(ActivityAccoutManage.this)
+                .create();
+        dialog.show();
+        Window window = dialog.getWindow();
+        window.setGravity(Gravity.BOTTOM);
+        // 设置布局
+        window.setContentView(R.layout.dialgo_acount_manage_birthday);
+        // 设置宽高
+        window.setLayout(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        // 设置弹出的动画效果
+        window.setWindowAnimations(R.style.AnimBottom);
+
+        PickerView  pickerviewMouth = (PickerView) window.findViewById(R.id.pickerview_month);
+        PickerView  pickerviewYear = (PickerView) window.findViewById(R.id.pickerview_year);
+        PickerView  picketviewDay = (PickerView) window.findViewById(R.id.pickerview_day);
+        Button ok = (Button) window.findViewById(R.id.btn_ok);
+        Button close = (Button) window.findViewById(R.id.btn_close);
+
+        List<String> year = new ArrayList<String>();
+        List<String> day = new ArrayList<String>();
+        List<String> mouth = new ArrayList<String>();
+
+        for (int i = 1950; i < 2016; i++)
+        {
+            year.add( "" + i);
+        }
+        for (int i = 1; i < 32; i++)
+        {
+            day.add( "" + i);
+        }
+        for (int i = 1; i<13; i++){
+            mouth.add("" +i);
+        }
+        pickerviewYear.setData(year);
+        pickerviewMouth.setData(mouth);
+        picketviewDay.setData(day);
+
+        pickerviewYear.setSelected(40);
+
+
+        pickerviewMouth.setOnSelectListener(new PickerView.onSelectListener() {
+
+            @Override
+            public void onSelect(String text) {
+                mShowMouth = Integer.parseInt(text);
+            }
+        });
+
+        pickerviewYear.setOnSelectListener(new PickerView.onSelectListener() {
+
+            @Override
+            public void onSelect(String text) {
+                mShowYear = Integer.parseInt(text);
+            }
+        });
+        picketviewDay.setOnSelectListener(new PickerView.onSelectListener()
+        {
+
+            @Override
+            public void onSelect(String text)
+            {
+              mShowDay = Integer.parseInt(text);
+            }
+        });
+
+        ok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String s = mShowYear + "-" + mShowMouth + "-" + mShowDay;
+                mTxtBirtfday.setText(s);
+                RequestParams req = new RequestParams();
+                req.put("birthday", s);
+                RequestHandle rqh = ServerClient.UpdateMyInfo(req ,new AppResponseHandler()
+                        {
+                            public void onReqSuccess(JSONObject arg0) {
+                                try {
+                                    UserInfo user = new UserInfo();
+                                    JSONArray ja = arg0.getJSONArray("dataList");
+                                    user.fromJson(ja.getJSONObject(0));
+                                    AppCache.OnLogined(user);
+                                } catch (Exception e) {
+                                    Toast.makeText(ActivityAccoutManage.this, e.toString(), Toast.LENGTH_LONG).show();
+                                    return;
+                                }
+                            }
+                            public void onReqFailure(String msg) {
+                                Toast.makeText(ActivityAccoutManage.this, msg, Toast.LENGTH_LONG).show();
+                            }
+                        }
+                );
+                dialog.cancel();
+            }
+        });
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.cancel();
+            }
+        });
+
+
+    }
+
+    private void showPhotoDialog() {
+        final AlertDialog dialog = new AlertDialog.Builder(ActivityAccoutManage.this)
+                .create();
+        dialog.show();
+        Window window = dialog.getWindow();
+        window.setGravity(Gravity.BOTTOM);
+        // 设置布局
+        window.setContentView(R.layout.dialgo_acount_manage_photo);
+        // 设置宽高
+        window.setLayout(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        // 设置弹出的动画效果 从底部弹出
+        window.setWindowAnimations(R.style.AnimBottom);
+        Button photo = (Button) window.findViewById(R.id.btn_select_photo);
+        Button cemare = (Button) window.findViewById(R.id.btn_select_camera);
+        Button close = (Button) window.findViewById(R.id.btn_close);
+
+        photo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                choseHeadImageFromGallery();
+                dialog.cancel();
+            }
+        });
+
+        cemare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                choseHeadImageFromCameraCapture();
+                dialog.cancel();
+            }
+        });
+
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.cancel();
+            }
+        });
+    }
+
+    // 从本地相册选取图片作为头像
+    private void choseHeadImageFromGallery() {
+        Intent intentFromGallery = new Intent();
+        // 设置文件类型
+        intentFromGallery.setType("image/*");
+        intentFromGallery.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(intentFromGallery, CODE_GALLERY_REQUEST);
+    }
+
+    // 启动手机相机拍摄照片作为头像
+    private void choseHeadImageFromCameraCapture() {
+        Intent intentFromCapture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        // 判断存储卡是否可用，存储照片文件
+        if (hasSdcard()) {
+            intentFromCapture.putExtra(MediaStore.EXTRA_OUTPUT, Uri
+                    .fromFile(new File(Environment
+                            .getExternalStorageDirectory(), IMAGE_FILE_NAME)));
+        }
+
+        startActivityForResult(intentFromCapture, CODE_CAMERA_REQUEST);
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode,
+                                    Intent intent) {
+
+        // 用户没有进行有效的设置操作，返回
+        if (resultCode == RESULT_CANCELED) {
+            return;
+        }
+
+        switch (requestCode) {
+            case CODE_GALLERY_REQUEST:
+                cropRawPhoto(intent.getData());
+                break;
+
+            case CODE_CAMERA_REQUEST:
+                if (hasSdcard()) {
+                    File tempFile = new File(
+                            Environment.getExternalStorageDirectory(),
+                            IMAGE_FILE_NAME);
+                    cropRawPhoto(Uri.fromFile(tempFile));
+                } else {
+                    Toast.makeText(getApplication(),R.string.prompt_no_sdcard , Toast.LENGTH_LONG)
+                            .show();
+                }
+
+                break;
+
+            case CODE_RESULT_REQUEST:
+                if (intent != null) {
+                    setImageToHeadView(intent);
+                }
+
+                break;
+        }
+
+        super.onActivityResult(requestCode, resultCode, intent);
+    }
+    /**
+     * 裁剪原始的图片
+     */
+    public void cropRawPhoto(Uri uri) {
+
+        Intent intent = new Intent("com.android.camera.action.CROP");
+        intent.setDataAndType(uri, "image/*");
+
+        // 设置裁剪
+        intent.putExtra("crop", true);
+
+        // aspectX , aspectY :宽高的比例
+        intent.putExtra("aspectX", 1);
+        intent.putExtra("aspectY", 1);
+
+        // outputX , outputY : 裁剪图片宽高
+        intent.putExtra("outputX", output_X);
+        intent.putExtra("outputY", output_Y);
+        intent.putExtra("return-data", true);
+
+
+        startActivityForResult(intent, CODE_RESULT_REQUEST);
+    }
+
+    /**
+     * 提取保存裁剪之后的图片数据，并设置头像部分的View
+     */
+        private void setImageToHeadView(Intent intent) {
+            Bundle extras = intent.getExtras();
+            if (extras != null) {
+                Bitmap photo = extras.getParcelable("data");
+                try {
+                    //将截取的图片保存在本地
+                    saveBitmap(photo);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                mImgUserPhoto.setImageBitmap(CycloUtil.toRoundBitmap(photo));
+            }
+        }
+
+        /**
+         * 检查设备是否存在SDCard的工具方法
+         */
+    public static boolean hasSdcard() {
+        String state = Environment.getExternalStorageState();
+        if (state.equals(Environment.MEDIA_MOUNTED)) {
+            // 有存储的SDCard
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /** 保存方法 */
+    private void saveBitmap(Bitmap bitmap) throws IOException
+    {
+        File file = new File("/data/data/app.smarthome.zzd.smarthome/"+IMAGE_FILE_NAME);
+        if(file.exists()){
+            file.delete();
+        }
+        FileOutputStream out;
+        try{
+            out = new FileOutputStream(file);
+            if(bitmap.compress(Bitmap.CompressFormat.PNG, 90, out))
+            {
+                out.flush();
+                out.close();
+            }
+        }
+        catch (FileNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        //传到服务器
+        RequestParams rep = new RequestParams();
+        rep.put("avatar" , file);
+        RequestHandle rqh = ServerClient.UpdateMyInfo(rep, new AppResponseHandler()
+                {
+                    public void onReqSuccess(JSONObject arg0) {
+                        try {
+                            UserInfo user = new UserInfo();
+                            JSONArray ja = arg0.getJSONArray("dataList");
+                            user.fromJson(ja.getJSONObject(0));
+                            AppCache.OnLogined(user);
+                        } catch (Exception e) {
+                            Toast.makeText(ActivityAccoutManage.this, e.toString(), Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                    }
+                    public void onReqFailure(String msg) {
+                        Toast.makeText(ActivityAccoutManage.this, msg, Toast.LENGTH_LONG).show();
+                    }
+                }
+        );
+
+
+    }
+
+    //初始化界面
+    private void init(TextView textView , String string) {
+     if (Common.isNullString(string)){
+         textView.setText(R.string.account_manage_not_set);
+     }
+        else{
+         textView.setText(string);
+     }
+    }
+    @Override
+    protected void onResume() {
+        String uri =  "/data/data/app.smarthome.zzd.smarthome/"+IMAGE_FILE_NAME;
+        Bitmap bm = BitmapFactory.decodeFile(uri);
+        if (bm!=null) {
+            mImgUserPhoto.setImageBitmap(CycloUtil.toRoundBitmap(bm));
+        }
+        init(mTxtPhone, AppCache.mMyself.mMobile);
+        init(mTxtAcconutName, AppCache.mMyself.mLoginName);
+        init(mTxtBirtfday, AppCache.mMyself.mBirthday);
+        init(mTetName, AppCache.mMyself.mName);
+        init(mTxtAddress, AppCache.mMyself.mAddress);
+        if (AppCache.mMyself.mGender == Config.GenderType.GenderTypeNoSet){
+            mTxtSex.setText(R.string.account_manage_not_set);
+        }
+        else {
+            if (AppCache.mMyself.mGender == Config.GenderType.GenderTypeMale){
+                mTxtSex.setText(R.string.male);
+            }
+            else {
+                mTxtSex.setText(R.string.female);
+            }
+        }
+            super.onResume();
+
+    }
+}

@@ -1,0 +1,76 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/ly_header"
+        layout="@layout/header" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="center_horizontal"
+        android:layout_toLeftOf="@+id/btn_header_right"
+        android:layout_toStartOf="@+id/btn_header_right"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="2"></TextView>
+
+        <TextView
+            android:id="@+id/txt_mode_now"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/tab_mode_on"
+            android:gravity="center"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:text="@string/mode_now"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/tab_mode_on"
+            android:textSize="20sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="2"></TextView>
+
+        <TextView
+            android:id="@+id/txt_mode_timer"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:text="@string/mode_timer"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/tab_mode_off"
+            android:textSize="20sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="2"></TextView>
+    </LinearLayout>
+
+    <app.smarthome.zzd.smarthome.view.AdbannerView
+        android:id="@+id/view_pager_adbanner"
+        android:layout_width="match_parent"
+        android:layout_height="133dp"
+        android:background="@color/darkgray" />
+
+    <app.smarthome.zzd.smarthome.view.ModesPager
+        android:id="@+id/view_pager_modes"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#fafafa"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:paddingTop="12dp" />
+
+</LinearLayout>

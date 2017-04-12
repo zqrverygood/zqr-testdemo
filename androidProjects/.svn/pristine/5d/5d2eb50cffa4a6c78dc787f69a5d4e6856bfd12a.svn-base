@@ -1,0 +1,116 @@
+package app.smarthome.zzd.smarthome.model;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.util.Common;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.Vector;
+
+/**
+ * Created by zzdios on 15/11/16.
+ */
+public class TimerInfo implements Parcelable {
+
+    public long mId;
+    public long mFamilyId;
+    public String mName;
+    public long mDeviceId;
+    public long mPortId;
+    public long mStrategyId;
+    public long mOpt;
+    public long mTimer;
+    public long mEnable;
+    public long mSync;
+
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(mId);
+        dest.writeLong(mFamilyId);
+        dest.writeString(mName);
+        dest.writeLong(mDeviceId);
+        dest.writeLong(mPortId);
+        dest.writeLong(mStrategyId);
+        dest.writeLong(mOpt);
+        dest.writeLong(mTimer);
+        dest.writeLong(mEnable);
+        dest.writeLong(mSync);
+    }
+
+    public static final Creator<TimerInfo> CREATOR = new Creator<TimerInfo>() {
+        public TimerInfo createFromParcel(Parcel in) {
+            TimerInfo di = new TimerInfo();
+            di.mId = in.readLong();
+            di.mFamilyId = in.readLong();
+            di.mName = in.readString();
+            di.mDeviceId = in.readLong();
+            di.mPortId = in.readLong();
+            di.mStrategyId = in.readLong();
+            di.mOpt = in.readLong();
+            di.mTimer = in.readLong();
+            di.mEnable = in.readLong();
+            di.mSync = in.readLong();
+
+            return di;
+        }
+
+        public TimerInfo[] newArray(int size) {
+            return new TimerInfo[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public void toParam(JSONObject params){
+        try{
+            if(mId > 0)params.put("id", mId);
+            params.put("familyId", mFamilyId);
+            if(!Common.isNullString(mName))params.put("name", mName);
+            params.put("deviceId", mDeviceId);
+            params.put("portId", mPortId);
+            params.put("strategyId", mStrategyId);
+            params.put("opt", mOpt);
+            params.put("timer", mTimer);
+            params.put("enable", mEnable);
+            params.put("sync", mSync);
+
+        }catch (org.json.JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+    public void fromJson(JSONObject jsonObject){
+        try{
+            if (jsonObject.has("id")) mId = jsonObject.getLong("id");
+            else mId = 0L;
+            if (jsonObject.has("familyId")) mFamilyId = jsonObject.getLong("familyId");
+            else mFamilyId = 0L;
+            if (jsonObject.has("name")) mName = jsonObject.getString("name");
+            else mName = "";
+            if (jsonObject.has("deviceId")) mDeviceId = jsonObject.getLong("deviceId");
+            else mDeviceId = 0L;
+            if (jsonObject.has("portId")) mPortId = jsonObject.getLong("portId");
+            else mPortId = 0L;
+            if (jsonObject.has("strategyId")) mStrategyId = jsonObject.getLong("strategyId");
+            else mStrategyId = 0L;
+            if (jsonObject.has("opt")) mOpt = jsonObject.getLong("opt");
+            else mOpt = 0L;
+            if (jsonObject.has("timer")) mTimer = jsonObject.getLong("timer");
+            else mTimer = 0L;
+            if (jsonObject.has("enable")) mEnable = jsonObject.getLong("enable");
+            else mEnable = 0L;
+            if (jsonObject.has("sync")) mSync = jsonObject.getLong("sync");
+            else mSync = 0L;
+        }catch (org.json.JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+}

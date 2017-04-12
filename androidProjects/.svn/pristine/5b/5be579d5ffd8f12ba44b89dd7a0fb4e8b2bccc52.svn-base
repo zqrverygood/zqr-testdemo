@@ -1,0 +1,83 @@
+package app.smarthome.zzd.smarthome.model;
+
+import android.location.Location;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.util.Log;
+
+import com.util.Common;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Vector;
+
+/**
+ * Created by inobaa on 15/1/21.
+ */
+public class UserInfo implements Parcelable {
+    public long mUid = 0L;
+    public long mCompanyId = 0L;
+    public String mLoginName = "";
+    public String mName = "";
+    public String mMobile = "";
+    public String mAvatar = "";
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(mUid);
+        dest.writeLong(mCompanyId);
+        dest.writeString(mLoginName);
+        dest.writeString(mName);
+        dest.writeString(mMobile);
+    }
+
+    public static final Parcelable.Creator<UserInfo> CREATOR = new Parcelable.Creator<UserInfo>() {
+        public UserInfo createFromParcel(Parcel in) {
+            UserInfo ui = new UserInfo();
+            ui.mUid = in.readLong();
+            ui.mCompanyId = in.readLong();
+            ui.mLoginName = in.readString();
+            ui.mName = in.readString();
+            ui.mMobile = in.readString();
+            return ui;
+        }
+
+        public UserInfo[] newArray(int size) {
+            return new UserInfo[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public void toParam(JSONObject params){
+        try{
+            if(mUid > 0) params.put("id", mUid);
+            params.put("companyId", mCompanyId);
+            params.put("loginName", mLoginName);
+            params.put("name", mName);
+            params.put("mobile", mMobile);
+        }
+        catch (org.json.JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+    public void fromJson(JSONObject jsonObject){
+        try{
+            mUid = Common.getLongFromJson(jsonObject, "id");
+            mCompanyId = Common.getLongFromJson(jsonObject, "companyId");
+            mLoginName = Common.getStringFromJson(jsonObject, "loginName");
+            mName = Common.getStringFromJson(jsonObject, "name");
+            mMobile = Common.getStringFromJson(jsonObject, "mobile");
+        }
+        catch (org.json.JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+}

@@ -1,0 +1,164 @@
+package app.smarthome.zzd.smarthome.model;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.support.annotation.NonNull;
+
+import com.util.Common;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * Created by zzdios on 15/11/16.
+ */
+public class DeviceInfo implements Parcelable {
+
+    public static class DevicePortInfo{
+        static final public int KDateCnt = 5;
+
+        public long     mRoomId;
+        public String   mName;
+        public long     mPortId;
+        public long     mLinkId;
+        public long     mStatus;
+    }
+
+    public long mId;
+    public long mFamilyId;
+    public long mRoomId;
+    public long mSuperDevId;
+    public long mDeviceType;
+    public long mUseDate;
+    public long mUse;
+    public String mSN;
+    public String mName;
+    public String mRemark;
+    public Map<Long, DevicePortInfo> mPorts;
+
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(mId);
+        dest.writeLong(mFamilyId);
+        dest.writeLong(mRoomId);
+        dest.writeLong(mSuperDevId);
+        dest.writeLong(mDeviceType);
+        dest.writeLong(mUseDate);
+        dest.writeLong(mUse);
+        dest.writeString(mSN);
+        dest.writeString(mName);
+        dest.writeString(mRemark);
+
+        Object[] keys = mPorts.keySet().toArray();
+        String[] tmp = new String[keys.length * DevicePortInfo.KDateCnt];
+        for (int i = 0; i < keys.length; i++) {
+            tmp[i*DevicePortInfo.KDateCnt] = "" + mPorts.get(keys[i]).mPortId;
+            tmp[i*DevicePortInfo.KDateCnt+1] = "" + mPorts.get(keys[i]).mRoomId;
+            tmp[i*DevicePortInfo.KDateCnt+2] = mPorts.get(keys[i]).mName;
+            tmp[i*DevicePortInfo.KDateCnt+3] = "" + mPorts.get(keys[i]).mStatus;
+            tmp[i*DevicePortInfo.KDateCnt+4] = "" + mPorts.get(keys[i]).mLinkId;
+        }
+        dest.writeStringArray(tmp);
+    }
+
+    public static final Parcelable.Creator<DeviceInfo> CREATOR = new Parcelable.Creator<DeviceInfo>() {
+        public DeviceInfo createFromParcel(Parcel in) {
+            DeviceInfo di = new DeviceInfo();
+            di.mId = in.readLong();
+            di.mFamilyId = in.readLong();
+            di.mRoomId = in.readLong();
+            di.mSuperDevId = in.readLong();
+            di.mDeviceType = in.readLong();
+            di.mUseDate = in.readLong();
+            di.mUse = in.readLong();
+            di.mSN = in.readString();
+            di.mName = in.readString();
+            di.mRemark = in.readString();
+
+            String[] tmp = in.createStringArray();
+            int portCount = tmp.length / DevicePortInfo.KDateCnt;
+            for (int i = 0; i < portCount; i++) {
+                DevicePortInfo port = new DevicePortInfo();
+                port.mPortId = Long.valueOf(tmp[i*DevicePortInfo.KDateCnt]);
+                port.mRoomId = Long.valueOf(tmp[i*DevicePortInfo.KDateCnt]);
+                port.mName = tmp[i*DevicePortInfo.KDateCnt+1];
+                port.mStatus = Long.valueOf(tmp[i*DevicePortInfo.KDateCnt+2]);
+                port.mLinkId = Long.valueOf(tmp[i*DevicePortInfo.KDateCnt+3]);
+                di.mPorts.put(port.mPortId, port);
+            }
+            return di;
+        }
+
+        public DeviceInfo[] newArray(int size) {
+            return new DeviceInfo[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public void toParam(JSONObject params){
+        try{
+            if(mId > 0)params.put("id", mId);
+
+        }catch (org.json.JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+    public void fromJson(JSONObject jsonObject){
+        try{
+            mId = Common.getLongFromJson(jsonObject, "id");
+            mFamilyId = Common.getLongFromJson(jsonObject, "familyId");
+            mRoomId = Common.getLongFromJson(jsonObject, "roomId");
+            mSuperDevId = Common.getLongFromJson(jsonObject, "superDevId");
+            mDeviceType = Common.getLongFromJson(jsonObject, "deviceType");
+            mUseDate = Common.getLongFromJson(jsonObject, "useDate");
+            mUse = Common.getLongFromJson(jsonObject, "useDate");
+
+            mSN = Common.getStringFromJson(jsonObject, "productNo");
+            mName = Common.getStringFromJson(jsonObject, "name");
+            mRemark = Common.getStringFromJson(jsonObject, "remark");
+
+            HashMap<Long, Long> status = new HashMap<>();
+            if (jsonObject.has("yxList")){
+                JSONArray ja = jsonObject.getJSONArray("yxList");
+                for (int i = 0; i < ja.length(); i++) {
+                    JSONObject jPort = ja.getJSONObject(i);
+                    Long dataId = Common.getLongFromJson(jPort, "dataId");
+                    Long value = Common.getLongFromJson(jPort, "value");
+                    status.put(dataId, value);
+                }
+            }
+
+            mPorts = new HashMap<>();
+            if (jsonObject.has("ykList")){
+                JSONArray ja = jsonObject.getJSONArray("ykList");
+                for (int i = 0; i < ja.length(); i++) {
+                    JSONObject jPort = ja.getJSONObject(i);
+
+                    DevicePortInfo port = new DevicePortInfo();
+                    port.mName = Common.getStringFromJson(jPort, "name");
+                    port.mPortId = Common.getLongFromJson(jPort, "dataId");
+                    port.mRoomId = Common.getLongFromJson(jPort, "roomId");
+                    port.mLinkId = Common.getLongFromJson(jPort, "link");
+                    Long value = status.get(port.mLinkId);
+                    port.mStatus = (value == null ? -1L : value.longValue());
+
+                    mPorts.put(port.mPortId, port);
+                }
+            }
+        }catch (org.json.JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+}

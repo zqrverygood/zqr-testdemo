@@ -85,11 +85,10 @@ public class MainActivity extends Activity implements View.OnClickListener,  Mov
 
     Button button;
     LinnerlayutDemo mlinnerlayutDemo;
-
     private RelativeLayout mRrSusMenu;
     private MoveMenu mMMoveMenu;//悬浮图标
     private static MediaPlayer mediaPlayer;
-    private SoundPool pool;
+    private SoundPool pool;//dfjksh
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -1,0 +1,382 @@
+package app.smarthome.zzd.smarthome;
+
+import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.os.Handler;
+import android.text.Html;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.loopj.android.http.RequestHandle;
+import com.util.Common;
+import com.util.InputTool;
+import com.util.LLong;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Vector;
+
+import app.smarthome.zzd.smarthome.model.DeviceInfo;
+import app.smarthome.zzd.smarthome.model.RoomInfo;
+import app.smarthome.zzd.smarthome.view.ListItemRoom;
+
+/**
+ * Created by zzdios on 15/11/30.
+ */
+public class ActivityRoomList extends ActivityHeaderBase {
+
+//    public static final int KActivityDeleteRoomConfirm = 102;
+    public boolean mIsForSelect = false;
+
+    public void OnHeaderRightClick() {
+        final EditText inputServer = new EditText(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.create_room)
+//                .setIcon(android.R.drawable.ic_dialog_info)
+                .setView(inputServer)
+                .setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        InputTool.HideKeyboard(inputServer);
+                    }
+                })
+                .setPositiveButton(R.string.action_ok, new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int which) {
+                        InputTool.HideKeyboard(inputServer);
+                        String strName = inputServer.getText().toString();
+                        if (Common.isNullString(strName)){
+                            AppInstance.MakeToast(ActivityRoomList.this, R.string.tip_need_name, Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        CreateRoom(strName);
+                    }
+                });
+        builder.setCancelable(false);
+        builder.show();
+    }
+
+    private RequestHandle sReqCreateRoom = null;
+    public void CreateRoom(String strNewName){
+        AppResponseHandler onCreateOK = new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqEditRoom = null;
+
+                AppCache.ListRooms();
+                try {
+                    JSONObject jRoom = arg0.getJSONArray("dataList").getJSONObject(0);
+                    RoomInfo r = new RoomInfo();
+                    r.fromJson(jRoom);
+                    AppCache.mRooms.put(r.mId, r);
+                    AppCache.mRoomIds.add(r.mId);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    return;
+                }
+
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdRoomsUpdate);
+                sendBroadcast(intent);
+
+                AppInstance.MakeToast(ActivityRoomList.this, R.string.add_finished, Toast.LENGTH_SHORT).show();
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqEditRoom = null;
+                AppInstance.MakeToast(ActivityRoomList.this, msg, Toast.LENGTH_LONG).show();
+            }
+
+            ;
+        };
+        sReqEditRoom = ServerClient.CreateRoom(AppCache.mCurFamilyId, strNewName, onCreateOK);
+    }
+
+    public void DeleteRoomWithConfirm(RoomInfo room){
+        final RoomInfo r = room;
+        String strTitle = getString(R.string.del_room);
+        new AlertDialog.Builder(ActivityRoomList.this)
+                .setTitle(strTitle)
+                .setMessage(R.string.tip_del_cannot_undo)
+                .setPositiveButton(getString(R.string.action_delete), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        DeleteRoom(r);
+                    }
+                })
+                .setNegativeButton(getString(R.string.action_cancel), null)
+                .show();
+    }
+    public ListItemRoom.OnRoomListener mOnRoomListener = new ListItemRoom.OnRoomListener() {
+        @Override
+        public void OnDeleteRoom(ListItemRoom v) {
+            RoomInfo r = (RoomInfo) v.getTag();
+            ActivityRoomList.this.DeleteRoomWithConfirm(r);
+        }
+
+        @Override
+        public void OnEditRoom(ListItemRoom v) {
+            RoomInfo r = (RoomInfo) v.getTag();
+            ActivityRoomList.this.OnEditRoom(r);
+        }
+
+        @Override
+        public void OnClickRoom(ListItemRoom v) {
+            final RoomInfo r = (RoomInfo) v.getTag();
+
+            if (mIsForSelect){
+                Intent intent = new Intent();
+                intent.putExtra("room_id", r.mId);
+                intent.putExtra("room_name", r.mName);
+                setResult(RESULT_OK, intent);
+                finish();
+                return;
+            }
+
+            String[] options = new String[2];
+            options[0] = getString(R.string.action_edit);
+            options[1] = getString(R.string.action_delete);
+            new AlertDialog.Builder(ActivityRoomList.this)
+                    .setItems(options, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            if (i == 1) {
+                                ActivityRoomList.this.DeleteRoomWithConfirm(r);
+                            }
+                            else if (i == 0) {
+                                ActivityRoomList.this.OnEditRoom(r);
+                            }
+                        }
+                    })
+                    .show();
+
+        }
+    };
+    private long mRoomIdEditing;
+    public void OnEditRoom(RoomInfo r){
+        final RoomInfo RoomInfo = r;
+        final EditText inputServer = new EditText(this);
+        inputServer.setText(r.mName);
+        inputServer.setSelectAllOnFocus(true);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.update_room_name)
+//                .setIcon(android.R.drawable.ic_dialog_info)
+                .setView(inputServer)
+                .setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        InputTool.HideKeyboard(inputServer);
+                    }
+                })
+                .setPositiveButton(R.string.action_ok, new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int which) {
+                        InputTool.HideKeyboard(inputServer);
+                        String strName = inputServer.getText().toString();
+                        if (Common.isNullString(strName)) {
+                            AppInstance.MakeToast(ActivityRoomList.this, R.string.tip_need_name, Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        EditRoom(RoomInfo, strName);
+                    }
+                });
+        builder.setCancelable(false);
+        builder.show();
+        InputTool.KeyBoard(inputServer, true);
+    }
+    private RequestHandle sReqEditRoom = null;
+    public void EditRoom(RoomInfo r, String strNewName){
+        AppResponseHandler onEditOK = new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqEditRoom = null;
+
+                AppCache.ListRooms();
+                try {
+                    JSONArray jdt = arg0.getJSONArray("dataList");
+                    JSONObject jRoom = jdt.getJSONObject(0);
+                    long lId = Common.getLongFromJson(jRoom, "id");
+                    String strName = Common.getStringFromJson(jRoom, "name");
+                    RoomInfo r = AppCache.mRooms.get(lId);
+                    if (r != null) r.mName = strName;
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    return;
+                }
+
+
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdRoomsUpdate);
+                sendBroadcast(intent);
+
+                AppInstance.MakeToast(ActivityRoomList.this, R.string.modify_finished, Toast.LENGTH_SHORT).show();
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqEditRoom = null;
+                AppInstance.MakeToast(ActivityRoomList.this, msg, Toast.LENGTH_LONG).show();
+            }
+
+            ;
+        };
+        sReqEditRoom = ServerClient.UpdateRoom(r.mId, strNewName, onEditOK);
+    }
+
+    private RequestHandle sReqDeleteRoom = null;
+    public void DeleteRoom(RoomInfo r){
+        final long mRoomIdDeleteing = r.mId;
+
+        AppResponseHandler onDeleteOK = new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqDeleteRoom = null;
+
+                AppCache.mRooms.remove(mRoomIdDeleteing);
+
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdRoomsUpdate);
+                sendBroadcast(intent);
+
+                AppCache.ListRooms();
+
+                AppInstance.MakeToast(ActivityRoomList.this, R.string.del_finished, Toast.LENGTH_LONG).show();
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqDeleteRoom = null;
+                AppInstance.MakeToast(ActivityRoomList.this, msg, Toast.LENGTH_LONG).show();
+            }
+
+            ;
+        };
+        sReqDeleteRoom = ServerClient.DeleteRoom(mRoomIdDeleteing, onDeleteOK);
+    }
+
+    public class MyAdapter extends BaseAdapter {
+
+        public LayoutInflater    mInflater;
+        public Vector<RoomInfo>  mRooms;
+
+        public MyAdapter(Context context){
+            this.mInflater = LayoutInflater.from(context);
+            notifyDataSetChanged();
+        }
+        @Override
+        public void notifyDataSetChanged() {
+            mRooms = new Vector<>();
+            mRooms.addAll(AppCache.mRooms.values());
+            Collections.sort(mRooms, RoomInfo.VECTOR_COMPARATOR_CRETATE_TIME);
+            mPullRefreshListView.onRefreshComplete();
+            super.notifyDataSetChanged();
+        }
+        @Override
+        public int getCount() {
+            return mRooms.size();
+        }
+
+        @Override
+        public Object getItem(int arg0) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int arg0) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            RoomInfo f = mRooms.get(position);
+
+            ListItemRoom tgv = (ListItemRoom)mInflater.inflate(R.layout.li_room_info, null);
+            convertView = tgv;
+            tgv.SetOnRoomListener(mOnRoomListener);
+            tgv.SetRoomInfo(f);
+
+            if (position >= mRooms.size() - 1){
+                tgv.findViewById(R.id.txt_bottom_line).setVisibility(View.GONE);
+            }
+            return convertView;
+        }
+    }
+
+    private PullToRefreshListView mPullRefreshListView;
+    protected MyAdapter mAdapter = null;
+
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(Config.BoardcastZzdRoomsUpdate)) {
+                mAdapter.notifyDataSetChanged();
+                mPullRefreshListView.onRefreshComplete();
+            }
+        }
+    };
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_listview);
+        setTitle(R.string.room_manage);
+
+        mBtnHeaderRight.setVisibility(View.VISIBLE);
+        mPullRefreshListView = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
+
+        mAdapter = new MyAdapter(this);
+        mPullRefreshListView.setAdapter(mAdapter);
+        mPullRefreshListView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener<ListView>() {
+            @Override
+            public void onRefresh(PullToRefreshBase<ListView> refreshView) {
+                AppCache.ListRooms();
+            }
+        });
+        TextView tv = new TextView(this);
+        tv.setText((getString(R.string.tip_create_a_room)));
+        tv.setGravity(Gravity.CENTER);
+        mPullRefreshListView.setEmptyView(tv);
+
+        Intent intent = getIntent();
+        mIsForSelect = intent.getBooleanExtra("is_for_select", false);
+        if (mIsForSelect){
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    OnHeaderRightClick();
+                }
+            }, 10);
+        }
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Config.BoardcastZzdRoomsUpdate);
+        registerReceiver(mReceiver, filter);
+    }
+
+    public void onDestroy() {
+        unregisterReceiver(mReceiver);
+        super.onDestroy();
+    }
+}

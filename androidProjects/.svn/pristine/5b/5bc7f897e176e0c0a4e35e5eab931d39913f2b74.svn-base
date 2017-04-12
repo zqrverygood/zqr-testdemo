@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<app.smarthome.zzd.smarthome.view.AdbannerViewItem
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@null"
+    android:layout_width="match_parent"
+    android:layout_height="120dp">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/img_main"
+        android:src="@drawable/loading"
+        android:contentDescription="@string/blank"
+        android:layout_gravity="center_horizontal"
+        android:adjustViewBounds="false"
+        android:cropToPadding="true"
+        android:layout_centerHorizontal="true"
+        android:background="@null"
+        android:scaleType="centerCrop" />
+
+    <!--<TextView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
+        <!--android:text="@string/blank"-->
+        <!--android:id="@+id/txt_title"-->
+        <!--android:singleLine="true"-->
+        <!--android:textColor="@color/header_background"-->
+        <!--android:layout_gravity="center_horizontal"-->
+        <!--android:padding="2dp"-->
+        <!--android:textSize="16sp"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:visibility="visible"-->
+        <!--android:layout_alignParentLeft="true"-->
+        <!--android:layout_marginLeft="8dp"-->
+        <!--android:layout_marginBottom="8dp" />-->
+
+</app.smarthome.zzd.smarthome.view.AdbannerViewItem>

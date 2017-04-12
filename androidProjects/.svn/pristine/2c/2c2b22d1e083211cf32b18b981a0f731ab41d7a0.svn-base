@@ -1,0 +1,385 @@
+package app.smarthome.zzd.smarthome;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.loopj.android.http.RequestHandle;
+import com.umeng.analytics.MobclickAgent;
+import com.util.Common;
+import com.util.db.AppDb;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.w3c.dom.Text;
+
+import java.util.Vector;
+
+import app.smarthome.zzd.smarthome.model.DeviceInfo;
+import app.smarthome.zzd.smarthome.model.SceneInfo;
+import app.smarthome.zzd.smarthome.model.TimerInfo;
+import app.smarthome.zzd.smarthome.view.AdbannerView;
+import app.smarthome.zzd.smarthome.view.ScenesPager;
+import app.smarthome.zzd.smarthome.view.RoomDevicePager;
+
+/**
+ * Created by inobaa on 15/1/20.
+ */
+public class FragmentScenes extends FragmentForMain {
+
+    private final static int ACTIVITY_SCENE_DETAIL = 100;
+
+    private ScenesPager             mScenesPager;
+    private AdbannerView            mAdView;
+    private LayoutInflater          mInflater;
+    private TextView                mTxtToScenes;
+    private TextView                mTxtToTimers;
+    private LinearLayout            mLyModeType;
+    private ProgressDialog          mProgDialog;
+
+    public FragmentScenes() {
+    }
+    public void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart("FragmentScenes"); //统计页面
+    }
+    public void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd("FragmentScenes");
+    }
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(Config.BoardcastZzdSceneUpdate)) {
+                mScenesPager.OnScenesChanged();
+                mScenesPager.OnTimersChanged();
+            }
+            else if(action.equals(Config.BoardcastZzdTimerUpdate)){
+                mScenesPager.OnScenesChanged();
+                mScenesPager.OnTimersChanged();
+            }
+            else if(action.equals(Config.BoardcastZzdAdbannerUpdate)){
+                mAdView.ReLoad(mInflater, 1);
+            }
+        }
+    };
+    public void OnHeaderRightClick(){
+        Intent intent = new Intent();
+        intent.setClass(getActivity(), ActivitySceneDetail.class);
+        intent.putExtra("scene_id", 0L);
+        startActivityForResult(intent, ACTIVITY_SCENE_DETAIL);
+    }
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case ACTIVITY_SCENE_DETAIL:
+                if(resultCode == Activity.RESULT_OK){
+                    mScenesPager.notifyDataSetChanged();
+                }
+                break;
+        }
+    }
+    public void SwitchToScene(boolean isTimerScene){
+        if (isTimerScene) {
+            mTxtToScenes.setTextColor(getResources().getColor(R.color.tab_scene_off));
+            mTxtToTimers.setTextColor(getResources().getColor(R.color.tab_scene_on));
+            mLyModeType.setBackgroundResource(R.drawable.tab_white_2);
+        }
+        else{
+            mTxtToScenes.setTextColor(getResources().getColor(R.color.tab_scene_on));
+            mTxtToTimers.setTextColor(getResources().getColor(R.color.tab_scene_off));
+            mLyModeType.setBackgroundResource(R.drawable.tab_white_1);
+        }
+        mScenesPager.SetIsTimerScene(isTimerScene, false);
+    }
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        mInflater = inflater;
+        View rootView = super.onCreateView(inflater, container, savedInstanceState, R.layout.fragment_scenes);
+        mTxtHeaderTitle.setText(R.string.tbi_scence);
+        mTxtHeaderTitle.setVisibility(View.INVISIBLE);
+        mBtnHeaderRight.setVisibility(View.VISIBLE);
+
+
+        mLyModeType = (LinearLayout)rootView.findViewById(R.id.ly_scene_header);
+        mTxtToScenes = (TextView)rootView.findViewById(R.id.txt_scene_now);
+        mTxtToScenes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SwitchToScene(false);
+            }
+        });
+        mTxtToTimers = (TextView)rootView.findViewById(R.id.txt_scene_timer);
+        mTxtToTimers.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SwitchToScene(true);
+            }
+        });
+
+        mAdView = (AdbannerView)rootView.findViewById(R.id.view_pager_adbanner);
+        mAdView.ReLoad(mInflater, 1);
+
+        int suitH = Common.getScreenWidth(getActivity()) * 25 / 72;
+        ViewGroup.LayoutParams lp = mAdView.getLayoutParams();
+        lp.height = suitH;
+        mAdView.setLayoutParams(lp);
+
+            mAdView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mAdView.mVecAdData.size() <= 0) return;
+                    String strUrl = mAdView.mVecAdData.get(mAdView.getCurrentItem()).mActionUrl;
+                    if (!Common.isNullString(strUrl)){
+                        Intent intent = new Intent();
+                        intent.setClass(getActivity(), ActivityWebView.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        intent.putExtra("url", strUrl);
+                        startActivity(intent);
+                    }
+                }
+            });
+
+        mScenesPager = (ScenesPager)rootView.findViewById(R.id.view_pager_scenes);
+        mScenesPager.Init(mInflater);
+        mScenesPager.SetOnSceneListener(new ScenesPager.OnSceneListener() {
+            @Override
+            public void onSceneClick(long lSceneId, boolean isTimer) {
+                if (isTimer){
+//                    OpenSceneDetail(lSceneId, isTimer);
+                }
+                else{
+                    RunScene(lSceneId);
+                }
+            }
+
+            @Override
+            public void onSceneLongTouch(long lSceneId, boolean isTimer) {
+                onLongTouch(lSceneId, isTimer);
+            }
+
+            @Override
+            public void onSceneChanged(boolean isTimer) {
+                SwitchToScene(isTimer);
+            }
+        });
+
+        mProgDialog = new ProgressDialog(getActivity());
+        mProgDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgDialog.setMessage(getString(R.string.tip_run_scene));
+        mProgDialog.setIndeterminate(false);
+        mProgDialog.setCancelable(false);
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Config.BoardcastZzdSceneUpdate);
+        filter.addAction(Config.BoardcastZzdTimerUpdate);
+        getActivity().registerReceiver(mReceiver, filter);
+        return rootView;
+    }
+
+    private RequestHandle sReqRunScene = null;
+    public void RunScene(long lSceneId) {
+        if (sReqRunScene != null) return;
+        final long lSceneIdOnControl = lSceneId;
+        AppResponseHandler onRunSceneOK = new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqRunScene = null;
+                mScenesPager.FinishControl(lSceneIdOnControl);
+                mProgDialog.hide();
+
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdTimerUpdate);
+                getActivity().sendBroadcast(intent);
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqRunScene = null;
+                mScenesPager.FinishControl(lSceneIdOnControl);
+                mProgDialog.hide();
+
+                Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
+            }
+
+            ;
+        };
+
+        mProgDialog.setMessage(getString(R.string.tip_run_scene));
+        mProgDialog.show();
+        sReqRunScene = ServerClient.RunScene(lSceneIdOnControl, onRunSceneOK);
+        mScenesPager.StartControl(lSceneIdOnControl);
+    }
+
+    private void OpenSceneDetail(long lSceneId, boolean bIsTimer){
+        Intent intent = new Intent();
+        intent.setClass(getActivity(), ActivitySceneDetail.class);
+        if (bIsTimer){
+            intent.putExtra("timer_id", lSceneId);
+        }
+        else{
+            intent.putExtra("scene_id", lSceneId);
+        }
+        startActivityForResult(intent, ACTIVITY_SCENE_DETAIL);
+    }
+
+    private RequestHandle sReqDeleteTimer = null;
+    private void DeleteTimer(long lSceneId){
+        final long selSceneId = lSceneId;
+
+        AppResponseHandler onDeleteTimerOK = new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqDeleteTimer = null;
+
+                TimerInfo t = AppCache.mTimers.get(selSceneId);
+                if (t != null && t.mSceneId > 0){
+                    DeleteScene(t.mSceneId);
+                }
+                else{
+                    mProgDialog.hide();
+                }
+
+                AppCache.mTimers.remove(selSceneId);
+
+                AppDb.getInstance(null).setConfig(AppCache.KDbKeyTimer, "");
+                AppCache.ListTimer();
+
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdTimerUpdate);
+                getActivity().sendBroadcast(intent);
+
+                Toast.makeText(getActivity(), getString(R.string.del_finished), Toast.LENGTH_LONG).show();
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqDeleteTimer = null;
+                mProgDialog.hide();
+                Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
+            }
+
+            ;
+        };
+        mProgDialog.setMessage(getString(R.string.tip_deleteing));
+        mProgDialog.show();
+        sReqDeleteTimer = ServerClient.DeleteTimer(selSceneId, onDeleteTimerOK);
+    }
+    private RequestHandle sReqDeleteScene = null;
+    private void DeleteScene(long lSceneId){
+        final long selSceneId = lSceneId;
+
+        AppResponseHandler onDeleteSceneOK = new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqDeleteScene = null;
+                mProgDialog.hide();
+
+                AppCache.mScenes.remove(selSceneId);
+
+                AppDb.getInstance(null).setConfig(AppCache.KDbKeyScene, "");
+                AppCache.ListScene();
+
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdSceneUpdate);
+                getActivity().sendBroadcast(intent);
+
+                Toast.makeText(getActivity(), getString(R.string.del_finished), Toast.LENGTH_LONG).show();
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqDeleteScene = null;
+                mProgDialog.hide();
+                Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
+            }
+
+            ;
+        };
+        mProgDialog.setMessage(getString(R.string.tip_deleteing));
+        mProgDialog.show();
+        sReqDeleteScene = ServerClient.DeleteScene(selSceneId, onDeleteSceneOK);
+    }
+    public void onLongTouch(long lSceneId, boolean bIsTimer) {
+        final long selId = lSceneId;
+        final boolean selIsTimer = bIsTimer;
+
+        String[] options = new String[2];
+        options[0] = getString(R.string.action_edit);
+        options[1] = getString(R.string.action_delete);
+
+        new AlertDialog.Builder(getActivity())
+                .setItems(options, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if (i == 1) {
+                            String strTitle = getString(selIsTimer ? R.string.del_timer : R.string.del_scene);
+                            new AlertDialog.Builder(getActivity())
+                                    .setTitle(strTitle)
+                                    .setMessage(R.string.tip_del_cannot_undo)
+                                    .setPositiveButton(getString(R.string.action_delete), new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                            if (sReqDeleteScene != null) return;
+                                            if (selIsTimer){
+                                                DeleteTimer(selId);
+                                            }
+                                            else{
+                                                DeleteScene(selId);
+                                            }
+                                        }
+                                    })
+                                    .setNegativeButton(getString(R.string.action_cancel), null)
+                                    .show();
+                        } else if (i == 0) {
+                            OpenSceneDetail(selId, selIsTimer);
+                        }
+                    }
+                })
+                .show();
+    }
+
+    public void onDestroy() {
+
+        if (sReqDeleteScene != null){
+            sReqDeleteScene.cancel(true);
+            sReqDeleteScene = null;
+        }
+
+        if (sReqDeleteTimer != null){
+            sReqDeleteTimer.cancel(true);
+            sReqDeleteTimer = null;
+        }
+
+        if (sReqRunScene != null){
+            sReqRunScene.cancel(true);
+            sReqRunScene = null;
+        }
+        getActivity().unregisterReceiver(mReceiver);
+        super.onDestroy();
+    }
+}

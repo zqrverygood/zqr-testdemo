@@ -1,0 +1,83 @@
+package app.smarthome.zzd.smarthome;
+
+import android.os.Build;
+import android.util.Log;
+
+import com.loopj.android.http.JsonHttpResponseHandler;
+import org.apache.http.Header;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+/**
+ * Created by inobaa on 15/1/21.
+ */
+public class AppResponseHandler extends JsonHttpResponseHandler {
+    public boolean testSuccess(JSONObject arg0){
+        try {
+            String msg = arg0.getString("success");
+            if (!msg.equalsIgnoreCase("true")) return false;
+
+//            if (!arg0.has("payload")) return false;
+
+        } catch (Exception e) {
+            Log.e("hck", e.toString());
+        }
+        return true;
+    }
+    public String ErrorMsg(JSONObject arg0){
+        String ret = "";
+        try {
+            if (arg0.has("message")) ret += arg0.getString("message");
+
+            else if (arg0.has("code")) ret += "\ncode: " + arg0.get("code");
+        } catch (Exception e) {
+        }
+        return ret;
+    };
+
+    public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+    };
+    public void onFailure(int statusCode, Header[] headers, java.lang.Throwable throwable, org.json.JSONObject errorResponse) {
+               String errMsg = null;
+        try {
+            errMsg = errorResponse.getString("message");
+        } catch (Exception e) {
+        }
+
+        if (errMsg == null) errMsg = throwable.toString();
+        onReqFailure(errMsg);
+
+        Log.e("REQUEST", " onFailure" + errMsg);
+    }
+
+    public void onFailure(int statusCode, Header[] headers, java.lang.String responseString, java.lang.Throwable throwable) {
+        if (throwable != null && throwable.getMessage().equalsIgnoreCase("Response cannot be parsed as JSON data")){
+            if (responseString.contains("无权限访问")){
+                onReqFailure("403");
+                return;
+            }
+        }
+
+        String errMsg = responseString;
+        if (errMsg == null) errMsg = throwable.toString();
+        onReqFailure(errMsg);
+
+        if (AppInstance.getInstance().isApkDebugable()){
+            onReqFailure(throwable.toString());
+            Log.e("REQUEST", " onFailure" + throwable.toString());
+        }
+    }
+
+    public void onFailure(int statusCode, Header[] headers, java.lang.Throwable throwable, org.json.JSONArray errorResponse) {
+        onReqFailure(throwable.toString());
+        Log.e("REQUEST", " onFailure" + throwable.toString());
+    }
+
+    public void onSuccess(int statusCode, Header[] headers, JSONObject arg0) {
+        if (testSuccess(arg0)) onReqSuccess(arg0);
+        else onReqFailure(ErrorMsg(arg0));
+    };
+    public void onReqSuccess(JSONObject arg0){        };
+    public void onReqFailure(String msg){        };
+
+}

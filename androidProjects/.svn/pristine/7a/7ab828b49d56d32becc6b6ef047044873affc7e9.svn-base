@@ -1,0 +1,7 @@
+package app.smarthome.zzd.smarthome;
+
+/**
+ * Created by Administrator on 2015/12/25.
+ */
+public class ActivityAbout extends ActivityHeaderBase{
+}

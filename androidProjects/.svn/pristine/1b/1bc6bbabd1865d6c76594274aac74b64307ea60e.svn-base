@@ -1,0 +1,241 @@
+package app.smarthome.zzd.smarthome;
+
+import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.text.Html;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.loopj.android.http.RequestHandle;
+
+import org.json.JSONObject;
+
+import java.util.Vector;
+
+import app.smarthome.zzd.smarthome.model.DeviceInfo;
+import app.smarthome.zzd.smarthome.model.FamilyInfo;
+import app.smarthome.zzd.smarthome.view.ListItemTextScrollMenu;
+
+/**
+ * Created by zzdios on 15/11/30.
+ */
+public class ActivityGatewayList extends ActivityHeaderBase {
+
+    private long mGatewayIdDeleteing;
+    public void DeleteGatewayWithConfirm(View v){
+
+        DeviceInfo gatewayInfo = (DeviceInfo) v.getTag();
+        mGatewayIdDeleteing = gatewayInfo.mId;
+
+        String strTitle = getString(R.string.del_gateway) + " " + gatewayInfo.mName;
+        new AlertDialog.Builder(ActivityGatewayList.this)
+                .setTitle(strTitle)
+                .setMessage(R.string.tip_del_cannot_undo)
+                .setPositiveButton(getString(R.string.action_delete), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        DeleteGateway();
+                    }
+                })
+                .setNegativeButton(getString(R.string.action_cancel), null)
+                .show();
+    }
+    private RequestHandle sReqDeleteGateway = null;
+    public void DeleteGateway(){
+        AppResponseHandler onDeleteOK = new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqDeleteGateway = null;
+
+                AppCache.mDevices.remove(mGatewayIdDeleteing);
+
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdDevicesUpdate);
+                sendBroadcast(intent);
+                AppCache.ListDevices();
+
+                Toast.makeText(ActivityGatewayList.this, R.string.del_finished, Toast.LENGTH_SHORT).show();
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqDeleteGateway = null;
+                Toast.makeText(ActivityGatewayList.this, msg, Toast.LENGTH_LONG).show();
+            }
+
+            ;
+        };
+        sReqDeleteGateway = ServerClient.DeleteDevice(mGatewayIdDeleteing, onDeleteOK);
+    }
+
+    public ListItemTextScrollMenu.OnItemOptListener mOnGatewayListener = new ListItemTextScrollMenu.OnItemOptListener() {
+        @Override
+        public void OnDeleteItem(ListItemTextScrollMenu v) {
+            DeleteGatewayWithConfirm(v);
+        }
+
+        @Override
+        public void OnEditItem(ListItemTextScrollMenu v) {
+            Intent intent = new Intent();
+            DeviceInfo f = (DeviceInfo) v.getTag();
+            intent.putExtra("device_id", f.mId);
+//            intent.putExtra("title", f.mName);
+            intent.setClass(ActivityGatewayList.this, ActivityDeviceDetail.class);
+            startActivity(intent);
+        }
+
+        @Override
+        public void OnClickItem(ListItemTextScrollMenu v) {
+            Intent intent = new Intent();
+            DeviceInfo f = (DeviceInfo) v.getTag();
+            intent.putExtra("gateway_id", f.mId);
+            intent.putExtra("title", f.mName);
+            intent.setClass(ActivityGatewayList.this, ActivityGatewayDeviceList.class);
+            startActivity(intent);
+        }
+
+        @Override
+        public void OnLongClickItem(ListItemTextScrollMenu v) {
+            final ListItemTextScrollMenu view = v;
+
+            String[] options = new String[2];
+            options[0] = getString(R.string.action_edit);
+            options[1] = getString(R.string.action_delete);
+            new AlertDialog.Builder(ActivityGatewayList.this)
+                    .setItems(options, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            if (i == 1) {
+                                ActivityGatewayList.this.DeleteGatewayWithConfirm(view);
+                            }
+                            else if (i == 0) {
+                                mOnGatewayListener.OnEditItem(view);
+                            }
+                        }
+                    })
+                    .show();
+        }
+    };
+    public class MyAdapter extends BaseAdapter {
+
+        private LayoutInflater      mInflater;
+        private Vector<DeviceInfo>  mDevices;
+
+        public MyAdapter(Context context){
+            this.mInflater = LayoutInflater.from(context);
+            mDevices = new Vector<>();
+        }
+        @Override
+        public void notifyDataSetChanged() {
+            mDevices = new Vector<>();
+            for (long id : AppCache.mGatewayIds){
+                DeviceInfo d = AppCache.mDevices.get(id);
+                if (d != null){
+                    mDevices.add(d);
+                }
+            }
+            super.notifyDataSetChanged();
+        }
+        @Override
+        public int getCount() {
+            return mDevices.size();
+        }
+
+        @Override
+        public Object getItem(int arg0) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int arg0) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            DeviceInfo f = mDevices.get(position);
+
+            ListItemTextScrollMenu tgv = (ListItemTextScrollMenu)mInflater.inflate(R.layout.li_text_scroll_menu, null);
+            convertView = tgv;
+            tgv.SetOnItemOptListener(mOnGatewayListener);
+            tgv.SetText(f.mName);
+            tgv.setTag(f);
+
+            if (position >= mDevices.size() - 1){
+                tgv.findViewById(R.id.txt_bottom_line).setVisibility(View.GONE);
+            }
+            return convertView;
+        }
+    }
+
+    private PullToRefreshListView mPullRefreshListView;
+    protected MyAdapter mAdapter = null;
+
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(Config.BoardcastZzdDevicesUpdate)) {
+                mAdapter.notifyDataSetChanged();
+                mPullRefreshListView.onRefreshComplete();
+            }
+        }
+    };
+
+    public void OnHeaderRightClick(){
+        Intent intent = new Intent();
+        intent.setClass(ActivityGatewayList.this, ActivityDeviceDetail.class);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_listview);
+        setTitle(R.string.gateway_manage);
+
+        mBtnHeaderRight.setVisibility(View.VISIBLE);
+        mPullRefreshListView = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
+
+        mAdapter = new MyAdapter(this);
+        mPullRefreshListView.setAdapter(mAdapter);
+        mPullRefreshListView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener<ListView>() {
+            @Override
+            public void onRefresh(PullToRefreshBase<ListView> refreshView) {
+                AppCache.ListDevices();
+            }
+        });
+
+        TextView tv = new TextView(this);
+        tv.setText((getString(R.string.tip_add_a_gateway)));
+        tv.setGravity(Gravity.CENTER);
+        mPullRefreshListView.setEmptyView(tv);
+        mAdapter.notifyDataSetChanged();
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Config.BoardcastZzdDevicesUpdate);
+        registerReceiver(mReceiver, filter);
+    }
+
+    public void onDestroy() {
+        if (sReqDeleteGateway != null){
+            sReqDeleteGateway.cancel(true);
+            sReqDeleteGateway = null;
+        }
+        unregisterReceiver(mReceiver);
+        super.onDestroy();
+    }
+}

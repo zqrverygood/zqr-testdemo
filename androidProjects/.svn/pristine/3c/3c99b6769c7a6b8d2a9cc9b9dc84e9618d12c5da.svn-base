@@ -1,0 +1,76 @@
+package app.smarthome.zzd.smarthome;
+
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
+import com.handmark.pulltorefresh.library.PullToRefreshWebView;
+import com.umeng.analytics.MobclickAgent;
+
+/**
+ * Created by inobaa on 15/1/20.
+ */
+public class FragmentInteligent extends FragmentForMain {
+
+    WebView mWebView = null;
+
+    public FragmentInteligent() {
+    }
+    public void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart("FragmentMarket"); //统计页面
+    }
+    public void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd("FragmentMarket");
+    }
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = super.onCreateView(inflater, container, savedInstanceState, R.layout.fragment_webview);
+        mTxtHeaderTitle.setText(R.string.tbi_inteligent);
+        rootView.findViewById(R.id.ly_header).setVisibility(View.GONE);
+
+        mWebView = (WebView)rootView.findViewById(R.id.web_view);
+        mWebView.getSettings().setJavaScriptEnabled(true);
+        mWebView.getSettings().setBuiltInZoomControls(true);
+        mWebView.getSettings().setLightTouchEnabled(true);
+        mWebView.getSettings().setSupportZoom(true);
+        mWebView.setHapticFeedbackEnabled(false);
+        mWebView.setInitialScale(100);
+        WebSettings webSettings =   mWebView .getSettings();
+        webSettings.setUseWideViewPort(true);//设置此属性，可任意比例缩放
+        webSettings.setLoadWithOverviewMode(true);
+
+        mWebView.setWebViewClient(new WebViewClient(){
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (url.equalsIgnoreCase("zzd://login")){
+//                    Intent intent = new Intent();
+//                    intent.setClass(ActivityWebView.this, ActivityLogin.class);
+//                    intent.putExtra("mode", ActivityLogin.KModeLogin);
+//                    startActivity(intent);
+
+                    return true;
+                }
+                else if (url.substring(0, 4).equalsIgnoreCase("tel:")){
+                    String number = url.substring(4, url.length() - 4);
+                    Intent phoneIntent = new Intent("android.intent.action.CALL", Uri.parse("tel:" + number));
+                    //启动
+                    startActivity(phoneIntent);
+                    return true;
+                }
+                view.loadUrl(url);
+                return true;
+            }
+        });
+        mWebView.loadUrl("http://www.baidu.com");
+        mWebView.requestFocus();
+        return rootView;
+    }
+}

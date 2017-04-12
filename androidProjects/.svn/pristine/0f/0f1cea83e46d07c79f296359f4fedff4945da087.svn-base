@@ -1,0 +1,146 @@
+package app.smarthome.zzd.smarthome.model;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.util.Common;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.Map;
+import java.util.Vector;
+
+/**
+ * Created by zzdios on 15/11/16.
+ */
+public class SceneInfo implements Parcelable {
+
+    public static class SceneItem{
+        static final public int KDateCnt = 3;
+
+        public long     mDeviceId;
+        public long     mDataId;
+        public long     mOpt;
+//        public long     mSync;
+    }
+
+    public long mId;
+    public long mFamilyId;
+    public String mIcon;
+    public String mName;
+    public Vector<SceneItem> mItems = new Vector<>();
+
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(mId);
+        dest.writeLong(mFamilyId);
+        dest.writeString(mIcon);
+        dest.writeString(mName);
+
+        long[] tmp = new long[mItems.size() * SceneItem.KDateCnt];
+        for (int i = 0; i < mItems.size(); i++) {
+            tmp[i* SceneItem.KDateCnt] = mItems.get(i).mDeviceId;
+            tmp[i* SceneItem.KDateCnt+1] = mItems.get(i).mDataId;
+            tmp[i* SceneItem.KDateCnt+2] = mItems.get(i).mOpt;
+//            tmp[i* SceneItem.KDateCnt+3] = mItems.get(i).mSync;
+        }
+        dest.writeLongArray(tmp);
+    }
+
+    public static final Creator<SceneInfo> CREATOR = new Creator<SceneInfo>() {
+        public SceneInfo createFromParcel(Parcel in) {
+            SceneInfo di = new SceneInfo();
+            di.mId = in.readLong();
+            di.mFamilyId = in.readLong();
+            di.mIcon = in.readString();
+            di.mName = in.readString();
+
+            long[] tmp = in.createLongArray();
+            int portCount = tmp.length / SceneItem.KDateCnt;
+            for (int i = 0; i < tmp.length; i++) {
+                SceneItem port = new SceneItem();
+                port.mDeviceId = Long.valueOf(tmp[i* SceneItem.KDateCnt]);
+                port.mDataId = Long.valueOf(tmp[i* SceneItem.KDateCnt+1]);
+                port.mOpt = Long.valueOf(tmp[i* SceneItem.KDateCnt+2]);
+//                port.mSync = Long.valueOf(tmp[i* SceneItem.KDateCnt+3]);
+                di.mItems.add(port);
+            }
+            return di;
+        }
+
+        public SceneInfo[] newArray(int size) {
+            return new SceneInfo[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public void toParam(JSONObject params){
+        try{
+            if (true){
+                JSONObject jo = params;//new JSONObject();
+                if(mId > 0)jo.put("id", mId);
+                jo.put("familyId", mFamilyId);
+                jo.put("icon", mIcon);
+                jo.put("name", mName);
+//                params.put("strategy", jo);
+            }
+
+            JSONArray ja = new JSONArray();
+            for (SceneItem item : mItems) {
+                JSONObject jo = new JSONObject();
+                jo.put("deviceId", item.mDeviceId);
+                jo.put("dataId", item.mDataId);
+                jo.put("opt", item.mOpt);
+                ja.put(jo);
+            }
+            params.put("strategyItem", ja);
+        }catch (org.json.JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+    public void fromJson(JSONObject jsonObject){
+        try{
+
+            if (jsonObject.has("strategy")) {
+               JSONObject js = jsonObject.getJSONObject("strategy");
+
+                mId = Common.getLongFromJson(js, "id");
+                mFamilyId = Common.getLongFromJson(js, "familyId");
+                mName = Common.getStringFromJson(js, "name");
+                mIcon = Common.getStringFromJson(js, "icon");
+            }
+
+            if (jsonObject.has("strategyItem")){
+                JSONArray jas = jsonObject.getJSONArray("strategyItem");
+                mItems.clear();
+                for (int i = 0; i < jas.length(); i++) {
+                    JSONObject jPorts = jas.getJSONObject(i);
+
+                    if (jPorts.has("strategy")) {
+                        JSONArray ja = jPorts.getJSONArray("strategy");
+                        for (int ia = 0; ia < ja.length(); ia++) {
+                            JSONObject jPort = ja.getJSONObject(ia);
+
+                            SceneItem si = new SceneItem();
+                            si.mDeviceId = Common.getLongFromJson(jPort, "deviceId");
+                            si.mDataId = Common.getLongFromJson(jPort, "dataId");
+                            si.mOpt = Common.getLongFromJson(jPort, "opt");
+//                            si.mSync = Common.getLongFromJson(jPort, "sync");
+                            mItems.add(si);
+                        }
+                    }
+                }
+            }
+        }catch (org.json.JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+}

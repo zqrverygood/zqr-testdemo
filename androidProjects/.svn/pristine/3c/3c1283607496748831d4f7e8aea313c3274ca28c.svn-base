@@ -1,0 +1,60 @@
+package app.smarthome.zzd.smarthome;
+
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+/**
+ * Created by inobaa on 15/4/15.
+ */
+public class FragmentForMain extends Fragment {
+
+    public RelativeLayout   mHeader;
+    public TextView         mTxtHeaderTitle;
+    public TextView         mTxtHeaderRight;
+    public ImageButton      mBtnHeaderRight;
+    public ImageButton      mBtnHeaderLeft;
+
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState,
+                             int resId) {
+        View rootView = inflater.inflate(resId, container, false);
+
+        mHeader = (RelativeLayout) rootView.findViewById(R.id.ly_header);
+        mTxtHeaderTitle = (TextView) mHeader.findViewById(R.id.txt_header);
+        mBtnHeaderLeft = (ImageButton) mHeader.findViewById(R.id.btn_header_left);
+        mBtnHeaderLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentForMain.this.OnHeaderLeftClick();
+            }
+        });
+        mBtnHeaderRight = (ImageButton) mHeader.findViewById(R.id.btn_header_right);
+        mBtnHeaderRight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentForMain.this.OnHeaderRightClick();
+            }
+        });
+        mTxtHeaderRight = (TextView) mHeader.findViewById(R.id.txt_header_right);
+        mTxtHeaderRight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentForMain.this.OnHeaderRightClick();
+            }
+        });
+        mBtnHeaderRight.setVisibility(View.INVISIBLE);
+        mBtnHeaderRight.setVisibility(View.INVISIBLE);
+        mBtnHeaderLeft.setVisibility(View.INVISIBLE);
+        return rootView;
+    };
+
+    public void OnHeaderRightClick(){
+    }
+    public void OnHeaderLeftClick(){
+    }
+}

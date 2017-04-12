@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipToPadding="true"
+    android:fitsSystemWindows="true"
+   android:orientation="vertical"
+    android:background="@color/white"
+    >
+    <include
+        android:id="@+id/ly_header"
+        layout="@layout/header"
+        android:background="@color/transparent" />
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:background="@color/split_line"/>
+
+    <RelativeLayout
+        android:id="@+id/ly_user_photo"
+        android:layout_width="fill_parent"
+        android:layout_height="70dp"
+        android:gravity="center_vertical"
+        android:background="@drawable/preference_null_item"
+        >
+
+        <TextView
+            android:id="@+id/account_manage_photo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="8dp"
+            android:text="@string/accout_manage_my_photo"
+            android:textSize="14sp"/>
+
+        <ImageView
+            android:id="@+id/img_user_photo"
+            android:layout_toLeftOf="@+id/img_next1"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="20dp"
+            android:src="@mipmap/ic_launcher" />
+
+
+        <ImageView
+            android:id="@+id/img_next1"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/next_to2" />
+
+    </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:background="@color/split_line" />
+
+    <RelativeLayout
+        android:id="@+id/rl_account_name"
+        android:layout_width="fill_parent"
+        android:layout_height="45dp"
+        android:background="@drawable/preference_null_item">
+
+        <TextView
+            android:id="@+id/txt_about_systemInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="2dp"
+            android:padding="8dp"
+            android:text="@string/accout_manage_username"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/dimgray"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/txt_account_manage_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="gagagaga"
+            android:layout_toLeftOf="@+id/img_next2"
+            android:layout_centerVertical="true"
+            android:textColor="@color/header_background"
+            android:textSize="14sp"
+            android:layout_marginRight="20dp"/>
+
+
+        <ImageView
+            android:id="@+id/img_next2"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:visibility="invisible"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/next_to2" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@color/split_line"
+            android:layout_alignParentBottom="true"/>
+
+    </RelativeLayout>
+
+
+
+    <RelativeLayout
+        android:id="@+id/rl_account_phone"
+        android:layout_width="fill_parent"
+        android:layout_height="45dp"
+        android:background="@drawable/preference_null_item">
+
+
+        <TextView
+            android:id="@+id/txt_bout_versioni_dentify2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="2dp"
+            android:padding="8dp"
+            android:text="@string/accout_manage_phone"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/dimgray"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/txt_account_manage_phone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="gagagaga"
+            android:layout_toLeftOf="@+id/img_next3"
+            android:layout_centerVertical="true"
+            android:textColor="@color/header_background"
+            android:textSize="14sp"
+            android:layout_marginRight="20dp"/>
+
+        <ImageView
+            android:id="@+id/img_next3"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/next_to2" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@color/split_line"
+            android:layout_alignParentBottom="true"/>
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/rl_account_manage_sex"
+        android:layout_width="fill_parent"
+        android:layout_height="45dp"
+        android:background="@drawable/preference_null_item">
+
+
+        <TextView
+            android:id="@+id/txtabout_feedback"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="2dp"
+            android:padding="8dp"
+            android:text="@string/accout_manage_sex"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/dimgray"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/txt_account_manage_sex"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="gagagaga"
+            android:layout_toLeftOf="@+id/img_next4"
+            android:layout_centerVertical="true"
+            android:textColor="@color/header_background"
+            android:textSize="14sp"
+            android:layout_marginRight="20dp"/>
+
+        <ImageView
+            android:id="@+id/img_next4"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/next_to2" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@color/split_line"
+            android:layout_alignParentBottom="true"/>
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/rl_accout_manage_birthday"
+        android:layout_width="fill_parent"
+        android:layout_height="45dp"
+        android:background="@drawable/preference_null_item">
+
+
+        <TextView
+            android:id="@+id/txt_bout_versioni_dentify"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="2dp"
+            android:padding="8dp"
+            android:text="@string/accout_manage_birthday"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/dimgray"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/txt_account_manage_bidthday"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="gagagaga"
+            android:layout_toLeftOf="@+id/img_next5"
+            android:layout_centerVertical="true"
+            android:textColor="@color/header_background"
+            android:textSize="14sp"
+            android:layout_marginRight="20dp"/>
+
+        <ImageView
+            android:id="@+id/img_next5"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/next_to2" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@color/split_line"
+            android:layout_alignParentBottom="true"/>
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/rl_account_manage_address"
+        android:layout_width="fill_parent"
+        android:layout_height="45dp"
+        android:background="@drawable/preference_null_item">
+
+
+        <TextView
+            android:id="@+id/txt_bout_versioni_dentify1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="2dp"
+            android:padding="8dp"
+            android:text="@string/accout_manage_address"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/dimgray"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/txt_account_manage_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="gagagaga"
+            android:layout_toLeftOf="@+id/img_next6"
+            android:layout_centerVertical="true"
+            android:textColor="@color/header_background"
+            android:textSize="14sp"
+            android:layout_marginRight="20dp"/>
+
+        <ImageView
+            android:id="@+id/img_next6"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/next_to2" />
+
+    </RelativeLayout>
+
+<View
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/split_line"/>
+</LinearLayout>

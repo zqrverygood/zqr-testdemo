@@ -1,0 +1,114 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/ly_header"
+        layout="@layout/header"/>
+
+    <RelativeLayout
+        android:id="@+id/ly_avatar"
+        android:layout_width="fill_parent"
+        android:layout_height="208dp"
+        android:background="@color/header_background"
+        android:layout_marginTop="-8dp">
+
+
+        <ImageView
+            android:id="@+id/img_main"
+            android:layout_width="200dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="false"
+            android:src="@drawable/circle"
+            android:layout_alignParentBottom="false"
+            android:layout_centerInParent="true"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/txt_kwh_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:padding="6dp"
+            android:text="@string/total_kwh"
+            android:textColor="@color/whitesmoke"
+            android:textSize="13.5sp" />
+
+        <TextView
+            android:id="@+id/txt_kwh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/txt_kwh_title"
+            android:text="@string/def_number"
+            android:textColor="@color/whitesmoke"
+            android:layout_alignRight="@+id/txt_kwh_title"
+            android:layout_marginRight="8dp"
+            android:textSize="24sp"
+            android:layout_marginTop="-5dp" />
+
+        <TextView
+            android:id="@+id/txt_kwh_money"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/txt_kwh_title"
+            android:text="@string/def_number"
+            android:textColor="@color/whitesmoke"
+            android:layout_alignRight="@+id/txt_kwh_title"
+            android:layout_marginRight="8dp"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/txt_kwh_money_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/txt_kwh_money"
+            android:padding="6dp"
+            android:text="@string/total_kwh_money"
+            android:textColor="@color/whitesmoke"
+            android:layout_alignRight="@+id/txt_kwh_title"
+            android:textSize="13.5sp"
+            android:layout_marginBottom="-5dp" />
+
+        <TextView
+            android:id="@+id/txt_unit_yuan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/unit_yuan"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/whitesmoke"
+            android:layout_alignBottom="@+id/txt_kwh_money"
+            android:layout_marginBottom="5dp"
+            android:textSize="13.5sp"
+            android:layout_alignRight="@+id/txt_unit_kwh" />
+
+        <TextView
+            android:id="@+id/txt_unit_kwh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/unit_kwh"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/whitesmoke"
+            android:layout_alignBottom="@+id/txt_kwh"
+            android:textSize="12sp"
+            android:layout_toRightOf="@+id/txt_kwh"
+            android:layout_marginBottom="3dp" />
+
+    </RelativeLayout>
+
+    <com.handmark.pulltorefresh.library.PullToRefreshListView
+        android:id="@+id/pull_refresh_list"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:cacheColorHint="#00000000"
+        android:divider="@color/transparent"
+        android:dividerHeight="8dp"
+        android:fadingEdge="none"
+        android:fastScrollEnabled="false"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:footerDividersEnabled="false"
+        android:headerDividersEnabled="false"
+        android:smoothScrollbar="true" />
+
+</LinearLayout>

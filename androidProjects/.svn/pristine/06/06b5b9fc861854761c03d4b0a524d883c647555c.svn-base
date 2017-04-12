@@ -1,0 +1,88 @@
+<resources>
+    <string name="app_name">SmartHome</string>
+
+    <string name="lng">zh</string>
+    <string name="nothing"></string>
+    <string name="blank" />
+    <string name="dash_line">-------</string>
+
+    <string name="tbi_devices">设备</string>
+    <string name="tbi_scence">情景模式</string>
+    <string name="tbi_inteligent">智能</string>
+    <string name="tbi_market">商城</string>
+    <string name="tbi_me">我的</string>
+
+    <string name="has_no_items">没有内容</string>
+    <string name="has_no_devices">未添加任何设备</string>
+    <string name="has_no_message">没有消息</string>
+
+    <string name="action_settings">设置</string>
+    <string name="action_search">搜索</string>
+    <string name="action_add">添加</string>
+    <string name="action_new">新建</string>
+    <string name="action_import">导入</string>
+    <string name="action_edit">编辑</string>
+    <string name="action_ok">确定</string>
+    <string name="action_cancel">取消</string>
+    <string name="action_save">保存</string>
+    <string name="action_share">分享</string>
+    <string name="action_submit">提交</string>
+    <string name="action_return">返回</string>
+
+    <string name="account">账号</string>
+    <string name="family">家庭</string>
+    <string name="family_name">家庭名称</string>
+    <string name="family_member">家庭成员</string>
+    <string name="name">姓名</string>
+    <string name="nickname">昵称</string>
+    <string name="phone">手机号</string>
+    <string name="email">电子邮件</string>
+    <string name="gender">性别</string>
+    <string name="male">男</string>
+    <string name="female">女</string>
+    <string name="account_manage">账号管理</string>
+    <string name="gateway_manage">网关列表</string>
+    <string name="family_manage">家庭切换</string>
+    <string name="gateway_set_time">网关校时</string>
+    <string name="check_update">检查更新</string>
+    <string name="cur_version_fmt">(当前v%1$s)</string>
+    <string name="about">关于</string>
+    <string name="user_feedback">给我们提建议</string>
+
+    <string name="def_account">my_phone_number</string>
+    <string name="def_family">住宅</string>
+    <string name="def_room">客厅</string>
+    <string name="def_room1">大阳台</string>
+    <string name="def_device">客厅开关</string>
+    <string name="def_title">Title</string>
+    <string name="def_content">Content</string>
+    <string name="def_date">2015–2-18</string>
+    <string name="def_time">16:30</string>
+    <string name="def_date_time">2015–2-18 16:30</string>
+
+
+    <string name="tip_need_name">必须输入名称</string>
+    <string name="tip_press_back_again_to_quit">再按一次返回桌面</string>
+
+
+    <string name="check_update_no_update">已经是最新版本</string>
+    <string name="check_update_timeout">检查更新超时，请检查网络连接</string>
+    <string name="avatar_select_file">从图库中选择</string>
+    <string name="avatar_from_camera">拍照</string>
+    <string name="avatar_upload_fail">传输图片失败:</string>
+    <string name="avatar_upload_success">设置成功</string>
+    <string name="save_finished">保存成功</string>
+
+    <string name="scan_text_title">扫描设备二维码</string>
+    <string name="scan_text">将二维码放入框内, 即可自动扫描</string>
+    <string name="login_to_family">进入此家庭</string>
+    <string name="add_family_share">添加成员</string>
+    <string name="del_family">删除此家庭</string>
+    <string name="del_cannot_undo">删除后不可撤销，确定删除吗？</string>
+    <string name="def_toask_title">提示标题</string>
+    <string name="def_toask_content">删除后，相关联的其他数据\n也会一同删除.确定要删除？</string>
+    <string name="yes">是</string>
+    <string name="no">否</string>
+
+
+</resources>

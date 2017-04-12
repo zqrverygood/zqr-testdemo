@@ -1,0 +1,417 @@
+package app.smarthome.zzd.smarthome;
+
+import android.content.Context;
+import android.content.Intent;
+import android.os.Handler;
+import android.support.annotation.NonNull;
+
+import com.loopj.android.http.RequestHandle;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.umeng.analytics.MobclickAgent;
+import com.umeng.socialize.weixin.controller.UMWXHandler;
+import com.util.Common;
+import com.util.db.AppDb;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimerTask;
+import java.util.Vector;
+
+import app.smarthome.zzd.smarthome.model.DeviceInfo;
+import app.smarthome.zzd.smarthome.model.FamilyInfo;
+import app.smarthome.zzd.smarthome.model.RoomInfo;
+import app.smarthome.zzd.smarthome.model.StrategyInfo;
+import app.smarthome.zzd.smarthome.model.TimerInfo;
+import app.smarthome.zzd.smarthome.model.UserInfo;
+
+public class AppCache {
+
+    protected static final String   KDbKeyToken = "current_token";
+    protected static final String   KDbKeyMyInfo = "current_info";
+    protected static final String   KDbKeyDevices = "current_devices";
+    protected static final String   KDbKeyRooms = "current_rooms";
+    protected static final String   KDbKeyAdBanner = "ad_banner_data";
+
+    protected static boolean        mIsLngEn = false;
+
+    private static Context mCtx = null;
+    private static AppCache cache = null;
+    public static JSONArray mAdBannerData = new JSONArray();
+
+    public static String mUdid = null;
+    public static String mToken = null;
+    public static UserInfo  mMyself = new UserInfo();
+
+    public static HashMap<Long, FamilyInfo> mFamilies = new HashMap<Long, FamilyInfo>();
+    public static HashMap<Long, RoomInfo> mRooms = new HashMap<Long, RoomInfo>();
+    public static HashMap<Long, DeviceInfo> mDevices = new HashMap<Long, DeviceInfo>();
+    public static HashMap<Long, StrategyInfo> mStrategys = new HashMap<Long, StrategyInfo>();
+    public static HashMap<Long, TimerInfo> mTimers = new HashMap<Long, TimerInfo>();
+
+    public static FamilyInfo mCurFamily;
+
+    private static void OnRecvRooms(JSONObject arg0){
+        HashMap<Long, RoomInfo> rooms = new HashMap<>();
+        try {
+            JSONArray jDevs = arg0.getJSONArray("dataList");
+            for (int i = 0; i < jDevs.length(); ++i){
+                JSONObject jDev = jDevs.getJSONObject(i);
+                RoomInfo ji = new RoomInfo();
+                ji.fromJson(jDev);
+                rooms.put(ji.mId, ji);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        mRooms = rooms;
+
+        Intent intent = new Intent();
+        intent.setAction(Config.BoardcastZzdRoomsUpdate);
+        mCtx.sendBroadcast(intent);
+    }
+    private static void OnRecvDevices(JSONObject arg0){
+        HashMap<Long, DeviceInfo> devices = new HashMap<Long, DeviceInfo>();
+        try {
+            JSONArray jDevs = arg0.getJSONArray("dataList");
+            for (int i = 0; i < jDevs.length(); ++i){
+                JSONObject jDev = jDevs.getJSONObject(i);
+                DeviceInfo ji = new DeviceInfo();
+                ji.fromJson(jDev);
+                devices.put(ji.mId, ji);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        mDevices = devices;
+
+        Intent intent = new Intent();
+        intent.setAction(Config.BoardcastZzdDevicesUpdate);
+        mCtx.sendBroadcast(intent);
+    }
+
+    private static void OnRecvDeviceStatus(JSONObject arg0){
+        //TODO
+//        HashMap<Long, DeviceInfo> devices = new HashMap<Long, DeviceInfo>();
+//        try {
+//            JSONArray jDevs = arg0.getJSONArray("dataList");
+//            for (int i = 0; i < jDevs.length(); ++i){
+//                JSONObject jDev = jDevs.getJSONObject(i);
+//                DeviceInfo ji = new DeviceInfo();
+//                ji.fromJson(jDev);
+//                devices.put(ji.mId, ji);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return;
+//        }
+//
+//        mDevices = devices;
+//
+//        Intent intent = new Intent();
+//        intent.setAction(Config.BoardcastZzdDeviceRuntime);
+//        mCtx.sendBroadcast(intent);
+    }
+
+
+    static private RequestHandle sReqListRooms = null;
+    public static void ListRooms(){
+        return;//TODO
+//        sReqListRooms = ServerClient.ListRoom(mCurFamily.mId, new AppResponseHandler() {
+//            public void onReqSuccess(JSONObject arg0) {
+//                sReqListRooms = null;
+//                AppDb.getInstance(mCtx).setConfig(KDbKeyRooms, arg0.toString());
+//                OnRecvRooms(arg0);
+//            }
+//
+//            ;
+//
+//            public void onReqFailure(String msg) {
+//                sReqListRooms = null;
+////                AppDb.getInstance(mCtx).setConfig(KDbKeyRooms, "");
+//                Intent intent = new Intent();
+//                intent.setAction(Config.BoardcastZzdRoomsUpdate);
+//                mCtx.sendBroadcast(intent);
+//            }
+//
+//            ;
+//        });
+    }
+
+    static private RequestHandle sReqGetDevStatus = null;
+    static private AppResponseHandler sOnGetDevStatus = new AppResponseHandler() {
+        public void onReqSuccess(JSONObject arg0) {
+            sReqGetDevStatus = null;
+            AppDb.getInstance(mCtx).setConfig(KDbKeyDevices, arg0.toString());
+            OnRecvDeviceStatus(arg0);
+        }
+
+        ;
+
+    public void onReqFailure(String msg) {
+        sReqGetDevStatus = null;
+        Intent intent = new Intent();
+        intent.setAction(Config.BoardcastZzdDevicesUpdate);
+        mCtx.sendBroadcast(intent);
+    }
+
+    ;
+    };
+    public static void GetDeviceStatus(){
+        if(mCurFamily == null) return;
+        sReqGetDevStatus = ServerClient.GetDeviceStatus(mCurFamily.mId, sOnGetDevStatus);
+    }
+    static private RequestHandle sReqListDev = null;
+    public static void ListDevices(){
+
+        sReqListDev = ServerClient.ListDevice(mCurFamily.mId, new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqListDev = null;
+                AppDb.getInstance(mCtx).setConfig(KDbKeyDevices, arg0.toString());
+                OnRecvDevices(arg0);
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqListDev = null;
+            }
+
+            ;
+        });
+    }
+    private static void init_test_data(){
+
+        for (int i = 0; i < 3; ++i){
+            FamilyInfo f = new FamilyInfo();
+            f.mCreateTime = 0;
+            f.mId = 40 + i;
+            f.mName = "家庭 " + i;
+            f.mMemberAccounts = new Vector<>();
+            f.mMemberAccounts.add("12345");
+            f.mMemberAccounts.add("67890");
+            mFamilies.put(f.mId, f);
+        }
+        mCurFamily = mFamilies.get(40L);
+
+        for (int i = 0; i < 6; ++i){
+            RoomInfo f = new RoomInfo();
+            f.mCreateTime = 0;
+            f.mId = 140 + i;
+            f.mFamilyId = 40;
+            f.mName = "房间 " + i;
+            mRooms.put(f.mId, f);
+        }
+    }
+    private AppCache(Context ctx) {
+        mCtx = ctx;
+
+        mIsLngEn = ctx.getString(R.string.lng).equalsIgnoreCase("en");
+
+        AppDb inst = AppDb.getInstance(mCtx);
+
+        mToken = inst.getConfig(KDbKeyToken, null);
+        init_test_data();
+
+        mUdid = inst.getConfig("udid", null);
+        if (Common.isNullString(mUdid)){
+            mUdid = Common.randomString(16);
+            inst.setConfig("udid", mUdid);
+        }
+
+        String devsStr = AppDb.getInstance(mCtx).getConfig(KDbKeyDevices, null);
+        if (!Common.isNullString(devsStr)){
+            try {
+                JSONObject arg0 = new JSONObject(devsStr);
+                OnRecvDevices(arg0);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+        String roomsStr = AppDb.getInstance(mCtx).getConfig(KDbKeyRooms, null);
+        if (!Common.isNullString(roomsStr)){
+            try {
+                JSONObject arg0 = new JSONObject(roomsStr);
+                OnRecvRooms(arg0);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+
+        if (!Common.isNullString(mToken) && mCurFamily != null){
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    ListDevices();
+                    ListRooms();
+                }
+            }, 2000);
+        }
+
+
+        java.util.Timer timer = new java.util.Timer(true);
+        TimerTask task = new TimerTask() {
+            public void run() {
+                GetDeviceStatus();
+            }
+        };
+        timer.schedule(task, 200, 15000);
+    }
+    public static AppCache instance(Context ctx) {
+        if (cache == null) {
+            cache = new AppCache(ctx);
+            initImageLoader(ctx);
+        }
+
+        return cache;
+    }
+
+    public static String getUmengParam(String key, String defVal){
+        String val = MobclickAgent.getConfigParams(mCtx, key);
+        if (Common.isNullString(val)){
+            return defVal;
+        }
+        return val;
+    }
+    public static String getUmengParamLng(String key, String defVal){
+        String exLng = mCtx.getString(R.string.lng);
+        String val = MobclickAgent.getConfigParams(mCtx, key + "_" + exLng);
+        if (Common.isNullString(val)){
+            return defVal;
+        }
+        return val;
+    }
+
+    private static UMWXHandler sHandlerUMWX = null;
+    public static UMWXHandler getWxHandler() {
+        if (sHandlerUMWX == null) {
+            sHandlerUMWX = new UMWXHandler(mCtx, Config.WeXinAppId, Config.WeXinAppSecret);
+            sHandlerUMWX.addToSocialSDK();
+        }
+        return sHandlerUMWX;
+    }
+    private static UMWXHandler sHandlerUMWXC = null;
+    public static UMWXHandler getWxCHandler(){
+        if (sHandlerUMWXC == null) {
+            sHandlerUMWXC = new UMWXHandler(mCtx, Config.WeXinAppId, Config.WeXinAppSecret);
+            sHandlerUMWXC.setToCircle(true);
+            sHandlerUMWXC.addToSocialSDK();
+        }
+        return sHandlerUMWXC;
+    }
+    public static void initImageLoader(Context context) {
+        // This configuration tuning is custom. You can tune every option, you may tune some of them,
+        // or you can create default configuration by
+        //  ImageLoaderConfiguration.createDefault(this);
+        // method.
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
+                .threadPriority(Thread.NORM_PRIORITY - 2)
+                .denyCacheImageMultipleSizesInMemory()
+                .diskCacheFileNameGenerator(new Md5FileNameGenerator())
+                .diskCacheSize(50 * 1024 * 1024) // 50 Mb
+                .tasksProcessingOrder(QueueProcessingType.FIFO)
+                .writeDebugLogs() // Remove for release app
+                .build();
+        // Initialize ImageLoader with configuration.
+        ImageLoader.getInstance().init(config);
+    }
+    static public boolean HasLogined(){
+        if (mToken == null) return false;
+        if (mToken.length() < 1) return false;
+        return true;
+    }
+    static public void OnTokenUpdated(String newToken){
+        mToken = newToken;
+        AppDb.getInstance(mCtx).setConfig(KDbKeyToken, mToken);
+    }
+    static public void OnLogouted(){
+        mMyself = new UserInfo();
+        JSONObject json = new JSONObject();
+        mMyself.toParam(json);
+        AppDb.getInstance(mCtx).setConfig(KDbKeyMyInfo, json.toString());
+
+        OnTokenUpdated("");
+
+        Intent intent = new Intent();
+        intent.setAction(Config.BoardcastZzdLogouted);
+        mCtx.sendBroadcast(intent);
+    }
+    static public void OnLogined(UserInfo newInfo){
+        mMyself = newInfo;
+        JSONObject json = new JSONObject();
+        mMyself.toParam(json);
+        AppDb.getInstance(mCtx).setConfig(KDbKeyMyInfo, json.toString());
+
+        Intent intent = new Intent();
+        intent.setAction(Config.BoardcastZzdLogined);
+        mCtx.sendBroadcast(intent);
+    }
+    static private RequestHandle sReqCheckToken = null;
+    static public boolean CheckToken(){
+        if (sReqCheckToken != null) return false;
+
+        sReqCheckToken = ServerClient.CheckToken(new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqCheckToken = null;
+
+                UserInfo myInfo = new UserInfo();
+                try {
+                    JSONObject payload = arg0.getJSONObject("dateList");
+                    AppDb.getInstance(mCtx).setConfig(KDbKeyMyInfo, payload.toString());
+
+                    myInfo.fromJson(payload);
+                    mMyself = myInfo;
+
+                } catch (Exception e) {
+                    return;
+                }
+
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdMyInfoUpdated);
+                mCtx.sendBroadcast(intent);
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqCheckToken = null;
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdMyInfoUpdated);
+                mCtx.sendBroadcast(intent);
+            }
+
+            ;
+        });
+        return true;
+    }
+
+    static public void CreateFamily(String strName){
+
+    }
+    static public void UpdateFamily(long lId, String strName){
+
+    }
+    static public void DeleteFamily(long lId){
+
+    }
+    static public void LoginToFamily(long lId){
+        mCurFamily = mFamilies.get(lId);
+        if (mCurFamily == null) return;
+
+        ListDevices();
+        ListRooms();
+    }
+}

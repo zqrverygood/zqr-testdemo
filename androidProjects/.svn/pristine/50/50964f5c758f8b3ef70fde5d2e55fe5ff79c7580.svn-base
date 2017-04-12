@@ -1,0 +1,77 @@
+package app.smarthome.zzd.smarthome;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.RelativeLayout;
+
+/**
+ * Created by Administrator on 2015/12/25.
+ */
+public class ActivityAbout extends ActivityHeaderBase{
+
+    private RelativeLayout mRelativeLayoutInfo;
+    private RelativeLayout mRelativeLayoutVersion;
+    private RelativeLayout mRelativeLayoutFeetback;
+    private RelativeLayout mRelativeLayoutServicePhone;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_about);
+        mBtnHeaderRight.setVisibility(View.GONE);
+        mTxtHeaderTitle.setText(R.string.about_title);
+
+        mRelativeLayoutInfo = (RelativeLayout) findViewById(R.id.ly_info);
+        mRelativeLayoutVersion = (RelativeLayout) findViewById(R.id.ly_version);
+        mRelativeLayoutFeetback = (RelativeLayout) findViewById(R.id.ly_feetback);
+        mRelativeLayoutServicePhone = (RelativeLayout) findViewById(R.id.ly_service_phone);
+
+        setListener();
+
+    }
+
+    private void setListener(){
+
+        //返回键的点击事件
+        mBtnHeaderLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+        //反馈的点击事件
+        mRelativeLayoutFeetback.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        //版本更新的点击事件
+        mRelativeLayoutVersion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        //系统通知的点击事件
+        mRelativeLayoutInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        //客服电话的点击事件
+        mRelativeLayoutServicePhone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+    }
+
+}

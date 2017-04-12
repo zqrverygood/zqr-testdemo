@@ -1,0 +1,1024 @@
+package app.smarthome.zzd.smarthome;
+
+import android.bluetooth.BluetoothClass;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.Toast;
+
+import com.loopj.android.http.RequestHandle;
+import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.cache.memory.impl.UsingFreqLimitedMemoryCache;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.LoadedFrom;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
+import com.nostra13.universalimageloader.core.imageaware.ImageAware;
+import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+import com.nostra13.universalimageloader.utils.StorageUtils;
+import com.umeng.analytics.MobclickAgent;
+import com.umeng.socialize.weixin.controller.UMWXHandler;
+import com.util.Common;
+import com.util.CycloUtil;
+import com.util.db.AppDb;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimerTask;
+import java.util.Vector;
+
+import app.smarthome.zzd.smarthome.model.AdbannerInfo;
+import app.smarthome.zzd.smarthome.model.DeviceInfo;
+import app.smarthome.zzd.smarthome.model.FamilyInfo;
+import app.smarthome.zzd.smarthome.model.RoomInfo;
+import app.smarthome.zzd.smarthome.model.SceneInfo;
+import app.smarthome.zzd.smarthome.model.TimerInfo;
+import app.smarthome.zzd.smarthome.model.UserInfo;
+
+public class AppCache {
+
+    protected static final String   KDbKeyMyInfo = "current_info";
+    protected static final String   KDbKeyScene = "current_scene";
+    protected static final String   KDbKeyTimer = "current_timers";
+    protected static final String   KDbKeyDevices = "current_devices";
+    protected static final String   KDbKeyFamilies = "my_families";
+    protected static final String   KDbKeyCurFamily = "current_family_id";
+    protected static final String   KDbKeyRooms = "current_family_rooms";
+    protected static final String   KDbKeyAdBanner = "ad_banner_data";
+    protected static final String   KDbKeyKwhPrice = "kwh_price";
+    protected static final String   KDbKeyKwhUnit = "kwh_unit";
+
+    protected static boolean        mIsLngEn = false;
+
+    private static Context mCtx = null;
+    private static AppCache cache = null;
+    public static HashMap<String, AdbannerInfo> mAdBannerData = new HashMap();
+
+    public static float     mKwhPrice = 0;  //电费，每度电几元为单位
+    public static String    mStrKwhUnit = "kwh";
+
+    public static String    mUdid = null;
+    public static UserInfo  mMyself = new UserInfo();
+
+    public static HashMap<Long, FamilyInfo>     mFamilies = new HashMap<Long, FamilyInfo>();
+    public static HashMap<Long, RoomInfo>       mRooms = new HashMap<Long, RoomInfo>();
+    public static HashMap<Long, DeviceInfo>     mDevices = new HashMap<Long, DeviceInfo>();
+    public static HashMap<Long, SceneInfo>      mScenes = new HashMap<Long, SceneInfo>();
+    public static HashMap<Long, TimerInfo>      mTimers = new HashMap<Long, TimerInfo>();
+    public static HashMap<Long, Long>           mSceneId2TimerId = new HashMap<>();
+
+    // sorted id
+    public static Vector<Long>                  mGatewayIds = new Vector<>();
+    public static Vector<Long>                  mFamilyIds = new Vector<>();
+    public static Vector<Long>                  mRoomIds = new Vector<>();
+
+    public static long mCurFamilyId;
+
+    private static java.util.Timer mMyTimer = new java.util.Timer(true);
+    private static TimerTask mTaskDeviceStatus = new TimerTask() {
+        public void run() {
+            if (mMyself.mUid > 0 && mCurFamilyId > 0){
+                GetDeviceStatus();
+            }
+        }
+    };
+
+    static public String GetDeviceName(long l1, long l2){
+        DeviceInfo d = mDevices.get(l1);
+        if (d == null) return "";
+
+        if (d.mDeviceType == Config.DeviceType.KDeviceTypeGateway) return d.mName;
+
+        DeviceInfo.DevicePortInfo p = d.mPorts.get(l2);
+        if (p == null) return "";
+
+        return p.mName;
+    }
+
+    static public boolean IsDeviceNameExist(String strName){
+        for (DeviceInfo d:mDevices.values()) {
+            if (d.mDeviceType == Config.DeviceType.KDeviceTypeGateway){
+                if (strName.compareTo(d.mName) == 0) return true;
+            }
+            else{
+                for (DeviceInfo.DevicePortInfo p : d.mPorts.values()){
+                    if (strName.compareTo(p.mName) == 0) return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    static public boolean IsFamilyNameExist(String strName){
+        for (FamilyInfo f:mFamilies.values()) {
+            if (strName.compareTo(f.mName) == 0) return true;
+        }
+        return false;
+    }
+
+    static public boolean IsRoomNameExist(String strName){
+        for (RoomInfo r:mRooms.values()) {
+            if (strName.compareTo(r.mName) == 0) return true;
+        }
+        return false;
+    }
+
+    static public String CurrentFamilyName(){
+        FamilyInfo f = mFamilies.get(mCurFamilyId);
+        if (f == null) return "";
+        return f.mName;
+    }
+
+    static void SetKwhParam(float iPrice, String strUnit){
+        mKwhPrice = iPrice;
+        mStrKwhUnit = strUnit;
+        AppDb.getInstance(mCtx).setConfig(KDbKeyKwhPrice, "" + mKwhPrice);
+        AppDb.getInstance(mCtx).setConfig(KDbKeyKwhUnit, mStrKwhUnit);
+    }
+
+    static Vector<Long> GetDeviceIdByGatewayId(long lGatewayId){
+        Vector<Long> ret = new Vector<>();
+        for (DeviceInfo d : mDevices.values()){
+            if (d.mSuperDevId == lGatewayId){
+                ret.add(Long.valueOf(d.mId));
+            }
+        }
+        return ret;
+    }
+
+    static private RequestHandle sReqGetAdbanner = null;
+    static private void DecodeAddata(JSONObject arg0){
+
+        HashMap<String, AdbannerInfo> adbannerData = new HashMap();
+        try {
+            JSONArray jDevs = arg0.getJSONArray("dataList");
+            for (int i = 0; i < jDevs.length(); ++i) {
+                JSONObject jDev = jDevs.getJSONObject(i);
+                AdbannerInfo ji = new AdbannerInfo();
+                ji.fromJson(jDev);
+                adbannerData.put(ji.mId, ji);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        mAdBannerData = adbannerData;
+    }
+    static public void GetAdbannerData() {
+
+        sReqGetAdbanner = ServerClient.GetAdbanner(new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqGetAdbanner = null;
+                AppDb.getInstance(mCtx).setConfig(KDbKeyAdBanner, arg0.toString());
+
+                DecodeAddata(arg0);
+
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdAdbannerUpdate);
+                mCtx.sendBroadcast(intent);
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqGetAdbanner = null;
+                Log.e(Config.TagForLog, Log.getStackTraceString(new Throwable()));
+                Log.e(Config.TagForLog, msg);
+                Toast.makeText(mCtx, msg, Toast.LENGTH_LONG).show();
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdAdbannerUpdate);
+                mCtx.sendBroadcast(intent);
+            }
+
+            ;
+        });
+    }
+
+    public static void OnRecvRooms(JSONObject arg0){
+        HashMap<Long, RoomInfo> rooms = new HashMap<>();
+        try {
+            JSONArray jDevs = arg0.getJSONArray("dataList");
+            for (int i = 0; i < jDevs.length(); ++i){
+                JSONObject jDev = jDevs.getJSONObject(i);
+                RoomInfo ji = new RoomInfo();
+                ji.fromJson(jDev);
+                rooms.put(ji.mId, ji);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        mRooms = rooms;
+        mRoomIds.clear();
+        mRoomIds.addAll(mRooms.keySet());
+
+        Intent intent = new Intent();
+        intent.setAction(Config.BoardcastZzdRoomsUpdate);
+        mCtx.sendBroadcast(intent);
+    }
+    private static void OnRecvDevices(JSONObject arg0){
+        Vector<Long> gatewayIds = new Vector<>();
+        HashMap<Long, DeviceInfo> devices = new HashMap<Long, DeviceInfo>();
+        try {
+            JSONArray jDevs = arg0.getJSONArray("dataList");
+            for (int i = 0; i < jDevs.length(); ++i){
+                JSONObject jDev = jDevs.getJSONObject(i);
+                DeviceInfo ji = new DeviceInfo();
+                ji.fromJson(jDev, true);
+                devices.put(ji.mId, ji);
+                if (ji.mDeviceType == Config.DeviceType.KDeviceTypeGateway){
+                    gatewayIds.add(ji.mId);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        mDevices = devices;
+        mGatewayIds = gatewayIds;
+
+        Intent intent = new Intent();
+        intent.setAction(Config.BoardcastZzdDevicesUpdate);
+        mCtx.sendBroadcast(intent);
+    }
+
+    private static void OnRecvDeviceStatus(JSONObject arg0){
+        try {
+            JSONArray jDevs = arg0.getJSONArray("dataList");
+            for (int i = 0; i < jDevs.length(); ++i){
+                JSONObject jDev = jDevs.getJSONObject(i);
+
+                long lDevId = Common.getLongFromJson(jDev, "id");
+                DeviceInfo devInCache = mDevices.get(lDevId);
+                if (devInCache == null) continue;
+
+                if (jDev.has("ddList")){
+                    JSONArray dd = jDev.getJSONArray("ddList");
+                    for (int j = 0; j < dd.length(); ++j){
+                        JSONObject jp = dd.getJSONObject(j);
+                        long lDataId = Common.getLongFromJson(jp, "dataId");
+                        float lValue = Common.getFloatFromJson(jp, "value");
+                        DeviceInfo.DevicePortInfo p = devInCache.mPorts.get(lDataId);
+                        if (p != null) p.mKwh = lValue;
+                    }
+                }
+
+                long lOnLine = Common.getLongFromJson(jDev, "online");
+                if (lOnLine <= 0){
+                    for (DeviceInfo.DevicePortInfo p : devInCache.mPorts.values()){
+                        p.mStatus = -1;
+                    }
+                    continue;
+                }
+
+                if (jDev.has("yxList")){
+                    JSONArray yx = jDev.getJSONArray("yxList");
+                    for (int j = 0; j < yx.length(); ++j){
+                        JSONObject jp = yx.getJSONObject(j);
+                        long lDataId = Common.getLongFromJson(jp, "dataId");
+                        long lValue = Common.getLongFromJson(jp, "value");
+                        DeviceInfo.DevicePortInfo p = devInCache.mPorts.get(lDataId);
+                        if (p != null) p.mStatus = lValue;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        Intent intent = new Intent();
+        intent.setAction(Config.BoardcastZzdDevicesRuntime);
+        mCtx.sendBroadcast(intent);
+    }
+
+
+    static private RequestHandle sReqListRooms = null;
+    public static void ListRooms(){
+        if (mCurFamilyId <= 0) return;
+        sReqListRooms = ServerClient.ListRoom(mCurFamilyId, new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqListRooms = null;
+                AppDb.getInstance(mCtx).setConfig(KDbKeyRooms, arg0.toString());
+                OnRecvRooms(arg0);
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqListRooms = null;
+                if (msg.equalsIgnoreCase("403")) {
+                    OnLogouted();
+                    return;
+                }
+                Log.e(Config.TagForLog, Log.getStackTraceString(new Throwable()));
+                Log.e(Config.TagForLog, msg);
+                Toast.makeText(mCtx, msg, Toast.LENGTH_LONG).show();
+//                AppDb.getInstance(mCtx).setConfig(KDbKeyRooms, "");
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdRoomsUpdate);
+                mCtx.sendBroadcast(intent);
+            }
+
+            ;
+        });
+    }
+
+
+    static private RequestHandle sReqListFamilys = null;
+    public static void ListFamilys(){
+        if (mMyself.mUid <= 0) return;
+        sReqListFamilys = ServerClient.ListFamily(new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqListFamilys = null;
+                AppDb.getInstance(mCtx).setConfig(KDbKeyFamilies, arg0.toString());
+                OnRecvFamilies(arg0);
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqListFamilys = null;
+                if (msg.equalsIgnoreCase("403")) {
+                    OnLogouted();
+                    return;
+                }
+//                AppDb.getInstance(mCtx).setConfig(KDbKeyFamilies, "");
+                Log.e(Config.TagForLog, Log.getStackTraceString(new Throwable()));
+                Log.e(Config.TagForLog, msg);
+                Toast.makeText(mCtx, msg, Toast.LENGTH_LONG).show();
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdFamiliesUpdate);
+                mCtx.sendBroadcast(intent);
+            }
+
+            ;
+        });
+    }
+    public static void OnRecvFamilies(JSONObject arg0){
+        HashMap<Long, FamilyInfo> families = new HashMap<>();
+        try {
+            JSONArray jDevs = arg0.getJSONArray("dataList");
+            for (int i = 0; i < jDevs.length(); ++i){
+                JSONObject jDev = jDevs.getJSONObject(i);
+                FamilyInfo fi = new FamilyInfo();
+                fi.fromJson(jDev);
+                families.put(fi.mId, fi);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        mFamilies = families;
+        mFamilyIds.clear();
+        mFamilyIds.addAll(mFamilies.keySet());
+
+        if (mCurFamilyId > 0 && !mFamilies.containsKey(mCurFamilyId)){
+            mCurFamilyId = 0;
+            AppDb.getInstance(mCtx).setConfig(KDbKeyCurFamily, "0");
+        }
+
+        Intent intent = new Intent();
+        intent.setAction(Config.BoardcastZzdFamiliesUpdate);
+        mCtx.sendBroadcast(intent);
+    }
+
+    static private RequestHandle sReqGetDevStatus = null;
+    static private AppResponseHandler sOnGetDevStatus = new AppResponseHandler() {
+        public void onReqSuccess(JSONObject arg0) {
+            sReqGetDevStatus = null;
+            AppDb.getInstance(mCtx).setConfig(KDbKeyDevices, arg0.toString());
+            OnRecvDeviceStatus(arg0);
+        }
+
+        ;
+
+    public void onReqFailure(String msg) {
+        sReqGetDevStatus = null;
+        if (msg.equalsIgnoreCase("403")) {
+            OnLogouted();
+            return;
+        }
+        Log.e(Config.TagForLog, Log.getStackTraceString(new Throwable()));
+        Log.e(Config.TagForLog, msg);
+        Toast.makeText(mCtx, msg, Toast.LENGTH_LONG).show();
+        Intent intent = new Intent();
+        intent.setAction(Config.BoardcastZzdDevicesRuntime);
+        mCtx.sendBroadcast(intent);
+    }
+
+    ;
+    };
+    public static void GetDeviceStatus(){
+        if (mCurFamilyId <= 0) return;
+        sReqGetDevStatus = ServerClient.GetDeviceStatus(mCurFamilyId, sOnGetDevStatus);
+    }
+    static private RequestHandle sReqListDev = null;
+    public static void ListDevices(){
+        if (mCurFamilyId <= 0) return;
+        sReqListDev = ServerClient.ListDevice(mCurFamilyId, new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqListDev = null;
+                AppDb.getInstance(mCtx).setConfig(KDbKeyDevices, arg0.toString());
+                OnRecvDevices(arg0);
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqListDev = null;
+                if (msg.equalsIgnoreCase("403")) {
+                    OnLogouted();
+                    return;
+                }
+                Log.e(Config.TagForLog, Log.getStackTraceString(new Throwable()));
+                Log.e(Config.TagForLog, msg);
+                Toast.makeText(mCtx, msg, Toast.LENGTH_LONG).show();
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdDevicesUpdate);
+                mCtx.sendBroadcast(intent);
+            }
+
+            ;
+        });
+    }
+
+    static private RequestHandle sReqListScene = null;
+    public static void ListScene(){
+        if (mCurFamilyId <= 0) return;
+        sReqListScene = ServerClient.ListScene(mCurFamilyId, new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqListScene = null;
+                AppDb.getInstance(mCtx).setConfig(KDbKeyScene, arg0.toString());
+                OnRecvScene(arg0);
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqListScene = null;
+                if (msg.equalsIgnoreCase("403")) {
+                    OnLogouted();
+                    return;
+                }
+                Log.e(Config.TagForLog, Log.getStackTraceString(new Throwable()));
+                Log.e(Config.TagForLog, msg);
+                Toast.makeText(mCtx, msg, Toast.LENGTH_LONG).show();
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdSceneUpdate);
+                mCtx.sendBroadcast(intent);
+            }
+
+            ;
+        });
+    }
+
+    private static void OnRecvScene(JSONObject arg0){
+        HashMap<Long, SceneInfo> scenes = new HashMap<>();
+        try {
+            JSONArray jDevs = arg0.getJSONArray("dataList");
+            for (int i = 0; i < jDevs.length(); ++i){
+                JSONObject jDev = jDevs.getJSONObject(i);
+                SceneInfo ji = new SceneInfo();
+                ji.fromJson(jDev);
+                scenes.put(ji.mId, ji);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        mScenes = scenes;
+
+        Intent intent = new Intent();
+        intent.setAction(Config.BoardcastZzdSceneUpdate);
+        mCtx.sendBroadcast(intent);
+    }
+
+    static private RequestHandle sReqListTimer = null;
+    public static void ListTimer(){
+        if (mCurFamilyId <= 0) return;
+        sReqListTimer = ServerClient.ListTimer(mCurFamilyId, new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqListTimer = null;
+                AppDb.getInstance(mCtx).setConfig(KDbKeyTimer, arg0.toString());
+                OnRecvTimer(arg0);
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqListTimer = null;
+                if (msg.equalsIgnoreCase("403")) {
+                    OnLogouted();
+                    return;
+                }
+                Log.e(Config.TagForLog, Log.getStackTraceString(new Throwable()));
+                Log.e(Config.TagForLog, msg);
+                Toast.makeText(mCtx, msg, Toast.LENGTH_LONG).show();
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdTimerUpdate);
+                mCtx.sendBroadcast(intent);
+            }
+
+            ;
+        });
+    }
+
+    private static void OnRecvTimer(JSONObject arg0){
+        HashMap<Long, TimerInfo> timers = new HashMap<>();
+        HashMap<Long, Long> sceneId2TimerId = new HashMap<>();
+        try {
+            JSONArray jDevs = arg0.getJSONArray("dataList");
+            for (int i = 0; i < jDevs.length(); ++i){
+                JSONObject jDev = jDevs.getJSONObject(i);
+                TimerInfo ji = new TimerInfo();
+                ji.fromJson(jDev);
+                timers.put(ji.mId, ji);
+                sceneId2TimerId.put(ji.mSceneId, ji.mId);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        mTimers = timers;
+        mSceneId2TimerId = sceneId2TimerId;
+
+        Intent intent = new Intent();
+        intent.setAction(Config.BoardcastZzdTimerUpdate);
+        mCtx.sendBroadcast(intent);
+    }
+    private static void init_test_data(){
+
+//        for (int i = 0; i < 3; ++i){
+//            FamilyInfo f = new FamilyInfo();
+//            f.mCreateTime = 0;
+//            f.mId = 40 + i;
+//            f.mName = "家庭 " + i;
+//            f.mMemberAccounts = new Vector<>();
+//            f.mMemberAccounts.add("12345");
+//            f.mMemberAccounts.add("67890");
+//            mFamilies.put(f.mId, f);
+//        }
+//        mFamilyIds.clear();
+//        mFamilyIds.addAll(mFamilies.keySet());
+//        mCurFamily = 40;
+//
+//        for (int i = 0; i < 6; ++i){
+//            RoomInfo f = new RoomInfo();
+//            f.mCreateTime = 0;
+//            f.mId = 140 + i;
+//            f.mFamilyId = 40;
+//            f.mName = "房间 " + i;
+//            mRooms.put(f.mId, f);
+//        }
+//        mRoomIds.clear();
+//        mRoomIds.addAll(mRooms.keySet());
+    }
+    private static void LoadLastSave(){
+
+        mStrKwhUnit = AppDb.getInstance(mCtx).getConfig(KDbKeyKwhUnit, "kwh");
+        mKwhPrice = AppDb.getInstance(mCtx).getConfig(KDbKeyKwhPrice, 0.5f);
+
+        String myInfoStr = AppDb.getInstance(mCtx).getConfig(KDbKeyMyInfo, null);
+        if (!Common.isNullString(myInfoStr)){
+            try {
+                JSONObject arg0 = new JSONObject(myInfoStr);
+                mMyself.fromJson(arg0);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+
+        String adStr = AppDb.getInstance(mCtx).getConfig(KDbKeyAdBanner, null);
+        if (!Common.isNullString(adStr)){
+            try {
+                JSONObject arg0 = new JSONObject(adStr);
+                DecodeAddata(arg0);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+
+//        if (mAdBannerData.size() <= 0){
+//            AdbannerInfo ad1 = new AdbannerInfo();
+//            ad1.mImgUrl = "http://img5.imgtn.bdimg.com/it/u=3572074785,265614668&fm=21&gp=0.jpg";
+//            ad1.mTitle = "测试1";
+//            ad1.mActionUrl = "http://www.baidu.com/";
+//            ad1.mViewId = 1;
+//            ad1.mId = "skjdfp";
+//            mAdBannerData.put(ad1.mId, ad1);
+//
+//            AdbannerInfo ad2 = new AdbannerInfo();
+//            ad2.mImgUrl = "http://img0.imgtn.bdimg.com/it/u=3248372000,979794286&fm=21&gp=0.jpg";
+//            ad2.mTitle = "测试2";
+//            ad1.mActionUrl = "http://www.taobao.com/";
+//            ad2.mViewId = 1;
+//            ad2.mId = "lsdjof9wd9";
+//            mAdBannerData.put(ad2.mId, ad2);
+//
+//            AdbannerInfo ad3 = new AdbannerInfo();
+//            ad3.mImgUrl = "http://img3.imgtn.bdimg.com/it/u=3553136651,3991759496&fm=21&gp=0.jpg";
+//            ad3.mTitle = "测试3";
+//            ad1.mActionUrl = "http://www.jd.com/";
+//            ad3.mViewId = 1;
+//            ad3.mId = "ojodf9uf9djfowef";
+//            mAdBannerData.put(ad3.mId, ad3);
+//        }
+
+        String strCurFamilyId = AppDb.getInstance(mCtx).getConfig(KDbKeyCurFamily, "0");
+        mCurFamilyId = Common.getLongFromString(strCurFamilyId);
+
+        String familiesStr = AppDb.getInstance(mCtx).getConfig(KDbKeyFamilies, null);
+        if (!Common.isNullString(familiesStr)){
+            try {
+                JSONObject arg0 = new JSONObject(familiesStr);
+                OnRecvFamilies(arg0);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+
+        String roomsStr = AppDb.getInstance(mCtx).getConfig(KDbKeyRooms, null);
+        if (!Common.isNullString(roomsStr)){
+            try {
+                JSONObject arg0 = new JSONObject(roomsStr);
+                OnRecvRooms(arg0);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+
+        String timerStr = AppDb.getInstance(mCtx).getConfig(KDbKeyScene, null);
+        if (!Common.isNullString(timerStr)){
+            try {
+                JSONObject arg0 = new JSONObject(timerStr);
+                OnRecvTimer(arg0);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+
+        String sceneStr = AppDb.getInstance(mCtx).getConfig(KDbKeyScene, null);
+        if (!Common.isNullString(sceneStr)){
+            try {
+                JSONObject arg0 = new JSONObject(sceneStr);
+                OnRecvScene(arg0);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+
+        String devsStr = AppDb.getInstance(mCtx).getConfig(KDbKeyDevices, null);
+        if (!Common.isNullString(devsStr)){
+            try {
+                JSONObject arg0 = new JSONObject(devsStr);
+                OnRecvDevices(arg0);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+    }
+    private AppCache(Context ctx) {
+        mCtx = ctx;
+
+        mIsLngEn = ctx.getString(R.string.lng).equalsIgnoreCase("en");
+
+        AppDb inst = AppDb.getInstance(mCtx);
+
+        init_test_data();
+
+        mUdid = inst.getConfig("udid", null);
+        if (Common.isNullString(mUdid)){
+            mUdid = Common.randomString(16);
+            inst.setConfig("udid", mUdid);
+        }
+        LoadLastSave();
+
+        if (mMyself.mUid > 0)
+        {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    ListFamilys();
+                    GetAdbannerData();
+                    OnFamilyChanged();
+                }
+            }, 100);
+        }
+
+        if (mCurFamilyId > 0)
+        {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    OnFamilyChanged();
+                }
+            }, 200);
+        }
+    }
+
+    public static void EnableDeviceStatusTimer(boolean enable){
+        if (enable){
+            if (mTaskDeviceStatus == null){
+                mTaskDeviceStatus = new TimerTask() {
+                    public void run() {
+                        if (mMyself.mUid > 0 && mCurFamilyId > 0){
+                            GetDeviceStatus();
+                        }
+                    }
+                };
+            }
+            if(mMyTimer == null){
+                mMyTimer = new java.util.Timer(true);
+                mMyTimer.schedule(mTaskDeviceStatus, 1050, 15000);
+            }
+        }
+        else{
+            if(mMyTimer != null){
+                mMyTimer.cancel();
+                mMyTimer = null;
+            }
+            if(mTaskDeviceStatus != null) {
+                mTaskDeviceStatus.cancel();
+                mTaskDeviceStatus = null;
+            }
+        }
+    }
+
+    public static AppCache instance(Context ctx) {
+        if (cache == null) {
+            cache = new AppCache(ctx);
+            initImageLoader(ctx);
+        }
+
+        return cache;
+    }
+
+    public static String getUmengParam(String key, String defVal){
+        String val = MobclickAgent.getConfigParams(mCtx, key);
+        if (Common.isNullString(val)){
+            return defVal;
+        }
+        return val;
+    }
+    public static String getUmengParamLng(String key, String defVal){
+        String exLng = mCtx.getString(R.string.lng);
+        String val = MobclickAgent.getConfigParams(mCtx, key + "_" + exLng);
+        if (Common.isNullString(val)){
+            return defVal;
+        }
+        return val;
+    }
+
+    private static UMWXHandler sHandlerUMWX = null;
+    public static UMWXHandler getWxHandler() {
+        if (sHandlerUMWX == null) {
+            sHandlerUMWX = new UMWXHandler(mCtx, Config.WeXinAppId, Config.WeXinAppSecret);
+            sHandlerUMWX.addToSocialSDK();
+        }
+        return sHandlerUMWX;
+    }
+    private static UMWXHandler sHandlerUMWXC = null;
+    public static UMWXHandler getWxCHandler(){
+        if (sHandlerUMWXC == null) {
+            sHandlerUMWXC = new UMWXHandler(mCtx, Config.WeXinAppId, Config.WeXinAppSecret);
+            sHandlerUMWXC.setToCircle(true);
+            sHandlerUMWXC.addToSocialSDK();
+        }
+        return sHandlerUMWXC;
+    }
+
+    public static class AnimateFirstDisplayListener extends SimpleImageLoadingListener {
+        static final List<String> displayedImages = Collections.synchronizedList(new LinkedList<String>());
+        @Override
+        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+            if (loadedImage != null) {
+                ImageView imageView = (ImageView) view;
+                boolean firstDisplay = !displayedImages.contains(imageUri);
+                if (firstDisplay) {
+                    FadeInBitmapDisplayer.animate(imageView, 500);
+                    displayedImages.add(imageUri);
+                }
+            }
+        }
+    }
+
+    static public DisplayImageOptions mImgLoadOption;
+    static public DisplayImageOptions mImgLoadOptionRound;
+    static ImageLoadingListener mAnimateFirstListener = new AppCache.AnimateFirstDisplayListener();
+    public static void initImageLoader(Context context) {
+
+        File cacheDir = StorageUtils.getOwnCacheDirectory(context, "imageloader/Cache");
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration
+                .Builder(context)
+                .memoryCacheExtraOptions(720, 1280) // maxwidth, max height，即保存的每个缓存文件的最大长宽
+                .threadPoolSize(3)//线程池内加载的数量
+                .threadPriority(Thread.NORM_PRIORITY - 2)
+                .denyCacheImageMultipleSizesInMemory()
+                .memoryCache(new UsingFreqLimitedMemoryCache(2 * 1024 * 1024)) // You can pass your own memory cache implementation/你可以通过自己的内存缓存实现
+                .memoryCacheSize(2 * 1024 * 1024)
+//                .discCacheSize(50 * 1024 * 1024)
+//                .discCacheFileNameGenerator(new Md5FileNameGenerator())//将保存的时候的URI名称用MD5 加密
+                .tasksProcessingOrder(QueueProcessingType.FIFO)
+//                .discCacheFileCount(100) //缓存的文件数量
+//                .discCache(new UnlimitedDiscCache(cacheDir))//自定义缓存路径
+                .defaultDisplayImageOptions(DisplayImageOptions.createSimple())
+                .imageDownloader(new BaseImageDownloader(context, 5 * 1000, 30 * 1000)) // connectTimeout (5 s), readTimeout (30 s)超时时间
+//                .writeDebugLogs() // Remove for releaseapp
+                .build();//开始构建
+        ImageLoader.getInstance().init(config);
+
+        mImgLoadOption = new DisplayImageOptions.Builder()
+                .showImageOnLoading(R.drawable.loading)            //加载图片时的图片
+                .showImageForEmptyUri(R.drawable.loading)          //没有图片资源时的默认图片
+                .showImageOnFail(R.drawable.loading)               //加载失败时的图片
+                .cacheInMemory(true)                               //启用内存缓存
+                .cacheOnDisk(true)                                 //启用外存缓存
+                .considerExifParams(true)                          //启用EXIF和JPEG图像格式
+                .displayer(new RoundedBitmapDisplayer(0))          //设置显示风格这里是圆角矩形
+                .build();
+
+        mImgLoadOptionRound = new DisplayImageOptions.Builder()
+                .showImageOnLoading(R.drawable.loading)            //加载图片时的图片
+                .showImageForEmptyUri(R.drawable.loading)          //没有图片资源时的默认图片
+                .showImageOnFail(R.drawable.loading)               //加载失败时的图片
+                .cacheInMemory(true)                               //启用内存缓存
+                .cacheOnDisk(true)                                 //启用外存缓存
+                .considerExifParams(true)                          //启用EXIF和JPEG图像格式
+                .displayer(new BitmapDisplayer() {
+                    @Override
+                    public void display(Bitmap bitmap, ImageAware imageAware, LoadedFrom loadedFrom) {
+                        if(!(imageAware instanceof ImageViewAware)) {
+                            throw new IllegalArgumentException("ImageAware should wrap ImageView. ImageViewAware is expected.");
+                        } else {
+                            bitmap = CycloUtil.toRoundBitmap(bitmap);
+                            imageAware.setImageBitmap(bitmap);
+                        }
+
+                    }
+
+                    ;
+                })          //设置显示风格这里是圆角矩形
+                .build();
+    }
+
+    public static void LoadImage(String url, ImageView img){
+        ImageLoader.getInstance().displayImage(url, img, mImgLoadOption, mAnimateFirstListener);
+    }
+
+    public static void LoadRoundImage(String url, ImageView img){
+        ImageLoader.getInstance().displayImage(url, img, mImgLoadOptionRound, mAnimateFirstListener);
+    }
+
+    public static void ClearCache() {
+        ImageLoader.getInstance().clearMemoryCache();
+        ImageLoader.getInstance().clearDiskCache();
+    }
+
+    static public boolean HasLogined(){
+        if (mMyself == null) return false;
+        if (mMyself.mUid < 1) return false;
+        return true;
+    }
+
+    static public void OnLogouted(){
+        mMyself = new UserInfo();
+        JSONObject json = new JSONObject();
+        mMyself.toParam(json);
+
+        mAdBannerData.clear();
+        mFamilies.clear();
+        mRooms.clear();
+        mDevices.clear();
+        mScenes.clear();
+        mTimers.clear();
+        mSceneId2TimerId.clear();
+        mGatewayIds.clear();
+        mFamilyIds.clear();
+        mRoomIds.clear();
+
+        mCurFamilyId = 0;
+
+        AppDb.getInstance(mCtx).setConfig(KDbKeyMyInfo, json.toString());
+        AppDb.getInstance(mCtx).setConfig(KDbKeyScene, "");
+        AppDb.getInstance(mCtx).setConfig(KDbKeyTimer, "");
+        AppDb.getInstance(mCtx).setConfig(KDbKeyDevices, "");
+        AppDb.getInstance(mCtx).setConfig(KDbKeyFamilies, "");
+        AppDb.getInstance(mCtx).setConfig(KDbKeyCurFamily, "");
+        AppDb.getInstance(mCtx).setConfig(KDbKeyRooms, "");
+        AppDb.getInstance(mCtx).setConfig(KDbKeyAdBanner, "");
+
+        EnableDeviceStatusTimer(false);
+        ServerClient.ClearCookies();
+
+        Intent intent = new Intent();
+        intent.setAction(Config.BoardcastZzdLogouted);
+        mCtx.sendBroadcast(intent);
+    }
+    static public void OnLogined(UserInfo newInfo){
+        mMyself = newInfo;
+        JSONObject json = new JSONObject();
+        mMyself.toParam(json);
+        AppDb.getInstance(mCtx).setConfig(KDbKeyMyInfo, json.toString());
+
+        Intent intent = new Intent();
+        intent.setAction(Config.BoardcastZzdLogined);
+        mCtx.sendBroadcast(intent);
+    }
+    static private RequestHandle sReqGetMyInfo = null;
+    static public boolean GetMyInfo(){
+        if (sReqGetMyInfo != null) return false;
+
+        sReqGetMyInfo = ServerClient.GetMyInfo(new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqGetMyInfo = null;
+
+                UserInfo myInfo = new UserInfo();
+                try {
+                    JSONObject payload = arg0.getJSONObject("dateList");
+                    AppDb.getInstance(mCtx).setConfig(KDbKeyMyInfo, payload.toString());
+
+                    myInfo.fromJson(payload);
+                    mMyself = myInfo;
+
+                } catch (Exception e) {
+                    return;
+                }
+
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdMyInfoUpdated);
+                mCtx.sendBroadcast(intent);
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqGetMyInfo = null;
+                Log.e(Config.TagForLog, Log.getStackTraceString(new Throwable()));
+                Log.e(Config.TagForLog, msg);
+                Toast.makeText(mCtx, msg, Toast.LENGTH_LONG).show();
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdMyInfoUpdated);
+                mCtx.sendBroadcast(intent);
+            }
+
+            ;
+        });
+        return true;
+    }
+
+    static public void LoginToFamily(long lId){
+        mCurFamilyId = lId;
+        AppDb.getInstance(mCtx).setConfig(KDbKeyCurFamily, "" + mCurFamilyId);
+
+        OnFamilyChanged();
+    }
+    static public void OnFamilyChanged(){
+
+        ListRooms();
+        ListDevices();
+        ListScene();
+        ListTimer();
+
+        Intent intent = new Intent();
+        intent.setAction(Config.BoardcastZzdChangeFamily);
+        mCtx.sendBroadcast(intent);
+    }
+}

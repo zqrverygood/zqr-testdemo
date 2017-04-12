@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<app.smarthome.zzd.smarthome.view.GridIconScene
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="2dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/grid_item_background">
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:id="@+id/img_main"
+        android:src="@drawable/scene_curtain"
+        android:contentDescription="@string/blank"
+        android:layout_gravity="center_horizontal"
+        android:adjustViewBounds="false"
+        android:cropToPadding="true"
+        android:scaleType="centerInside"
+        android:layout_centerInParent="true" />
+
+    <ImageView
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:id="@+id/img_right_up"
+        android:src="@drawable/refresh_g"
+        android:contentDescription="@string/blank"
+        android:layout_alignParentRight="false"
+        android:visibility="visible"
+        android:layout_marginRight="-6dp"
+        android:layout_marginTop="-8dp"
+        android:layout_alignRight="@+id/img_main"
+        android:layout_alignTop="@+id/img_main" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="@string/def_scene"
+        android:id="@+id/txt_title"
+        android:singleLine="true"
+        android:textColor="@color/black"
+        android:layout_gravity="center_horizontal"
+        android:padding="2dp"
+        android:layout_below="@+id/img_main"
+        android:layout_centerHorizontal="true"
+        android:textSize="16sp"
+        android:layout_marginTop="40dp" />
+
+</app.smarthome.zzd.smarthome.view.GridIconScene>
+<!--</app.smarthome.zzd.smarthome.view.GridIconDevice>-->

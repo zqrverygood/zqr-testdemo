@@ -1,0 +1,232 @@
+package app.smarthome.zzd.smarthome;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshGridView;
+import com.loopj.android.http.RequestHandle;
+import com.umeng.analytics.MobclickAgent;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.w3c.dom.Text;
+
+import java.util.Vector;
+
+import app.smarthome.zzd.smarthome.Config.DeviceType;
+import app.smarthome.zzd.smarthome.model.DeviceInfo;
+import app.smarthome.zzd.smarthome.model.RoomInfo;
+import app.smarthome.zzd.smarthome.view.AdbannerView;
+import app.smarthome.zzd.smarthome.view.RoomDevicePager;
+import app.smarthome.zzd.smarthome.view.RoomListView;
+
+/**
+ * Created by inobaa on 15/1/20.
+ */
+public class FragmentDevices extends FragmentForMain {
+
+    private final static int ACTIVITY_SCAN_QRCODE = 100;
+    private final static int ACTIVITY_DEVICE_DETAIL = 101;
+
+//    private PullToRefreshGridView   mPullRefreshGridView;
+//    private DeviceAdapter           mDevicesAdapter;
+    private RoomListView            mLyRooms;
+    private RoomDevicePager         mDevicePager;
+    private AdbannerView            mAdView;
+    private LayoutInflater          mInflater;
+
+    public FragmentDevices() {
+    }
+
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(Config.BoardcastZzdChangeFamily)
+                    || action.equals(Config.BoardcastZzdDevicesUpdate)
+                    || action.equals(Config.BoardcastZzdDeviceRuntime)) {
+                mLyRooms.ReLoad(mInflater);
+                mDevicePager.Init(mInflater, mLyRooms.mAllRooms);
+            }
+            else if(action.equals(Config.BoardcastZzdAdbannerUpdate)){
+                mAdView.ReLoad(mInflater, 0);
+            }
+        }
+    };
+    public void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart("FragmentDevices"); //统计页面
+    }
+    public void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd("FragmentDevices");
+    }
+    public void OnHeaderRightClick(){
+//        Intent intent = new Intent();
+//        intent.setClass(getActivity(), ActivityCaptureQR.class);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//        startActivityForResult(intent, ACTIVITY_SCAN_QRCODE);
+
+        Intent intent = new Intent();
+        intent.setClass(getActivity(), ActivityDeviceDetail.class);
+        intent.putExtra("code", "0001012c");
+        startActivityForResult(intent, ACTIVITY_DEVICE_DETAIL);
+    }
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode & 0x0000FFFF) {
+            case ACTIVITY_SCAN_QRCODE:
+                if(resultCode == Activity.RESULT_OK){
+                    Bundle bundle = data.getExtras();
+                    String strResult = bundle.getString("result");
+
+                    Intent intent = new Intent();
+                    intent.setClass(getActivity(), ActivityDeviceDetail.class);
+                    intent.putExtra("code", strResult);
+                    startActivityForResult(intent, ACTIVITY_DEVICE_DETAIL);
+                }
+                else if(resultCode == Activity.RESULT_FIRST_USER){
+
+                    Intent intent = new Intent();
+                    intent.setClass(getActivity(), ActivityDeviceDetail.class);
+                    startActivityForResult(intent, ACTIVITY_DEVICE_DETAIL);
+                }
+                break;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+    public void SwitchRoom(Long roomId){
+        //TODO click on a room
+    }
+
+    public void onDestroy() {
+        getActivity().unregisterReceiver(mReceiver);
+        super.onDestroy();
+    }
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        mInflater = inflater;
+        View rootView = super.onCreateView(inflater, container, savedInstanceState, R.layout.fragment_devices);
+        mTxtHeaderTitle.setText(R.string.tbi_devices);
+        mBtnHeaderRight.setVisibility(View.VISIBLE);
+
+        mLyRooms = (RoomListView)rootView.findViewById(R.id.ly_rooms);
+        mLyRooms.ReLoad(inflater);
+        mLyRooms.SetOnRoomChangedListener(new RoomListView.OnRoomChangedListener() {
+            @Override
+            public void onChanged(long lNewRoomId) {
+//                mDevicesAdapter.SetRoomId(lNewRoomId);
+                mDevicePager.SetRoomId(lNewRoomId, false);
+            }
+        });
+
+        mDevicePager = (RoomDevicePager)rootView.findViewById(R.id.view_pager_devices);
+        mDevicePager.Init(mInflater, mLyRooms.mAllRooms);
+        mDevicePager.SetOnRoomDeviceListener(new RoomDevicePager.OnRoomDeviceListener() {
+            @Override
+            public void onDeviceClick(long lDeviceId, long lDataId) {
+
+            }
+
+            @Override
+            public void onDeviceLongTouch(long lDeviceId, long lDataId) {
+                Intent intent = new Intent();
+                intent.setClass(getActivity(), ActivityDeviceDetail.class);
+                intent.putExtra("device_id", lDeviceId);
+                intent.putExtra("data_id", lDataId);
+                startActivityForResult(intent, ACTIVITY_SCAN_QRCODE);
+            }
+
+            @Override
+            public void onRoomChanged(long lRoomId, int iRoomIndex) {
+                mLyRooms.SetCurrentRoomId(lRoomId, false);
+            }
+        });
+
+        mAdView = (AdbannerView)rootView.findViewById(R.id.view_pager_adbanner);
+        mAdView.ReLoad(mInflater, 0);
+
+        mLyRooms.SetCurrentRoomId(0L, true);
+        mDevicePager.requestFocus();
+
+//        mPullRefreshGridView = (PullToRefreshGridView) rootView.findViewById(R.id.pull_refresh_grid);
+//        // Set a listener to be invoked when the list should be refreshed.
+//        mPullRefreshGridView.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener<GridView>() {
+//            @Override
+//            public void onRefresh(PullToRefreshBase<GridView> refreshView) {
+//                mDevicesAdapter.Refresh();
+//            }
+//        });
+//
+//        // Add an end-of-list listener
+//        mPullRefreshGridView.setOnLastItemVisibleListener(new PullToRefreshBase.OnLastItemVisibleListener() {
+//            @Override
+//            public void onLastItemVisible() {
+////                mDevicesAdapter.LoadMore();
+//            }
+//        });
+//
+//        RelativeLayout emptyView = (RelativeLayout)this.getActivity().getLayoutInflater().inflate(R.layout.li_one_text, null);
+//        TextView etv = (TextView) emptyView.findViewById(R.id.txt_tag_name);
+//        etv.setText(R.string.has_no_devices);
+//        mPullRefreshGridView.setEmptyView(emptyView);
+//
+//        mPullRefreshGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                //TODO click on a device
+//                int realPos = position - 1;
+//
+//            }
+//        });
+//        mPullRefreshGridView.getRefreshableView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+//            @Override
+//            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+//                //TODO long touch on a device
+//                int realPos = i - 1;
+//
+//
+//                return false;
+//            }
+//        });
+//        if (mDevicesAdapter == null){
+//            mDevicesAdapter = new DeviceAdapter(getActivity());
+//            new Handler().postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//                    mDevicesAdapter.Refresh();
+//                }
+//            }, 2000);
+//        }
+//        mPullRefreshGridView.setAdapter(null);
+//        mPullRefreshGridView.setAdapter(mDevicesAdapter);
+
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Config.BoardcastZzdChangeFamily);
+        filter.addAction(Config.BoardcastZzdDevicesUpdate);
+        filter.addAction(Config.BoardcastZzdDeviceRuntime);
+        filter.addAction(Config.BoardcastZzdAdbannerUpdate);
+        getActivity().registerReceiver(mReceiver, filter);
+        return rootView;
+    }
+}

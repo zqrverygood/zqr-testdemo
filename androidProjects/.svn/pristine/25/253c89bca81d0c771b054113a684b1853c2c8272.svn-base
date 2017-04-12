@@ -1,0 +1,908 @@
+package app.smarthome.zzd.smarthome;
+
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.Switch;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.loopj.android.http.RequestHandle;
+import com.util.Common;
+import com.util.InputTool;
+import com.util.db.AppDb;
+
+import org.json.JSONObject;
+import org.w3c.dom.Text;
+
+import java.util.TimerTask;
+import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
+import app.smarthome.zzd.smarthome.model.DeviceInfo;
+import app.smarthome.zzd.smarthome.model.FamilyInfo;
+import app.smarthome.zzd.smarthome.model.RoomInfo;
+import app.smarthome.zzd.smarthome.view.LinearLayoutWithImeListener;
+
+public class ActivityDeviceDetail extends ActivityHeaderBase {
+
+    public static  int       KActivityResultCreateFamily = 101;
+    public static  int       KActivityResultCreateRoom1 = 110;
+    public static  int       KActivityResultDeviceDetail = 120;
+    private final static int ACTIVITY_DEVICE_DETAIL = 105;
+    private final  int      ACTIVITY_SCAN_QRCODE = 100;
+    private boolean         mbIsUserInputDevId = false;
+    final static int        KMaxPortCount = 3;
+    private DeviceInfo      mDevice = new DeviceInfo();
+    private long            mDataId = -1;
+
+    private ProgressDialog  mProgDialog;
+
+    private LinearLayout    mLyDeviceDetail;
+    private RelativeLayout  mLyGateway;
+    private RelativeLayout  mLyFamily;
+
+    private RelativeLayout  mLyRooms[] = new RelativeLayout[3];
+    private RelativeLayout  mLyNames[] = new RelativeLayout[3];
+
+    private EditText        mEditDeviceId;
+    private EditText[]      mEditNames = new EditText[KMaxPortCount];
+
+    private TextView        mTxtQueryId;
+    private TextView        mTxtType;
+    private TextView        mTxtGateway;
+    private TextView        mTxtFamily;
+    private TextView[]      mTxtRooms = new TextView[KMaxPortCount];
+
+    @Override
+    protected void onDestroy() {
+        if(sReqDeviceId != null){
+            sReqDeviceId.cancel(true);
+            sReqDeviceId = null;
+        }
+        super.onDestroy();
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == KActivityResultCreateFamily && resultCode == RESULT_OK) {
+
+            int iIdxSelRoomLy = requestCode - KActivityResultCreateRoom1;
+            long lFamilyId = data.getLongExtra("family_id", 0);
+            if (lFamilyId > 0) {
+                String strName = data.getStringExtra("family_name");
+                mDevice.mFamilyId = lFamilyId;
+                mTxtFamily.setText(strName);
+            }
+            else {
+                OnSelRooms(iIdxSelRoomLy);
+            }
+        }
+        else if (requestCode >= KActivityResultCreateRoom1
+                && requestCode <= KActivityResultCreateRoom1 + 10
+                && resultCode == RESULT_OK) {
+            int iIdxSelRoomLy = requestCode - KActivityResultCreateRoom1;
+            long lRoomId = data.getLongExtra("room_id", 0);
+            if (lRoomId > 0) {
+                Vector<Long> dataIds = mDevice.getDataIds();
+                mDevice.mPorts.get(dataIds.get(iIdxSelRoomLy)).mRoomId = lRoomId;
+
+                String strName = data.getStringExtra("room_name");
+                mTxtRooms[iIdxSelRoomLy].setText(strName);
+            }
+            else {
+                OnSelRooms(iIdxSelRoomLy);
+            }
+        }
+        else if (requestCode == ACTIVITY_SCAN_QRCODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                Bundle bundle = data.getExtras();
+                String strResult = bundle.getString("result");
+                OnSetCode(strResult);
+            }
+            else if (resultCode == Activity.RESULT_FIRST_USER) {
+                OnSetCode("");
+                mbIsUserInputDevId = true;
+            }
+            else if (resultCode == Activity.RESULT_CANCELED) {
+                if(!mbIsUserInputDevId){
+                    InputTool.HideKeyboard(mEditNames[0]);
+                    finish();
+                }
+            }
+        }
+
+    }
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        super.setContentView(R.layout.activity_device_detail);
+        LinearLayoutWithImeListener lyActivity = (LinearLayoutWithImeListener) findViewById(R.id.ly_activity);
+        lyActivity.setOnSoftKeyboardListener(new LinearLayoutWithImeListener.OnSoftKeyboardListener(){
+
+            public void onShown(){
+
+            }
+            public void onHidden(){
+                if (mEditDeviceId.hasFocus() && mEditDeviceId.getText().toString().length() >= 8 && mEditDeviceId.isEnabled()){
+                    mEditDeviceId.clearFocus();
+                    QueryDeviceId();
+                }
+            }
+
+        });
+
+        mbIsUserInputDevId = false;
+        mTxtHeaderRight.setVisibility(View.VISIBLE);
+        mTxtHeaderRight.setText(R.string.scan_text_right);
+        mTxtHeaderRight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setClass(ActivityDeviceDetail.this, ActivityCaptureQR.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivityForResult(intent, ACTIVITY_SCAN_QRCODE);
+            }
+        });
+
+        mProgDialog = new ProgressDialog(this);
+        mProgDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgDialog.setIndeterminate(false);
+        mProgDialog.setCancelable(false);
+
+        mLyDeviceDetail = (LinearLayout)findViewById(R.id.ly_device_detail);
+        mLyGateway = (RelativeLayout)findViewById(R.id.ly_gateway);
+        mLyGateway.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                OnSelGateway();
+            }
+        });
+        mLyFamily = (RelativeLayout)findViewById(R.id.ly_family);
+        mLyFamily.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                OnSelFamily();
+            }
+        });
+
+        mLyRooms[0] = (RelativeLayout)findViewById(R.id.ly_room1);
+        mLyRooms[0].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                OnSelRooms(0);
+            }
+        });
+        mLyRooms[1] = (RelativeLayout)findViewById(R.id.ly_room2);
+        mLyRooms[1].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                OnSelRooms(1);
+            }
+        });
+        mLyRooms[2] = (RelativeLayout)findViewById(R.id.ly_room3);
+        mLyRooms[2].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                OnSelRooms(2);
+            }
+        });
+
+        mLyNames[0] = (RelativeLayout)findViewById(R.id.ly_name1);
+        mLyNames[1] = (RelativeLayout)findViewById(R.id.ly_name2);
+        mLyNames[2] = (RelativeLayout)findViewById(R.id.ly_name3);
+
+        mEditDeviceId = (EditText)findViewById(R.id.edit_device_id);
+        mEditDeviceId.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+
+                if (!hasFocus && mEditDeviceId.isEnabled()){
+                    mEditDeviceId.clearFocus();
+                    QueryDeviceId();
+                }
+            }
+        });
+        mEditDeviceId.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                /*判断是否是“GO”键*/
+                if (actionId == EditorInfo.IME_ACTION_DONE
+                        || actionId == EditorInfo.IME_ACTION_SEND
+                        || actionId == EditorInfo.IME_ACTION_GO
+                        || actionId == EditorInfo.IME_ACTION_NEXT
+                        || actionId == EditorInfo.IME_ACTION_UNSPECIFIED) {
+                    QueryDeviceId();
+                    return true;
+                }
+                return false;
+            }
+        });
+        mEditDeviceId.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+            public String stringFilter(String str) throws PatternSyntaxException {
+                // 只允许字母、数字和汉字
+//                String   regEx  =  "[^a-zA-Z0-9\u4E00-\u9FA5]";
+                String   regEx  =  "[^a-zA-Z0-9]";
+                Pattern p   =   Pattern.compile(regEx);
+                Matcher m   =   p.matcher(str);
+                return   m.replaceAll("").trim();
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String editable = mEditDeviceId.getText().toString();
+                String str = stringFilter(editable.toString());
+                if(!editable.equals(str)){
+                    mEditDeviceId.setText(str);
+                    //设置新的光标所在位置
+                    mEditDeviceId.setSelection(str.length());
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+//                String sn = s.toString();
+//                if (sn.length() >= 10){
+//                    QueryDeviceId();
+//                }
+            }
+        });
+        mEditNames[0] = (EditText)findViewById(R.id.edit_name1);
+        mEditNames[1] = (EditText)findViewById(R.id.edit_name2);
+        mEditNames[2] = (EditText)findViewById(R.id.edit_name3);
+
+        mTxtQueryId = (TextView)findViewById(R.id.txt_qurry_device);
+        mTxtType = (TextView)findViewById(R.id.txt_device_type);
+        mTxtGateway = (TextView)findViewById(R.id.txt_gateway);
+        mTxtRooms[0] = (TextView)findViewById(R.id.txt_room1);
+        mTxtRooms[1] = (TextView)findViewById(R.id.txt_room2);
+        mTxtRooms[2] = (TextView)findViewById(R.id.txt_room3);
+        mTxtFamily = (TextView)findViewById(R.id.txt_family);
+
+        findViewById(R.id.txt_save_device).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SaveDevice();
+            }
+        });
+        findViewById(R.id.txt_del_device).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DeleteWithConfirm();
+            }
+        });
+
+        Intent intent = getIntent();
+        long lDeviceId = intent.getLongExtra("device_id", 0);
+        mDataId = intent.getLongExtra("data_id", 0);
+        DeviceInfo devInCache = null;
+        if (lDeviceId > 0){
+            devInCache = AppCache.mDevices.get(lDeviceId);
+            mTxtHeaderRight.setVisibility(View.GONE);
+        }
+        if (devInCache == null){
+            setTitle(R.string.add_device);
+            String strCode = intent.getStringExtra("code");
+            if ("".equals(strCode)) {
+                Intent intent2 = new Intent();
+                intent2.setClass(ActivityDeviceDetail.this, ActivityCaptureQR.class);
+                intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivityForResult(intent2, ACTIVITY_SCAN_QRCODE);
+            }
+            else {
+                OnSetCode(strCode);
+            }
+//            mLyDeviceDetail.setEnabled(false);
+//            mTxtQueryId.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    QueryDeviceId();
+//                }
+//            });
+//            if (strCode != null && strCode.length() >= 14){
+//                String[] subs1 = strCode.split("ID:");
+//                if (subs1.length >= 2){
+//                    String[] subs2 = subs1[1].split("SN:");
+//                    strCode = subs2[0];
+//                }
+//            }
+////            strCode = "0001012c";
+//            if (!Common.isNullString(strCode)){
+//                mEditDeviceId.setText(strCode);
+//
+//                new Handler().postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        QueryDeviceId();
+//                    }
+//                }, 20);
+//            }
+//            else{
+//                mEditDeviceId.requestFocus();
+//            }
+//            mTxtFamily.setText("");
+//            mTxtGateway.setText("");
+//            for (int i = 0; i < 3; ++i) {
+//                mTxtRooms[i].setText("");
+//                mEditNames[i].setText("");
+//            }
+//            mLyRooms[1].setVisibility(View.GONE);
+//            mLyNames[1].setVisibility(View.GONE);
+//            mLyRooms[2].setVisibility(View.GONE);
+//            mLyNames[2].setVisibility(View.GONE);
+        }
+        else{
+            mDevice.copyFrom(devInCache);
+            mTxtQueryId.setVisibility(View.GONE);
+            DispDeviceInfo();
+
+            mEditDeviceId.setEnabled(false);
+//            findViewById(R.id.ly_device_id).setVisibility(View.GONE);
+        }
+    }
+
+    private RequestHandle sReqDeviceId = null;
+    public void QueryDeviceId(){
+        if (sReqDeviceId != null) return;
+
+        String strCode = mEditDeviceId.getText().toString();
+        if (strCode.length() < 8){
+//            mEditDeviceId.requestFocus();
+            Toast.makeText(ActivityDeviceDetail.this, getString(R.string.tip_id_length8), Toast.LENGTH_LONG).show();
+            return;
+        }
+        //TODO filter the code
+
+        mEditDeviceId.setEnabled(false);
+        sReqDeviceId = ServerClient.CreatePreQuery(strCode, new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqDeviceId = null;
+                mTxtHeaderRight.setVisibility(View.GONE);
+                try {
+                    JSONObject jo = arg0.getJSONArray("dataList").getJSONObject(0);
+                    mDevice.fromJson(jo, false);
+
+                    // 初始化名称
+                    String strType;
+                    String[] strName = new String[3];
+                    if (mDevice.mDeviceType == Config.DeviceType.KDeviceTypeGateway){
+                        strType = getString(R.string.def_gateway);
+                    }
+                    else if (mDevice.mDeviceType == Config.DeviceType.KDeviceTypeSwitch){
+                        strType = getString(R.string.def_switch);
+                    }
+                    else{
+                        strType = getString(R.string.def_adapter);
+                    }
+
+                    int j = 0;
+                    for (int i = 1; i < 50; ++i){
+                        if (!AppCache.IsDeviceNameExist(strType + i)){
+                            strName[j] = strType + i;
+                            ++j;
+                            if(j >= 3) break;
+                        }
+                    }
+
+                    if (mDevice.mDeviceType == Config.DeviceType.KDeviceTypeGateway){
+                        mDevice.mName = strName[0];
+                    }
+                    else{
+                        int k = 0;
+                        for (DeviceInfo.DevicePortInfo p : mDevice.mPorts.values()){
+                            p.mName = strName[k++];
+                        }
+                    }
+
+                    mDevice.mFamilyId = 0;
+                } catch (org.json.JSONException e) {
+                    e.printStackTrace();
+                    mEditDeviceId.setEnabled(true);
+                    return;
+                }
+                DispDeviceInfo();
+                mTxtQueryId.setVisibility(View.GONE);
+                mEditNames[0].requestFocus();
+            }
+
+            public void onReqFailure(String msg) {
+                sReqDeviceId = null;
+                mEditDeviceId.setText("");
+                mEditDeviceId.setEnabled(true);
+                Toast.makeText(ActivityDeviceDetail.this, msg, Toast.LENGTH_LONG).show();
+                if (!mbIsUserInputDevId){
+                    InputTool.HideKeyboard(mEditNames[0]);
+                    finish();
+                }
+            }
+
+            ;
+        });
+    }
+    private void OnSetCode(String strCode){
+        mLyDeviceDetail.setEnabled(false);
+        mTxtQueryId.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                QueryDeviceId();
+            }
+        });
+        if (strCode != null && strCode.length() >= 14){
+            String[] subs1 = strCode.split("ID:");
+            if (subs1.length >= 2){
+                String[] subs2 = subs1[1].split("SN:");
+                strCode = subs2[0];
+            }
+        }
+//            strCode = "0001012c";
+        if (!Common.isNullString(strCode)){
+            mEditDeviceId.setText(strCode);
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    QueryDeviceId();
+                }
+            }, 20);
+        } else{
+            mEditDeviceId.requestFocus();
+            mEditDeviceId.setSelection(mEditDeviceId.getText().length());
+        }
+        mTxtFamily.setText("");
+        mLyGateway.setEnabled(false);
+        mTxtGateway.setText("");
+        for (int i = 0; i < 3; ++i) {
+            mTxtRooms[i].setText("");
+            mEditNames[i].setText("");
+        }
+        mLyRooms[0].setEnabled(false);
+        mEditNames[0].setEnabled(false);
+        mLyRooms[1].setVisibility(View.GONE);
+        mLyNames[1].setVisibility(View.GONE);
+        mLyRooms[2].setVisibility(View.GONE);
+        mLyNames[2].setVisibility(View.GONE);
+    }
+
+    private void DispDeviceInfo(){
+
+        mLyDeviceDetail.setVisibility(View.VISIBLE);
+        mLyDeviceDetail.setEnabled(true);
+
+        mEditDeviceId.setText(mDevice.mQRCode);
+
+        DeviceInfo d = AppCache.mDevices.get(mDevice.mSuperDevId);
+        if (d == null){
+            mTxtGateway.setText("");
+        }
+        else{
+            mTxtGateway.setText(d.mName);
+        }
+
+        if (mDevice.mDeviceType == Config.DeviceType.KDeviceTypeGateway){   // show family, name1
+            mTxtType.setText(R.string.device_type_gateway);
+            mLyGateway.setVisibility(View.GONE);
+
+            if (mDevice.mFamilyId > 0){
+                mLyFamily.setEnabled(false);
+                mLyFamily.findViewById(R.id.img_for_family_right).setVisibility(View.INVISIBLE);
+            }
+            mLyFamily.setVisibility(View.VISIBLE);
+//            if (mDevice.mFamilyId > 0){
+//                mLyFamily.setEnabled(false);
+//            }
+            FamilyInfo f = AppCache.mFamilies.get(mDevice.mFamilyId);
+            if (f == null){
+                f = AppCache.mFamilies.get(AppCache.mCurFamilyId);
+            }
+            mTxtFamily.setText(f.mName);
+
+            for(int i = 0; i < KMaxPortCount; ++i){
+                mLyRooms[i].setVisibility(View.GONE);
+                mLyNames[i].setVisibility(View.GONE);
+            }
+            mLyNames[0].setVisibility(View.VISIBLE);
+            mEditNames[0].setText(mDevice.mName);
+            mEditNames[0].setEnabled(true);
+            mEditNames[0].requestFocus();
+            mEditNames[0].setSelection(mEditNames[0].getText().length());
+        }
+        else{
+
+            mLyGateway.setEnabled(true);
+
+            if (mDevice.mDeviceType == Config.DeviceType.KDeviceTypeAdapter10A){   //show ports
+                mTxtType.setText(R.string.device_type_adapter_10A);
+                showPorts();
+            }
+            else if (mDevice.mDeviceType == Config.DeviceType.KDeviceTypeAdapter16A){
+                mTxtType.setText(R.string.device_type_adapter_16A);
+                showPorts();
+            }
+            else if (mDevice.mDeviceType == Config.DeviceType.KDeviceTypeSwitch){
+                showPorts();
+                if (mDevice.mPorts.keySet().size() == 1){
+                    mTxtType.setText(R.string.device_type_switch1);
+                }
+                if (mDevice.mPorts.keySet().size() == 2){
+                    mTxtType.setText(R.string.device_type_switch2);
+                }
+                if (mDevice.mPorts.keySet().size() == 3){
+                    mTxtType.setText(R.string.device_type_switch3);
+                }
+            }
+        }
+        String strTitle = "";
+        if (mDevice.mSuperDevId > 0
+                || (mDevice.mDeviceType == Config.DeviceType.KDeviceTypeGateway && mDevice.mFamilyId > 0))
+        {
+            strTitle = getString(R.string.action_edit);
+        }
+        else{
+            strTitle = getString(R.string.action_add);
+        }
+        strTitle += mTxtType.getText();
+        setTitle(strTitle);
+    }
+    private void showPorts(){
+
+        Vector<Long> dataIds = mDevice.getDataIds();
+        int i = 0;
+        for (i = 0; i < dataIds.size() && i < KMaxPortCount; ++i){
+            DeviceInfo.DevicePortInfo p = mDevice.mPorts.get(dataIds.get(i));
+            if (mDataId > 0 && p.mPortId != mDataId){
+                mLyRooms[i].setVisibility(View.GONE);
+                mLyNames[i].setVisibility(View.GONE);
+            }
+            else{
+                mLyRooms[i].setVisibility(View.VISIBLE);
+                mLyNames[i].setVisibility(View.VISIBLE);
+                mLyRooms[i].setEnabled(true);
+                mEditNames[i].setEnabled(true);
+                if (mDataId > 0) mEditNames[i].requestFocus();
+            }
+
+            mEditNames[i].setText(p.mName);
+            if (mDataId > 0) mEditNames[i].requestFocus();
+            long lRoomId = mDevice.mPorts.get(dataIds.get(i)).mRoomId;
+            RoomInfo r = AppCache.mRooms.get(lRoomId);
+            mTxtRooms[i].setText(r == null ? "" : r.mName);
+        }
+        if (mDataId <= 0) mEditNames[0].requestFocus();
+        mEditNames[0].setSelection(mEditNames[0].getText().length());
+
+        for(; i < KMaxPortCount; ++i){
+            mLyRooms[i].setVisibility(View.GONE);
+            mLyNames[i].setVisibility(View.GONE);
+        }
+    }
+
+    private void OnSelGateway(){
+
+        final Long[] sGatewayIds = new Long[AppCache.mGatewayIds.size()];
+        final String[] sGateways = new String[sGatewayIds.length];
+
+        for (int i = 0; i < sGatewayIds.length; ++i){
+            sGatewayIds[i] = AppCache.mGatewayIds.get(i);
+            sGateways[i] = AppCache.mDevices.get(sGatewayIds[i]).mName;
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.select_gateway)
+                .setItems(sGateways, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        mDevice.mSuperDevId = sGatewayIds[i];
+                        mTxtGateway.setText(sGateways[i]);
+                    }
+                })
+        .show();
+    }
+
+    private void OnSelFamily(){
+
+        final Long[]sFamilyIds = new Long[AppCache.mFamilyIds.size() + 1];
+        final String[]sFamilyNames = new String[sFamilyIds.length];
+
+        for (int i = 0; i < AppCache.mFamilyIds.size(); ++i){
+            sFamilyIds[i] = AppCache.mFamilyIds.get(i);
+            sFamilyNames[i] = AppCache.mFamilies.get(sFamilyIds[i]).mName;
+        }
+        sFamilyIds[AppCache.mFamilyIds.size()] = -1L;
+        sFamilyNames[AppCache.mFamilyIds.size()] = getString(R.string.action_customer_def);
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.select_family)
+                .setItems(sFamilyNames, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if (i >= AppCache.mFamilyIds.size()) {
+                            Intent intent = new Intent();
+                            intent.setClass(ActivityDeviceDetail.this, ActivityFamilyList.class);
+                            intent.putExtra("is_for_select", true);
+                            intent.putExtra("create_new", true);
+                            startActivityForResult(intent, KActivityResultCreateFamily);
+                            return;
+                        }
+                        mDevice.mFamilyId = sFamilyIds[i];
+                        mTxtFamily.setText(sFamilyNames[i]);
+                    }
+                })
+                .show();
+    }
+
+    private void OnSelRooms(int index){
+
+        final int sIdxSelRoomLy = index;
+        final Long[] sRoomIds = new Long[AppCache.mRoomIds.size() + 1];
+        final String[] sRoomNames = new String[sRoomIds.length];
+
+        for (int i = 0; i < AppCache.mRoomIds.size(); ++i){
+            sRoomIds[i] = AppCache.mRoomIds.get(i);
+            sRoomNames[i] = AppCache.mRooms.get(sRoomIds[i]).mName;
+        }
+        sRoomIds[AppCache.mRoomIds.size()] = -1L;
+        sRoomNames[AppCache.mRoomIds.size()] = getString(R.string.action_customer_def);
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.select_room)
+                .setItems(sRoomNames, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if (sIdxSelRoomLy >= mDevice.mPorts.size()) return;
+
+                        if (i >= AppCache.mRoomIds.size()) {
+                            Intent intent = new Intent();
+                            intent.setClass(ActivityDeviceDetail.this, ActivityRoomList.class);
+                            intent.putExtra("is_for_select", true);
+                            startActivityForResult(intent, KActivityResultCreateRoom1 + sIdxSelRoomLy);
+                            return;
+                        }
+                        Vector<Long> dataIds = mDevice.getDataIds();
+                        mDevice.mPorts.get(dataIds.get(sIdxSelRoomLy)).mRoomId = sRoomIds[i];
+                        mTxtRooms[sIdxSelRoomLy].setText(sRoomNames[i]);
+                    }
+                })
+                .show();
+    }
+
+    private RequestHandle sReqDeleteDevice = null;
+    public void DeleteDevice(){
+
+        AppResponseHandler onDeleteOK = new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqDeleteDevice = null;
+
+                if (mDevice.mDeviceType == Config.DeviceType.KDeviceTypeGateway){
+                    AppCache.mGatewayIds.remove(Long.valueOf(mDevice.mId));
+                }
+                AppCache.mDevices.remove(mDevice.mId);
+
+                Intent intent = new Intent();
+                intent.setAction(Config.BoardcastZzdDevicesUpdate);
+                sendBroadcast(intent);
+
+                mProgDialog.hide();
+                final AlertDialog dialog = new AlertDialog.Builder(ActivityDeviceDetail.this)
+                        .setTitle(getString(R.string.del_finished))
+                        .show();
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog.dismiss();
+                        InputTool.HideKeyboard(mEditNames[0]);
+                        ActivityDeviceDetail.this.finish();
+                    }
+                }, Toast.LENGTH_LONG);
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqDeleteDevice = null;
+                mProgDialog.hide();
+                Toast.makeText(ActivityDeviceDetail.this, msg, Toast.LENGTH_LONG).show();
+            }
+
+            ;
+        };
+        mProgDialog.setMessage(getString(R.string.tip_deleteing));
+        mProgDialog.show();
+        sReqDeleteDevice = ServerClient.DeleteDevice(mDevice.mId, onDeleteOK);
+    }
+    private void DeleteWithConfirm(){
+        String strTitle = getString(R.string.del_device);
+        if (mDevice.mDeviceType == Config.DeviceType.KDeviceTypeGateway){
+            strTitle = getString(R.string.del_gateway);
+            Vector<Long> childs = AppCache.GetDeviceIdByGatewayId(mDevice.mId);
+            if (childs.size() > 0) {
+                String strMsg = getString(R.string.tip_del_gateway1);
+                strMsg += childs.size();
+                strMsg += getString(R.string.tip_del_gateway2);
+                new AlertDialog.Builder(this)
+                        .setTitle(strTitle)
+                        .setMessage(strMsg)
+                        .setPositiveButton(getString(R.string.action_delete), new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                DeleteDevice();
+                            }
+                        })
+                        .setNegativeButton(getString(R.string.action_cancel), null)
+                        .show();
+                return;
+            }
+        }
+        new AlertDialog.Builder(this)
+                .setTitle(strTitle)
+                .setMessage(R.string.tip_del_cannot_undo)
+                .setPositiveButton(getString(R.string.action_delete), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        DeleteDevice();
+                    }
+                })
+                .setNegativeButton(getString(R.string.action_cancel), null)
+                .show();
+    }
+
+    private RequestHandle sReqSaveDevice = null;
+
+    public void SaveDevice(){
+        if (mDevice.mId <= 0) return;
+
+        if (mDevice.mDeviceType == Config.DeviceType.KDeviceTypeGateway){
+            mDevice.mName = mEditNames[0].getText().toString();
+            if (Common.isNullString(mDevice.mName)){
+                mEditNames[0].requestFocus();
+                Toast.makeText(this, R.string.tip_need_input_name, Toast.LENGTH_LONG).show();
+                return;
+            }
+            if (mDevice.mFamilyId <= 0){
+                Toast.makeText(this, R.string.tip_need_input_family, Toast.LENGTH_LONG).show();
+                return;
+            }
+        }
+        else{
+            if (mDevice.mSuperDevId <= 0){
+                Toast.makeText(this, R.string.tip_need_input_gateway, Toast.LENGTH_LONG).show();
+                return;
+            }
+            if(mDevice.mFamilyId <= 0){
+                mDevice.mFamilyId = AppCache.mCurFamilyId;
+            }
+
+            Vector<Long> dataIds = mDevice.getDataIds();
+            for (int i = 0; i < dataIds.size() && i < KMaxPortCount; ++i){
+                String strName = mEditNames[i].getText().toString();
+                if (Common.isNullString(strName)){
+                    mEditNames[i].requestFocus();
+                    Toast.makeText(this, R.string.tip_need_input_name, Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                if (mDevice.mPorts.get(dataIds.get(i)).mRoomId <= 0){
+                    Toast.makeText(this, R.string.tip_need_input_room, Toast.LENGTH_LONG).show();
+                    return;
+                }
+                mDevice.mPorts.get(dataIds.get(i)).mName = strName;
+            }
+        }
+        AppResponseHandler onSaveOK = new AppResponseHandler() {
+            public void onReqSuccess(JSONObject arg0) {
+                sReqSaveDevice = null;
+                try {
+                    JSONObject jo = arg0.getJSONArray("dataList").getJSONObject(0);
+                    DeviceInfo d = new DeviceInfo();
+                    d.copyFrom(mDevice);    // get old status from old device info
+                    d.fromJson(jo, false);
+                    AppCache.mDevices.put(d.mId, d);
+                    if (d.mDeviceType == Config.DeviceType.KDeviceTypeGateway
+                            && !AppCache.mGatewayIds.contains(d.mId)){
+                        AppCache.mGatewayIds.add(d.mId);
+                    }
+
+                    Intent intent = new Intent();
+                    intent.setAction(Config.BoardcastZzdDevicesUpdate);
+                    sendBroadcast(intent);
+
+                    mProgDialog.hide();
+                    final AlertDialog dialog = new AlertDialog.Builder(ActivityDeviceDetail.this)
+                            .setTitle(getString(R.string.save_finished))
+                            .show();
+
+                    InputTool.HideKeyboard(mEditNames[0]);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.dismiss();
+                            ActivityDeviceDetail.this.finish();
+                        }
+                    }, Toast.LENGTH_LONG);
+
+                } catch (org.json.JSONException e) {
+                    e.printStackTrace();
+                    return;
+                }
+            }
+
+            ;
+
+            public void onReqFailure(String msg) {
+                sReqSaveDevice = null;
+                mProgDialog.hide();
+                Toast.makeText(ActivityDeviceDetail.this, msg, Toast.LENGTH_LONG).show();
+            }
+
+            ;
+        };
+        mProgDialog.setMessage(getString(R.string.tip_saving));
+        mProgDialog.show();
+        sReqSaveDevice = ServerClient.UpdateDevice(mDevice, onSaveOK);
+    }
+
+    public boolean HasEdit(){
+        DeviceInfo dev = AppCache.mDevices.get(mDevice.mId);
+        if (dev == null) return false;
+
+        if (mDevice.mFamilyId != dev.mFamilyId) return true;
+        if (mDevice.mDeviceType == Config.DeviceType.KDeviceTypeGateway){
+            String strName = mEditNames[0].getText().toString();
+            if (!dev.mName.equals(strName)){
+                return true;
+            }
+            return false;
+        }
+        if (mDevice.mSuperDevId != dev.mSuperDevId) return true;
+        if (mDevice.mPorts.size() != dev.mPorts.size()) return true;
+
+        Vector<Long> dataIds = mDevice.getDataIds();
+        for (int i = 0; i < dataIds.size() && i < KMaxPortCount; ++i){
+            DeviceInfo.DevicePortInfo p = dev.mPorts.get(dataIds.get(i));
+            if (p == null) return true;
+
+            String strName = mEditNames[i].getText().toString();
+            if (!p.mName.equals(strName)) {
+                return true;
+            }
+            if (p.mRoomId != mDevice.mPorts.get(dataIds.get(i)).mRoomId) return true;
+        }
+
+        return false;
+    }
+
+    public void OnHeaderLeftClick(){
+        if (HasEdit()){
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.tip_quit_without_save)
+                    .setPositiveButton(getString(R.string.action_quit), new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            InputTool.HideKeyboard(mEditNames[0]);
+                            finish();
+                        }
+                    })
+                    .setNegativeButton(getString(R.string.action_cancel), null)
+                    .show();
+            return;
+        }
+        InputTool.HideKeyboard(mEditNames[0]);
+        finish();
+    }
+}

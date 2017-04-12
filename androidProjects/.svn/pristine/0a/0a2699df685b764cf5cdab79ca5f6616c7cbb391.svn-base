@@ -1,0 +1,411 @@
+package app.smarthome.zzd.smarthome.view;
+
+import android.content.Context;
+import android.graphics.Canvas;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.util.AttributeSet;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshGridView;
+import com.util.LLong;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Vector;
+
+import app.smarthome.zzd.smarthome.AppCache;
+import app.smarthome.zzd.smarthome.Config;
+import app.smarthome.zzd.smarthome.R;
+import app.smarthome.zzd.smarthome.model.DeviceInfo;
+import app.smarthome.zzd.smarthome.model.RoomInfo;
+import app.smarthome.zzd.smarthome.model.SceneInfo;
+import app.smarthome.zzd.smarthome.model.TimerInfo;
+
+/**
+ * Created by inobaa on 15/1/30.
+ */
+public class ScenesPager extends ViewPager {
+
+    public interface OnSceneListener {
+        void onSceneClick(long lSceneId, boolean isTimer);
+        void onSceneLongTouch(long lSceneId, boolean isTimer);
+        void onSceneChanged(boolean isTimer);
+    }
+    private OnSceneListener   mOnSceneListener;
+    public void SetOnSceneListener(OnSceneListener listener){
+        mOnSceneListener = listener;
+    }
+    public class ScenesAdapter extends BaseAdapter {
+
+        private LayoutInflater mInflater;
+        public Vector<SceneInfo> mScenes = new Vector<>();
+
+        private HashSet<Long> mOnControl = new HashSet<>();
+
+        // 保证开关排前面，同类型设备按名称排序
+        final Comparator<SceneInfo> VECTOR_COMPARATOR_SCENE_NAME = new Comparator<SceneInfo>() {
+            @Override
+            public int compare(SceneInfo v1, SceneInfo v2) {
+                return v1.mName.compareTo(v2.mName);
+            }
+        };
+
+        public void StartControl(long id){
+            if (mOnControl.contains(id)) return;
+            mOnControl.add(id);
+
+            notifyDataSetChanged();
+        }
+        public void FinishControl(long id){
+            if (!mOnControl.contains(id)) return;
+            mOnControl.remove((Long)id);
+
+            notifyDataSetChanged();
+        }
+
+        public ScenesAdapter(Context context) {
+            this.mInflater = LayoutInflater.from(context);
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public void notifyDataSetChanged() {
+            mScenes.clear();
+            for (SceneInfo s : AppCache.mScenes.values()){
+                if (!AppCache.mSceneId2TimerId.containsKey(s.mId)){
+                    mScenes.add(s);
+                }
+            }
+            Collections.sort(mScenes, VECTOR_COMPARATOR_SCENE_NAME);
+            super.notifyDataSetChanged();
+        }
+
+        @Override
+        public int getCount() {
+            return mScenes.size();
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            SceneInfo d = mScenes.get(position);
+
+            GridIconScene rl = (GridIconScene) mInflater.inflate(R.layout.gi_scene_info, null);
+            convertView = rl;
+            rl.Init(d, mOnControl.contains(d.mId));
+
+            return convertView;
+        }
+        @Override
+        public Object getItem(int arg0) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int arg0) {
+            return 0;
+        }
+    }
+    public class TimersAdapter extends BaseAdapter {
+
+        private LayoutInflater mInflater;
+        public Vector<TimerInfo> mTimers = new Vector<>();
+
+        // 保证开关排前面，同类型设备按名称排序
+        final Comparator<TimerInfo> VECTOR_COMPARATOR_TIMER_NAME = new Comparator<TimerInfo>() {
+            @Override
+            public int compare(TimerInfo v1, TimerInfo v2) {
+
+                SceneInfo d1 = AppCache.mScenes.get(v1.mSceneId);
+                if (d1 == null) return -1;
+
+                SceneInfo d2 = AppCache.mScenes.get(v2.mSceneId);
+                if (d2 == null) return 1;
+
+                return d1.mName.compareTo(d2.mName);
+            }
+        };
+
+        public TimersAdapter(Context context) {
+            this.mInflater = LayoutInflater.from(context);
+            notifyDataSetChanged();
+        }
+
+        private HashSet<Long> mOnControl = new HashSet<>();
+
+        public void StartControl(long id){
+            if (mOnControl.contains(id)) return;
+            mOnControl.add(id);
+
+            notifyDataSetChanged();
+        }
+        public void FinishControl(long id){
+            if (!mOnControl.contains(id)) return;
+            mOnControl.remove((Long)id);
+
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public void notifyDataSetChanged() {
+            mTimers.clear();
+            mTimers.addAll(AppCache.mTimers.values());
+            Collections.sort(mTimers, VECTOR_COMPARATOR_TIMER_NAME);
+            super.notifyDataSetChanged();
+        }
+
+        @Override
+        public int getCount() {
+            return mTimers.size();
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            TimerInfo t = mTimers.get(position);
+
+            GridIconScene rl = (GridIconScene) mInflater.inflate(R.layout.gi_scene_info, null);
+            convertView = rl;
+            rl.Init(t, mOnControl.contains(t.mId));
+
+            return convertView;
+        }
+        @Override
+        public Object getItem(int arg0) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int arg0) {
+            return 0;
+        }
+    }
+
+    public class MyViewPagerAdapter extends PagerAdapter {
+
+        PullToRefreshGridView   mGridViewScene;
+        PullToRefreshGridView   mGridViewTimer;
+
+        ScenesAdapter    mAdapterScene;
+        TimersAdapter   mAdapterTimer;
+
+        public void Init(){
+
+            if(true) {
+                mGridViewScene = (PullToRefreshGridView)mInflater.inflate(R.layout.customer_pull_gridview, null);
+
+                mAdapterScene = new ScenesAdapter(getContext());
+                mGridViewScene.setAdapter(mAdapterScene);
+                mGridViewScene.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener<GridView>() {
+                    @Override
+                    public void onRefresh(PullToRefreshBase<GridView> refreshView) {
+                        AppCache.ListScene();
+                    }
+                });
+                mGridViewScene.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        int realPos = position;
+                        ScenesAdapter da = (ScenesAdapter) parent.getAdapter();
+                        if (mOnSceneListener != null) {
+                            long lId = da.mScenes.get(realPos).mId;
+                            mOnSceneListener.onSceneClick(lId, false);
+                        }
+                    }
+                });
+                mGridViewScene.getRefreshableView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                    @Override
+                    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        int realPos = i;
+                        ScenesAdapter da = (ScenesAdapter) adapterView.getAdapter();
+                        if (mOnSceneListener != null) {
+                            long lId = da.mScenes.get(realPos).mId;
+                            mOnSceneListener.onSceneLongTouch(lId, false);
+                        }
+                        return false;
+                    }
+                });
+            }
+            if(true) {
+                mGridViewTimer = (PullToRefreshGridView)mInflater.inflate(R.layout.customer_pull_gridview, null);
+
+
+                mAdapterTimer = new TimersAdapter(getContext());
+                mGridViewTimer.setAdapter(mAdapterTimer);
+
+                mGridViewTimer.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener<GridView>() {
+                    @Override
+                    public void onRefresh(PullToRefreshBase<GridView> refreshView) {
+                        AppCache.ListTimer();
+                    }
+                });
+                mGridViewTimer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        int realPos = position;
+                        TimersAdapter da = (TimersAdapter) parent.getAdapter();
+                        if (mOnSceneListener != null) {
+                            long lId = da.mTimers.get(realPos).mId;
+                            mOnSceneListener.onSceneClick(lId, true);
+                        }
+                    }
+                });
+                mGridViewTimer.getRefreshableView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                    @Override
+                    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        int realPos = i;
+                        TimersAdapter da = (TimersAdapter) adapterView.getAdapter();
+                        if (mOnSceneListener != null) {
+                            long lId = da.mTimers.get(realPos).mId;
+                            mOnSceneListener.onSceneLongTouch(lId, true);
+                        }
+                        return false;
+                    }
+                });
+            }
+        }
+        public MyViewPagerAdapter()
+        {
+        }
+
+        @Override
+        public int getCount() {                                                                 //获得size
+            // TODO Auto-generated method stub
+            return 2;
+        }
+
+        @Override
+        public int getItemPosition(Object object) {
+            return POSITION_NONE;
+        }
+
+        @Override
+        public boolean isViewFromObject(View arg0, Object arg1) {
+            // TODO Auto-generated method stub
+            return arg0 == arg1;
+        }
+
+        @Override
+        public void destroyItem(View view, int position, Object object)                       //销毁Item
+        {
+            View item = (position == 0 ? mGridViewScene : mGridViewTimer);
+            ((ViewPager) view).removeView(item);
+        }
+
+        @Override
+        public Object instantiateItem(View view, int position)                                //实例化Item
+        {
+            View item = (position == 0 ? mGridViewScene : mGridViewTimer);
+            ((ViewPager) view).addView(item, 0);
+            return item;
+        }
+
+        public void OnScenesChanged(){
+            mAdapterScene.notifyDataSetChanged();
+            mGridViewScene.onRefreshComplete();
+        }
+        public void OnTimersChanged(){
+            mAdapterTimer.notifyDataSetChanged();
+            mGridViewTimer.onRefreshComplete();
+        }
+        public void notifyDataSetChanged() {
+            if (getCurrentItem() == 0){
+                OnScenesChanged();
+            }
+            else{
+                OnTimersChanged();
+            }
+            super.notifyDataSetChanged();
+        }
+    }
+
+    private MyViewPagerAdapter  mAdapterAll = new MyViewPagerAdapter();
+    private LayoutInflater mInflater;
+
+    public void SetIsTimerScene(boolean isTimerScene, boolean bCallListener){
+
+            this.setCurrentItem(isTimerScene ? 1 : 0, true);
+            if (mOnSceneListener != null && bCallListener) {
+                mOnSceneListener.onSceneChanged(isTimerScene);
+            }
+    }
+
+    public ScenesPager(Context context) {
+        super(context);
+    }
+
+    public ScenesPager(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public boolean IsControlling(long lSceneId){
+        return mAdapterAll.mAdapterScene.mOnControl.contains(lSceneId);
+    }
+
+    public void StartControl(long lSceneId){
+        if (IsControlling(lSceneId)) return;
+        mAdapterAll.mAdapterScene.mOnControl.add(lSceneId);
+
+        OnScenesChanged();
+    }
+    public void FinishControl(long lSceneId){
+
+        if (!IsControlling(lSceneId)) return;
+        mAdapterAll.mAdapterScene.mOnControl.remove(lSceneId);
+
+        OnScenesChanged();
+    }
+
+    public void OnScenesChanged(){
+        mAdapterAll.OnScenesChanged();
+    }
+    public void OnTimersChanged(){
+        mAdapterAll.OnTimersChanged();
+    }
+    public void notifyDataSetChanged() {
+        mAdapterAll.notifyDataSetChanged();
+    }
+    public void Init(LayoutInflater inflater){
+        mInflater = inflater;
+
+        setAdapter(mAdapterAll);
+        mAdapterAll.Init();
+
+        this.setOnPageChangeListener(new OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+                if (mOnSceneListener != null) {
+                    mOnSceneListener.onSceneChanged(position >= 1);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+    }
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+    }
+}

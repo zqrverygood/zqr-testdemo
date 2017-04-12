@@ -1,0 +1,96 @@
+package app.smarthome.zzd.smarthome.view;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.util.AttributeSet;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import app.smarthome.zzd.smarthome.R;
+
+/**
+ * Created by inobaa on 15/1/30.
+ */
+public class GridIconDevice extends FrameLayout {
+
+    static Drawable mDefaultAvatar;
+
+    ImageView mImgAvatar;
+    ImageView mImgRightUp;
+
+    TextView mTxtTitle;
+
+    public GridIconDevice(Context context) {
+        super(context);
+    }
+
+    public GridIconDevice(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public GridIconDevice(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
+    public void SetMessageInfo(JSONObject dyi){
+
+        mTxtTitle = ((TextView)(findViewById(R.id.txt_title)));
+        mImgAvatar = ((ImageView)(findViewById(R.id.img_main)));
+        mImgRightUp = ((ImageView)(findViewById(R.id.img_right_up)));
+
+        String strImage = null;
+        try {
+            if (dyi.has("image"))strImage = dyi.getString("image");
+        }
+        catch (JSONException e){
+        }
+
+        if (strImage != null && strImage.length() > 0) {
+            ImageLoader.getInstance().loadImage(strImage, new ImageLoadingListener() {
+                @Override
+                public void onLoadingStarted(String s, View view) {
+
+                }
+
+                @Override
+                public void onLoadingFailed(String s, View view, FailReason failReason) {
+
+                }
+
+                @Override
+                public void onLoadingComplete(String s, View view, Bitmap bitmap) {
+                    RoundedBitmapDisplayer.RoundedDrawable drawable = new RoundedBitmapDisplayer.RoundedDrawable(bitmap, 10, 1);
+                    mImgAvatar.setImageDrawable(drawable);
+                }
+
+                @Override
+                public void onLoadingCancelled(String s, View view) {
+
+                }
+            });
+        }
+        else{
+            if (mDefaultAvatar == null){
+                mDefaultAvatar = new RoundedBitmapDisplayer.RoundedDrawable(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.avatar), 10, 1);
+            }
+            mImgAvatar.setImageDrawable(mDefaultAvatar);
+        }
+    }
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+    }
+}

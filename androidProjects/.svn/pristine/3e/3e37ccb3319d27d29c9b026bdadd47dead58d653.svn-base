@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content" android:layout_height="wrap_content">
+
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/def_room"
+        style="@style/tags_btn"
+        android:textSize="16sp"
+        android:background="@drawable/choose_room"
+        android:id="@+id/btn_default"
+        android:paddingTop="1dp"
+        android:paddingBottom="1dp"
+        android:singleLine="true" />
+
+</LinearLayout>

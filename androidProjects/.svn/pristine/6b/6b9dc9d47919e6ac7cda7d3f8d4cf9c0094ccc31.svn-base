@@ -1,0 +1,115 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:id="@+id/ly_activity"
+    android:clipToPadding="true"
+    android:fitsSystemWindows="true">
+
+<include
+        android:id="@+id/ly_header"
+        layout="@layout/header"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="vertical"
+            android:layout_margin="16dp"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/family_name"
+                android:layout_centerVertical="true"
+                android:textColor="@color/black"
+                android:layout_marginTop="8dp"
+                android:layout_marginLeft="6dp" />
+
+            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:layout_gravity="center_horizontal">
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="textNoSuggestions"
+                    android:id="@+id/edit_name"
+                    android:layout_gravity="center_horizontal"
+                    android:hint="@string/hint_account"
+                    android:layout_alignParentTop="false"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="24dp"
+                    android:layout_toLeftOf="@+id/btn_save_family" />
+
+                <ImageButton
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:id="@+id/btn_save_family"
+                    android:src="@drawable/ic_check_yes"
+                    android:background="@null"
+                    android:layout_centerVertical="true"
+                    android:visibility="visible"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true" />
+
+            </RelativeLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:id="@+id/ly_members"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/family_member"
+                    android:layout_centerVertical="true"
+                    android:textColor="@color/black"
+                    android:layout_marginLeft="8dp" />
+
+                <TextView
+                    style="@style/btn_plan_green"
+                    android:id="@+id/txt_add_share"
+                    android:text="@string/add_family_share"
+                    android:layout_width="96dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="32dp"
+                    android:layout_marginTop="6dp" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/txt_login_to_family"
+                android:text="@string/login_to_family"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                style="@style/btn_plan_green"
+                android:layout_marginLeft="64dp"
+                android:layout_marginRight="64dp" />
+
+            <TextView
+                android:id="@+id/txt_del_family"
+                android:text="@string/del_family"
+                android:textColor="@color/brown"
+                style="@style/btn_plan_green"
+                android:layout_marginLeft="64dp"
+                android:layout_marginRight="64dp" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

@@ -1,0 +1,208 @@
+package app.smarthome.zzd.smarthome.view;
+
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
+import android.util.AttributeSet;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Vector;
+
+import app.smarthome.zzd.smarthome.ActivityPopup;
+import app.smarthome.zzd.smarthome.AppCache;
+import app.smarthome.zzd.smarthome.R;
+import app.smarthome.zzd.smarthome.model.RoomInfo;
+
+/**
+ * Created by inobaa on 15/1/30.
+ */
+public class RoomListView extends LinearLayout {
+
+    HorizontalScrollView mParent;
+    public interface OnRoomChangedListener {
+        void onChanged(long lNewRoomId);
+        void onRoomModify();
+    }
+    private OnRoomChangedListener   mOnRoomChangedListener;
+    public void SetOnRoomChangedListener(OnRoomChangedListener listener){
+        mOnRoomChangedListener = listener;
+    }
+
+    public  Button  mBtnCurrentRoom;
+    private long    mCurrentRoomId = 0;
+    public  long CurrentRoomId(){
+        return mCurrentRoomId;
+    }
+
+    final static int KStartBtnId = 1000;
+    public Vector<RoomInfo> mAllRooms = new Vector<>();
+
+
+    public RoomListView(Context context) {
+        super(context);
+    }
+
+    public RoomListView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public RoomListView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
+    public void Init(HorizontalScrollView parent){
+        if(parent != null) mParent = parent;
+        this.setOnLongClickListener(new OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                if (mOnRoomChangedListener != null) {
+                    mOnRoomChangedListener.onRoomModify();
+                }
+                return false;
+            }
+        });
+    }
+    private void setFocusSts(Button btn){
+        btn.setBackgroundResource((R.drawable.choose_room));
+        btn.setTextColor(getResources().getColor(R.color.tab_room_on));
+    }
+    private void setUnFocusSts(Button btn){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            btn.setBackground(null);
+        }
+        btn.setTextColor(getResources().getColor(R.color.tab_room_off));
+    }
+    public void SetCurrentRoomId(long lId, boolean bCallListener){
+        Button btn = (Button) findViewById((int)(KStartBtnId + lId));
+        if (btn == null){
+            return;
+        }
+        if(mBtnCurrentRoom != null)setUnFocusSts(mBtnCurrentRoom);
+        mBtnCurrentRoom = btn;
+        mCurrentRoomId = lId;
+        setFocusSts(mBtnCurrentRoom);
+
+        if (mOnRoomChangedListener != null && bCallListener) {
+            mOnRoomChangedListener.onChanged(mCurrentRoomId);
+        }
+
+        int x = (int)mBtnCurrentRoom.getX();
+        int cw = mBtnCurrentRoom.getWidth();
+        int pad = mParent.getPaddingLeft() + mParent.getPaddingRight();
+        int w = mParent.getWidth() - pad;
+        int sx = mParent.getScrollX();
+
+        if (w <= 0) return;
+
+        if (x < sx){
+            mParent.smoothScrollTo(x, 0);
+        }
+        else if (x + cw > w + sx){
+            mParent.smoothScrollTo(x + cw - w, 0);
+        }
+    }
+    public void Reload(LayoutInflater inflater){
+
+        mAllRooms.clear();
+        mAllRooms.addAll(AppCache.mRooms.values());
+        Collections.sort(mAllRooms, new Comparator<RoomInfo>() {
+            @Override
+            public int compare(RoomInfo roomInfo, RoomInfo t1) {
+                if (roomInfo.mId <= 0L) return -1;
+                return t1.mName.compareTo(roomInfo.mName);
+            }
+        });
+        RoomInfo allRoom = new RoomInfo();
+        allRoom.mId = 0;
+        allRoom.mFamilyId = mCurrentRoomId;
+        allRoom.mName = getResources().getString(R.string.all_room);
+        mAllRooms.add(0, allRoom);
+
+        LinearLayout.LayoutParams lyParam =
+                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        lyParam.leftMargin = 12;
+        lyParam.rightMargin = 12;
+        lyParam.topMargin = 0;
+        lyParam.bottomMargin = 0;
+
+        this.removeAllViews();
+        mBtnCurrentRoom = null;
+
+        for (RoomInfo r : mAllRooms){
+            LinearLayout roomBtn = (LinearLayout)inflater.inflate(R.layout.btn_for_room, null);
+            Button btn = (Button)roomBtn.findViewById(R.id.btn_default);
+            btn.setMinimumWidth(135);
+            btn.setMaxEms(7);
+            btn.setId((int) (KStartBtnId + r.mId));
+
+            btn.setText(r.mName);
+            btn.setTag(r.mId);
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (view == mBtnCurrentRoom) return;
+                    setUnFocusSts(mBtnCurrentRoom);
+                    mBtnCurrentRoom = (Button) view;
+                    setFocusSts(mBtnCurrentRoom);
+                    long lNewId = ((Long) view.getTag()).longValue();
+                    mCurrentRoomId = lNewId;
+                    if (mOnRoomChangedListener != null) {
+                        mOnRoomChangedListener.onChanged(lNewId);
+                    }
+                }
+            });
+
+            btn.setOnLongClickListener(new OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    if (mOnRoomChangedListener != null) {
+                        mOnRoomChangedListener.onRoomModify();
+                    }
+                    return false;
+                }
+            });
+            if (r.mId == mCurrentRoomId){
+                mBtnCurrentRoom = btn;
+                setFocusSts(btn);
+            }
+            else{
+                setUnFocusSts(btn);
+            }
+
+            roomBtn.removeView(btn);
+            this.addView(btn, lyParam);
+        }
+        if (mBtnCurrentRoom == null){
+            SetCurrentRoomId(0L, true);
+        }
+    }
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+    }
+}

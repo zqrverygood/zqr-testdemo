@@ -1,0 +1,81 @@
+package app.smarthome.zzd.smarthome.model;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+
+/**
+ * Created by inobaa on 15/1/21.
+ */
+public class RoomInfo implements Parcelable {
+    public long mId = 0L;
+    public long mFamilyId = 0L;
+    public long mCreateTime = 0L;
+    public String mName = "";
+    public String mRemark = "";
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(mId);
+        dest.writeLong(mFamilyId);
+        dest.writeLong(mCreateTime);
+        dest.writeString(mName);
+        dest.writeString(mRemark);
+    }
+
+    public static final Creator<RoomInfo> CREATOR = new Creator<RoomInfo>() {
+        public RoomInfo createFromParcel(Parcel in) {
+            RoomInfo ui = new RoomInfo();
+            ui.mId = in.readLong();
+            ui.mFamilyId = in.readLong();
+            ui.mCreateTime = in.readLong();
+            ui.mName = in.readString();
+            ui.mRemark = in.readString();
+            return ui;
+        }
+
+        public RoomInfo[] newArray(int size) {
+            return new RoomInfo[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+//    public void toParam(JSONObject params){
+//        try{
+//            params.put("id", mId);
+//            params.put("familyId", mFamilyId);
+//            params.put("createTime", mCreateTime);
+//            params.put("name", mName);
+//            params.put("remark", mRemark);
+//        }catch (JSONException e) {
+//            e.printStackTrace();
+//            return;
+//        }
+//    }
+    public void fromJson(JSONObject jsonObject){
+        try{
+            if (jsonObject.has("id")) mId = jsonObject.getLong("id");
+            else mId = 0L;
+            if (jsonObject.has("familyId")) mFamilyId = jsonObject.getLong("familyId");
+            else mFamilyId = 0L;
+            if (jsonObject.has("createTime")) mCreateTime = jsonObject.getLong("createTime");
+            else mCreateTime = 0L;
+            if (jsonObject.has("name")) mName = jsonObject.getString("name");
+            else mName = "";
+            if (jsonObject.has("remark")) mRemark = jsonObject.getString("remark");
+            else mRemark = "";
+        }catch (JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+}

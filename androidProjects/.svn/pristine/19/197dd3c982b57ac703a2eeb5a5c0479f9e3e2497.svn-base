@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="80dp"
+    android:background="@drawable/clickable_line_white_blue">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:text=""
+        android:background="@color/lllightgrey"
+        android:id="@+id/textView"
+        android:layout_marginLeft="32dp"
+        android:layout_marginRight="32dp" />
+
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:id="@+id/img_left"
+        android:src="@drawable/switch_on"
+        android:layout_alignParentTop="false"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="0dp"
+        android:contentDescription="@string/blank"
+        android:layout_centerVertical="true"
+        android:visibility="invisible"
+        android:layout_marginRight="8dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="@string/def_title"
+        android:id="@+id/txt_title"
+        android:singleLine="true"
+        android:textColor="@color/dddarkgray"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/img_left"
+        android:layout_toLeftOf="@+id/img_switch_status" />
+
+    <ImageView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/check_box_off"
+        android:id="@+id/img_select_status"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="8dp"
+        android:padding="8dp"
+        android:visibility="visible"
+        android:contentDescription="@null" />
+
+    <ImageView
+        android:layout_width="64dp"
+        android:layout_height="48dp"
+        android:src="@drawable/switch_box_on_green"
+        android:id="@+id/img_switch_status"
+        android:padding="8dp"
+        android:visibility="visible"
+        android:layout_alignParentTop="false"
+        android:layout_toLeftOf="@+id/img_select_status"
+        android:layout_toStartOf="@+id/img_select_status"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="8dp"
+        android:contentDescription="@null" />
+</RelativeLayout>

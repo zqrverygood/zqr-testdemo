@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="tab_off">#f7f8f8</color>
+    <color name="tab_font_off">#5c5c5c</color>
+    <color name="tab_font_on">#3c3cfc</color>
+    <color name="btn_dark_red">#f40a20</color>
+    <color name="seperator_line">#DBDBDB</color>
+
+    <color name="result_view">#b0000000</color>
+    <color name="viewfinder_mask">#60000000</color>
+    <color name="possible_result_points">#c0ffff00</color>
+
+</resources>

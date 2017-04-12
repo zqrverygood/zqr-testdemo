@@ -1,0 +1,149 @@
+package app.smarthome.zzd.smarthome.model;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.Map;
+import java.util.Vector;
+
+/**
+ * Created by zzdios on 15/11/16.
+ */
+public class StrategyInfo implements Parcelable {
+
+    public static class DevicePortInfo{
+        static final public int KDateCnt = 4;
+
+        public long     mDeviceId;
+        public long     mPortId;
+        public long     mOpt;
+        public long     mSync;
+    }
+
+    public long mId;
+    public long mFamilyId;
+    public long mRoomId;
+    public long mSuperDevId;
+    public long mDeviceType;
+    public long mUseDate;
+    public long mUse;
+    public String mSN;
+    public String mRemark;
+    public Vector<DevicePortInfo> mItems;
+
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(mId);
+        dest.writeLong(mFamilyId);
+        dest.writeLong(mRoomId);
+        dest.writeLong(mSuperDevId);
+        dest.writeLong(mDeviceType);
+        dest.writeLong(mUseDate);
+        dest.writeLong(mUse);
+        dest.writeString(mSN);
+        dest.writeString(mRemark);
+
+        long[] tmp = new long[mItems.size() * DevicePortInfo.KDateCnt];
+        for (int i = 0; i < mItems.size(); i++) {
+            tmp[i* DevicePortInfo.KDateCnt] = mItems.get(i).mDeviceId;
+            tmp[i* DevicePortInfo.KDateCnt+1] = mItems.get(i).mPortId;
+            tmp[i* DevicePortInfo.KDateCnt+2] = mItems.get(i).mOpt;
+            tmp[i* DevicePortInfo.KDateCnt+3] = mItems.get(i).mSync;
+        }
+        dest.writeLongArray(tmp);
+    }
+
+    public static final Creator<StrategyInfo> CREATOR = new Creator<StrategyInfo>() {
+        public StrategyInfo createFromParcel(Parcel in) {
+            StrategyInfo di = new StrategyInfo();
+            di.mId = in.readLong();
+            di.mFamilyId = in.readLong();
+            di.mRoomId = in.readLong();
+            di.mSuperDevId = in.readLong();
+            di.mDeviceType = in.readLong();
+            di.mUseDate = in.readLong();
+            di.mUse = in.readLong();
+            di.mSN = in.readString();
+            di.mRemark = in.readString();
+
+            long[] tmp = in.createLongArray();
+            int portCount = tmp.length / DevicePortInfo.KDateCnt;
+            for (int i = 0; i < tmp.length; i++) {
+                DevicePortInfo port = new DevicePortInfo();
+                port.mDeviceId = Long.valueOf(tmp[i* DevicePortInfo.KDateCnt]);
+                port.mPortId = Long.valueOf(tmp[i* DevicePortInfo.KDateCnt+1]);
+                port.mOpt = Long.valueOf(tmp[i* DevicePortInfo.KDateCnt+2]);
+                port.mSync = Long.valueOf(tmp[i* DevicePortInfo.KDateCnt+3]);
+                di.mItems.add(port);
+            }
+            return di;
+        }
+
+        public StrategyInfo[] newArray(int size) {
+            return new StrategyInfo[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public void toParam(JSONObject params){
+        try{
+            if(mId > 0)params.put("id", mId);
+
+        }catch (org.json.JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+    public void fromJson(JSONObject jsonObject){
+        try{
+            if (jsonObject.has("id")) mId = jsonObject.getLong("id");
+            else mId = 0L;
+            if (jsonObject.has("familyId")) mFamilyId = jsonObject.getLong("familyId");
+            else mFamilyId = 0L;
+            if (jsonObject.has("roomId")) mRoomId = jsonObject.getLong("roomId");
+            else mRoomId = 0L;
+            if (jsonObject.has("superDevId")) mSuperDevId = jsonObject.getLong("superDevId");
+            else mSuperDevId = 0L;
+            if (jsonObject.has("deviceType")) mDeviceType = jsonObject.getLong("deviceType");
+            else mDeviceType = 0L;
+            if (jsonObject.has("useDate")) mUseDate = jsonObject.getLong("useDate");
+            else mUseDate = 0L;
+            if (jsonObject.has("use")) mUse = jsonObject.getLong("use");
+            else mUse = 0L;
+            if (jsonObject.has("productNo")) mSN = jsonObject.getString("productNo");
+            else mSN = "";
+            if (jsonObject.has("remark")) mRemark = jsonObject.getString("remark");
+            else mRemark = "";
+
+            if (jsonObject.has("ykList")){
+                JSONArray ja = jsonObject.getJSONArray("ykList");
+                for (int i = 0; i < ja.length(); i++) {
+                    JSONObject jPort = ja.getJSONObject(i);
+
+                    DevicePortInfo port = new DevicePortInfo();
+                    if (jPort.has("deviceId")) port.mDeviceId = jPort.getLong("deviceId");
+                    else port.mDeviceId = 0L;
+                    if (jPort.has("portId")) port.mPortId = jPort.getLong("portId");
+                    else port.mPortId = 0L;
+                    if (jPort.has("opt")) port.mOpt = jPort.getLong("opt");
+                    else port.mOpt = 0L;
+                    if (jPort.has("sync")) port.mSync = jPort.getLong("sync");
+                    else port.mSync = 0L;
+
+                    mItems.add(port);
+                }
+            }
+        }catch (org.json.JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+}

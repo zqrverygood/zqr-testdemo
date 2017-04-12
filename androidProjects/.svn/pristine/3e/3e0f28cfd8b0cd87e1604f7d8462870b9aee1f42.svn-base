@@ -1,0 +1,366 @@
+package app.smarthome.zzd.smarthome.view;
+
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
+import android.os.Parcelable;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.text.Html;
+import android.util.AttributeSet;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.RotateAnimation;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshGridView;
+import com.util.LLong;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Vector;
+
+import app.smarthome.zzd.smarthome.AppCache;
+import app.smarthome.zzd.smarthome.Config;
+import app.smarthome.zzd.smarthome.R;
+import app.smarthome.zzd.smarthome.model.AdbannerInfo;
+import app.smarthome.zzd.smarthome.model.DeviceInfo;
+import app.smarthome.zzd.smarthome.model.RoomInfo;
+
+/**
+ * Created by inobaa on 15/1/30.
+ */
+public class RoomDevicePager extends ViewPager {
+
+    public interface OnRoomDeviceListener {
+        void onDeviceClick(long lDeviceId, long lDataId);
+        void onDeviceLongTouch(long lDeviceId, long lDataId);
+        void onRoomChanged(long lRoomId, int iRoomIndex);
+    }
+    private OnRoomDeviceListener   mOnRoomDeviceListener;
+    public void SetOnRoomDeviceListener(OnRoomDeviceListener listener){
+        mOnRoomDeviceListener = listener;
+    }
+    public class DeviceAdapter extends BaseAdapter {
+
+        private LayoutInflater          mInflater;
+        private long                    mCurRoomId;
+        public Vector<SimpleDevInfo>    mDevices = new Vector<>();
+
+        // 保证开关排前面，同类型设备按名称排序
+        final Comparator<SimpleDevInfo> VECTOR_COMPARATOR_PORT_ID = new Comparator<SimpleDevInfo>() {
+            @Override
+            public int compare(SimpleDevInfo v1, SimpleDevInfo v2) {
+
+                DeviceInfo d1 = AppCache.mDevices.get(v1.mDevId);
+                if (d1 == null) return -1;
+
+                DeviceInfo d2 = AppCache.mDevices.get(v2.mDevId);
+                if (d2 == null) return 1;
+
+//                if (d1.mDeviceType != Config.DeviceType.KDeviceTypeSwitch
+//                        && d2.mDeviceType == Config.DeviceType.KDeviceTypeSwitch) return -1;
+//
+//                if (d1.mDeviceType == Config.DeviceType.KDeviceTypeSwitch
+//                        && d2.mDeviceType != Config.DeviceType.KDeviceTypeSwitch) return 1;
+
+                DeviceInfo.DevicePortInfo p1 = d1.mPorts.get(v1.mDataId);
+                if (p1 == null) return -1;
+
+                DeviceInfo.DevicePortInfo p2 = d2.mPorts.get(v2.mDataId);
+                if (p2 == null) return 1;
+
+                return p1.mName.compareTo(p2.mName);
+            }
+        };
+
+        public DeviceAdapter(Context context) {
+            this.mInflater = LayoutInflater.from(context);
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public void notifyDataSetChanged() {
+            mDevices.clear();
+            for (DeviceInfo d : AppCache.mDevices.values()){
+
+                if (d.mDeviceType != Config.DeviceType.KDeviceTypeSwitch
+                        && d.mDeviceType != Config.DeviceType.KDeviceTypeAdapter10A
+                        && d.mDeviceType != Config.DeviceType.KDeviceTypeAdapter16A){
+                    continue;
+                }
+
+                for (DeviceInfo.DevicePortInfo p : d.mPorts.values()){
+                    if (mCurRoomId > 0 && p.mRoomId != mCurRoomId) continue;
+                    SimpleDevInfo sd = new SimpleDevInfo();
+                    sd.mDevId = d.mId;
+                    sd.mDataId = p.mPortId;
+                    sd.mStatus = p.mStatus;
+                    mDevices.add(sd);
+                }
+            }
+            Collections.sort(mDevices, VECTOR_COMPARATOR_PORT_ID);
+            super.notifyDataSetChanged();
+        }
+        public void SetRoomId(long lId){
+            mCurRoomId = lId;
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public int getCount() {
+            return mDevices.size();
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            SimpleDevInfo sd = mDevices.get(position);
+            DeviceInfo dev = AppCache.mDevices.get(sd.mDevId);
+            DeviceInfo.DevicePortInfo port = dev.mPorts.get(sd.mDataId);
+            boolean isOnControl = IsControlling(sd.mDevId, sd.mDataId);
+
+            GridIconDevice rl = (GridIconDevice) mInflater.inflate(R.layout.gi_device_info, null);
+            convertView = rl;
+            rl.setTag(sd);
+            rl.Init(dev.mId, port, isOnControl);
+
+            return convertView;
+        }
+        @Override
+        public Object getItem(int arg0) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int arg0) {
+            return 0;
+        }
+    }
+
+    public class MyPagerAdapter extends PagerAdapter {
+
+        Vector<PullToRefreshGridView> mViewLists = new Vector();
+
+        public void OnDeviceStatusChanged(){
+            for (PullToRefreshGridView v : mViewLists){
+//                for (int i = v.getChildCount() - 1; i >= 0; --i){
+//
+//                }
+                DeviceAdapter a = (DeviceAdapter) v.getRefreshableView().getAdapter();
+                a.notifyDataSetChanged();
+            }
+        }
+
+        @Override
+        public boolean isViewFromObject(View arg0, Object arg1) {
+            return arg0 == ((View)arg1);
+        }
+
+        @Override
+        public int getCount() {
+            return mViewLists.size();
+        }
+
+        @Override
+        public Object instantiateItem(View container, int position) {
+            ((ViewPager) container).addView(mViewLists.get(position));
+            PullToRefreshGridView g = mViewLists.get(position);
+            return g;
+        }
+
+        @Override
+        public void destroyItem(View container, int position, Object object) {
+            ((ViewPager) container).removeView((View) object);
+        };
+
+        @Override
+        public void finishUpdate(View arg0) {}
+
+        @Override
+        public void restoreState(android.os.Parcelable state, ClassLoader loader) {
+
+        };
+
+        @Override
+        public Parcelable saveState() {
+            return null;
+        }
+
+        @Override
+        public void startUpdate(View arg0) {}
+
+        @Override
+        public int getItemPosition(Object object) {
+            return POSITION_NONE;
+        }
+
+        public void notifyDataSetChanged() {
+            mViewLists.clear();
+            for (RoomInfo r : mAllRooms){
+                PullToRefreshGridView g = (PullToRefreshGridView)mInflater.inflate(R.layout.customer_pull_gridview, null);
+                g.setTag(r);
+                //下拉刷新的监听
+                g.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener<GridView>() {
+                    @Override
+                    public void onRefresh(PullToRefreshBase<GridView> refreshView) {
+                        AppCache.ListDevices();
+                    }
+                });
+                DeviceAdapter da = new DeviceAdapter(getContext());
+                da.SetRoomId(r.mId);
+                g.setAdapter(da);
+                g.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        int realPos = position;
+                        DeviceAdapter da = (DeviceAdapter) parent.getAdapter();
+                        if (mOnRoomDeviceListener != null) {
+                            long lDeviceId = da.mDevices.get(realPos).mDevId;
+                            long lDataId = da.mDevices.get(realPos).mDataId;
+                            mOnRoomDeviceListener.onDeviceClick(lDeviceId, lDataId);
+                        }
+                    }
+                });
+                g.getRefreshableView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                    @Override
+                    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        int realPos = i;
+                        DeviceAdapter da = (DeviceAdapter) adapterView.getAdapter();
+                        if (mOnRoomDeviceListener != null) {
+                            long lDeviceId = da.mDevices.get(realPos).mDevId;
+                            long lDataId = da.mDevices.get(realPos).mDataId;
+                            mOnRoomDeviceListener.onDeviceLongTouch(lDeviceId, lDataId);
+                            return true;
+                        }
+                        return true;
+                    }
+                });
+
+                TextView tv = new TextView(getContext());
+                String str = getContext().getString(r.mId > 0 ? R.string.tip_add_a_room_device : R.string.tip_add_a_device);
+                tv.setText((str));
+                tv.setSingleLine(false);
+                tv.setGravity(Gravity.CENTER);
+                g.setEmptyView(tv);
+
+//            GridView gv = g.getRefreshableView();
+                mViewLists.add(g);
+            }
+            super.notifyDataSetChanged();
+        }
+    };
+
+    public MyPagerAdapter mAdapter = new MyPagerAdapter();
+    public Vector<RoomInfo> mAllRooms = new Vector<>();
+    public class SimpleDevInfo{
+        public long mDevId;
+        public long mDataId;
+        public long mStatus;
+    };
+    public Vector<SimpleDevInfo> mOnControl = new Vector<>();
+    private LayoutInflater mInflater;
+
+    public void SetRoomId(long lId, boolean bCallListener){
+        for (int i = 0; i < mAllRooms.size(); ++i){
+            if (mAllRooms.get(i).mId == lId){
+                this.setCurrentItem(i, true);
+                if (mOnRoomDeviceListener != null && bCallListener) {
+                    long lRoomId = mAllRooms.get(i).mId;
+                    mOnRoomDeviceListener.onRoomChanged(lRoomId, i);
+                }
+                return;
+            }
+        }
+    }
+
+    public RoomDevicePager(Context context) {
+        super(context);
+    }
+
+    public RoomDevicePager(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public boolean IsControlling(long lDevId, long lDataId){
+        for (SimpleDevInfo s : mOnControl){
+            if (s.mDevId == lDevId && s.mDataId == lDataId) return true;
+        }
+        return false;
+    }
+
+    public void ReloadStatus(){
+        mAdapter.OnDeviceStatusChanged();
+    }
+
+    public void StartControl(long lDevId, long lDataId, long lStatus){
+        if (IsControlling(lDevId, lDataId)) return;
+
+        SimpleDevInfo s = new SimpleDevInfo();
+        s.mDataId = lDataId;
+        s.mDevId = lDevId;
+        s.mStatus = lStatus;
+        mOnControl.add(s);
+
+        ReloadStatus();
+    }
+    public void FinishControl(long lDevId, long lDataId){
+
+        for (SimpleDevInfo s : mOnControl){
+            if (s.mDevId == lDevId && s.mDataId == lDataId){
+                mOnControl.remove(s);
+                ReloadStatus();
+                return;
+            }
+        }
+    }
+
+    public void Init(LayoutInflater inflater, Vector<RoomInfo> allRooms){
+        setAdapter(mAdapter);
+        mInflater = inflater;
+        this.setOnPageChangeListener(new OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+                if (mOnRoomDeviceListener != null) {
+                    long lRoomId = mAllRooms.get(position).mId;
+                    mOnRoomDeviceListener.onRoomChanged(lRoomId, position);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        Reload(allRooms);
+    }
+    public void Reload(Vector<RoomInfo> allRooms){
+        mAllRooms = allRooms;
+        mAdapter.notifyDataSetChanged();
+    }
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+    }
+}
